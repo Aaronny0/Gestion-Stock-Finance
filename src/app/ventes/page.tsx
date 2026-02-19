@@ -7,11 +7,14 @@ import { FiShoppingCart, FiCheck, FiSearch } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
+import { BRANDS_LIST } from '@/lib/constants';
+
 interface Product {
     id: string;
     model: string;
     unit_price: number | null;
     quantity: number;
+    brand_id: string;
     brands?: { name: string };
 }
 
@@ -32,6 +35,7 @@ export default function VentesPage() {
     const [loading, setLoading] = useState(true);
 
     // Form
+    const [selectedBrandFilter, setSelectedBrandFilter] = useState('');
     const [selectedProduct, setSelectedProduct] = useState('');
     const [saleQty, setSaleQty] = useState('1');
     const [salePrice, setSalePrice] = useState('');
@@ -73,6 +77,11 @@ export default function VentesPage() {
     useEffect(() => {
         loadData();
     }, [loadData]);
+
+    const filteredProducts = products.filter(p => {
+        if (!selectedBrandFilter) return true;
+        return p.brands?.name === selectedBrandFilter;
+    });
 
     // Auto-fill price when product is selected
     useEffect(() => {
@@ -164,15 +173,32 @@ export default function VentesPage() {
                     </div>
                     <form onSubmit={handleSale}>
                         <div className="form-group">
+                            <label className="form-label">Filtrer par Marque (Optionnel)</label>
+                            <select
+                                className="form-select"
+                                value={selectedBrandFilter}
+                                onChange={(e) => {
+                                    setSelectedBrandFilter(e.target.value);
+                                    setSelectedProduct(''); // Reset product when brand changes
+                                }}
+                                style={{ marginBottom: '12px' }}
+                            >
+                                <option value="">Toutes les marques</option>
+                                {BRANDS_LIST.map((b) => (
+                                    <option key={b} value={b}>{b}</option>
+                                ))}
+                            </select>
+
                             <label className="form-label">Produit *</label>
                             <select
                                 className="form-select"
                                 value={selectedProduct}
                                 onChange={(e) => setSelectedProduct(e.target.value)}
                                 required
+                                disabled={products.length === 0}
                             >
                                 <option value="">Sélectionner un produit</option>
-                                {products.map((p) => (
+                                {filteredProducts.map((p) => (
                                     <option key={p.id} value={p.id}>
                                         {p.brands?.name} {p.model} (Stock: {p.quantity})
                                     </option>

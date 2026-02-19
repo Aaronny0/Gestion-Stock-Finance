@@ -24,7 +24,17 @@ interface Product {
     description?: string;
 }
 
-const BRANDS_LIST = ['ITEL', 'TECNO', 'INFINIX', 'SAMSUNG', 'APPLE', 'REDMI', 'GOOGLE PIXEL', 'AUTRE'];
+// Liste définie selon votre demande pour l'utiliser partout
+const TARGET_BRANDS = [
+    'ITEL',
+    'TECHNO',
+    'INFINIX',
+    'SAMSUNG',
+    'APPLE',
+    'REDMI',
+    'GOOGLE PIXEL',
+    'AUTRE'
+];
 
 export default function StockPage() {
     const { showToast } = useToast();
@@ -80,8 +90,9 @@ export default function StockPage() {
 
     async function handleAddProduct(e: React.FormEvent) {
         e.preventDefault();
-        if (!formBrand || !formModel || !formQuantity) {
-            showToast('Veuillez remplir les champs requis', 'error');
+        // Validation: Description is now MANDATORY per user request
+        if (!formBrand || !formModel || !formQuantity || !formDescription.trim()) {
+            showToast('Veuillez remplir tous les champs obligatoires (incluant la Description)', 'error');
             return;
         }
 
@@ -225,9 +236,11 @@ export default function StockPage() {
                                     required
                                 >
                                     <option value="">Sélectionner une marque</option>
-                                    {brands.map((b) => (
-                                        <option key={b.id} value={b.id}>{b.name}</option>
-                                    ))}
+                                    {TARGET_BRANDS.map((b) => {
+                                        // Recherche l'ID correspondant dans la BDD (insensible à la casse)
+                                        const brandId = brands.find(dbBrand => dbBrand.name.toUpperCase() === b.toUpperCase())?.id;
+                                        return brandId ? <option key={brandId} value={brandId}>{b}</option> : null;
+                                    })}
                                 </select>
                             </div>
                             <div className="form-group">
@@ -266,13 +279,14 @@ export default function StockPage() {
                         </div>
 
                         <div className="form-group">
-                            <label className="form-label">Description</label>
+                            <label className="form-label">Description (Obligatoire)</label>
                             <textarea
                                 className="form-input"
                                 placeholder="Détails sur l'état, couleur, stockage..."
                                 value={formDescription}
                                 onChange={(e) => setFormDescription(e.target.value)}
                                 style={{ minHeight: '80px', resize: 'vertical' }}
+                                required
                             />
                         </div>
 
@@ -302,6 +316,7 @@ export default function StockPage() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
+                {/* ICI J'AI MODIFIÉ LE SELECT DE FILTRE POUR UTILISER VOTRE LISTE SPECIFIQUE */}
                 <select
                     className="form-select"
                     value={filterBrand}
@@ -309,9 +324,12 @@ export default function StockPage() {
                     style={{ width: 'auto', minWidth: '180px' }}
                 >
                     <option value="">Toutes les marques</option>
-                    {brands.map((b) => (
-                        <option key={b.id} value={b.id}>{b.name}</option>
-                    ))}
+                    {TARGET_BRANDS.map((b) => {
+                        // On trouve l'ID de la marque correspondante dans la BDD
+                        const brand = brands.find(item => item.name.toUpperCase() === b.toUpperCase());
+                        // Si la marque existe en base, on l'affiche dans le filtre
+                        return brand ? <option key={brand.id} value={brand.id}>{b}</option> : null;
+                    })}
                 </select>
             </div>
 
