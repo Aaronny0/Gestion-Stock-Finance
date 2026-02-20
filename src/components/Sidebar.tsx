@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
     FiHome, FiPackage, FiShoppingCart, FiRepeat,
-    FiDollarSign, FiX
+    FiDollarSign, FiX, FiShoppingBag
 } from 'react-icons/fi';
 
 interface SidebarProps {
@@ -17,6 +17,7 @@ const navItems = [
     { label: 'Stock & Inventaire', href: '/stock', icon: FiPackage },
     { label: 'Ventes', href: '/ventes', icon: FiShoppingCart },
     { label: 'Troc / Échanges', href: '/troc', icon: FiRepeat },
+    { label: 'Rachat Clients', href: '/rachat', icon: FiShoppingBag },
     { label: 'Finance', href: '/finance', icon: FiDollarSign },
 ];
 

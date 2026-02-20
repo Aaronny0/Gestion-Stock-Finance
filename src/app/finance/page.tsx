@@ -47,6 +47,7 @@ export default function FinancePage() {
     const [receiptAmount, setReceiptAmount] = useState('');
     const [receiptNotes, setReceiptNotes] = useState('');
     const [todayReceipt, setTodayReceipt] = useState<number | null>(null);
+    const [todayComputedTotal, setTodayComputedTotal] = useState<number>(0);
     const [submitting, setSubmitting] = useState(false);
 
     const getDateRange = useCallback((): { start: Date; end: Date } => {
@@ -175,6 +176,23 @@ export default function FinancePage() {
 
             setTodayReceipt(receiptData ? Number(receiptData.total_amount) : null);
 
+            // Calculer le total réel du jour depuis les ventes
+            const todayStart = startOfDay(new Date()).toISOString();
+            const todayEnd = endOfDay(new Date()).toISOString();
+            const { data: todaySalesData } = await supabase
+                .from('sales')
+                .select('total_price')
+                .gte('created_at', todayStart)
+                .lte('created_at', todayEnd);
+            const { data: todayTradesData } = await supabase
+                .from('trades')
+                .select('client_complement')
+                .gte('created_at', todayStart)
+                .lte('created_at', todayEnd);
+            const computedSales = todaySalesData?.reduce((s, x) => s + Number(x.total_price), 0) || 0;
+            const computedTrocs = todayTradesData?.reduce((s, x) => s + Number(x.client_complement), 0) || 0;
+            setTodayComputedTotal(computedSales + computedTrocs);
+
         } catch (error) {
             console.error('Finance load error:', error);
         } finally {
@@ -282,6 +300,24 @@ export default function FinancePage() {
                             onChange={(e) => setReceiptAmount(e.target.value)}
                             required
                         />
+                        {todayComputedTotal > 0 && (
+                            <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                                    Calculé depuis les ventes :
+                                </span>
+                                <strong style={{ fontSize: '13px', color: 'var(--success)' }}>
+                                    {formatCurrency(todayComputedTotal)}
+                                </strong>
+                                <button
+                                    type="button"
+                                    className="btn btn-ghost btn-sm"
+                                    style={{ fontSize: '11px', padding: '2px 8px' }}
+                                    onClick={() => setReceiptAmount(todayComputedTotal.toString())}
+                                >
+                                    ↑ Pré-remplir
+                                </button>
+                            </div>
+                        )}
                     </div>
                     <div className="form-group" style={{ flex: 1, minWidth: '200px', marginBottom: 0 }}>
                         <label className="form-label">Notes</label>

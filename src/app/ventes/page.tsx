@@ -3,11 +3,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/Toast';
-import { FiShoppingCart, FiCheck, FiSearch } from 'react-icons/fi';
-import { format } from 'date-fns';
+import { FiShoppingCart, FiCheck, FiLock } from 'react-icons/fi';
+import { format, startOfDay, endOfDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
-
-import { BRANDS_LIST } from '@/lib/constants';
+import { useMarques } from '@/hooks/useMarques';
 
 interface Product {
     id: string;
@@ -30,6 +29,7 @@ interface Sale {
 
 export default function VentesPage() {
     const { showToast } = useToast();
+    const { marques, loading: marquesLoading } = useMarques();
     const [products, setProducts] = useState<Product[]>([]);
     const [sales, setSales] = useState<Sale[]>([]);
     const [loading, setLoading] = useState(true);
@@ -44,6 +44,11 @@ export default function VentesPage() {
 
     // Filter
     const [dateFilter, setDateFilter] = useState('');
+
+    // Clôture
+    const [showClotureModal, setShowClotureModal] = useState(false);
+    const [clotureStats, setClotureStats] = useState<{ sales: number; trades: number; total: number } | null>(null);
+    const [cloturing, setCloturing] = useState(false);
 
     const loadData = useCallback(async () => {
         try {
@@ -78,9 +83,10 @@ export default function VentesPage() {
         loadData();
     }, [loadData]);
 
+    // Filtrage par brand_id (utilise UUID, cohérent avec useMarques)
     const filteredProducts = products.filter(p => {
         if (!selectedBrandFilter) return true;
-        return p.brands?.name === selectedBrandFilter;
+        return p.brand_id === selectedBrandFilter;
     });
 
     // Auto-fill price when product is selected
@@ -105,7 +111,6 @@ export default function VentesPage() {
         const qty = parseInt(saleQty);
         const price = parseFloat(salePrice);
 
-        // Check stock
         const product = products.find(p => p.id === selectedProduct);
         if (!product || product.quantity < qty) {
             showToast('Stock insuffisant pour cette vente', 'error');
@@ -139,6 +144,74 @@ export default function VentesPage() {
         }
     }
 
+    // ── CLÔTURE ──────────────────────────────────────────────
+    async function openCloture() {
+        const today = new Date();
+        const todayStart = startOfDay(today).toISOString();
+        const todayEnd = endOfDay(today).toISOString();
+
+        const { data: todaySales } = await supabase
+            .from('sales')
+            .select('total_price')
+            .gte('created_at', todayStart)
+            .lte('created_at', todayEnd);
+
+        const { data: todayTrades } = await supabase
+            .from('trades')
+            .select('client_complement')
+            .gte('created_at', todayStart)
+            .lte('created_at', todayEnd);
+
+        const totalVentes = todaySales?.reduce((s, x) => s + Number(x.total_price), 0) || 0;
+        const totalTrocs = todayTrades?.reduce((s, x) => s + Number(x.client_complement), 0) || 0;
+
+        setClotureStats({
+            sales: todaySales?.length || 0,
+            trades: todayTrades?.length || 0,
+            total: totalVentes + totalTrocs,
+        });
+        setShowClotureModal(true);
+    }
+
+    async function confirmCloture() {
+        if (!clotureStats) return;
+        setCloturing(true);
+        try {
+            const todayStr = format(new Date(), 'yyyy-MM-dd');
+
+            const { data: existing } = await supabase
+                .from('daily_receipts')
+                .select('id')
+                .eq('receipt_date', todayStr)
+                .single();
+
+            if (existing) {
+                await supabase
+                    .from('daily_receipts')
+                    .update({
+                        total_amount: clotureStats.total,
+                        notes: `Clôture automatique — ${clotureStats.sales} vente(s), ${clotureStats.trades} troc(s)`,
+                    })
+                    .eq('id', existing.id);
+            } else {
+                await supabase.from('daily_receipts').insert({
+                    receipt_date: todayStr,
+                    total_amount: clotureStats.total,
+                    notes: `Clôture automatique — ${clotureStats.sales} vente(s), ${clotureStats.trades} troc(s)`,
+                });
+            }
+
+            showToast(`Journée du ${format(new Date(), 'dd MMMM yyyy', { locale: fr })} clôturée !`, 'success');
+            setShowClotureModal(false);
+        } catch (error) {
+            console.error('Cloture error:', error);
+            showToast('Erreur lors de la clôture', 'error');
+        } finally {
+            setCloturing(false);
+        }
+    }
+    // ──────────────────────────────────────────────────────────
+
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('fr-FR').format(val) + ' FCFA';
     };
@@ -156,11 +229,92 @@ export default function VentesPage() {
 
     return (
         <div className="animate-in">
+            {/* Modale de Clôture */}
+            {showClotureModal && (
+                <div style={{
+                    position: 'fixed', inset: 0,
+                    background: 'rgba(0,0,0,0.75)',
+                    zIndex: 9999,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    backdropFilter: 'blur(4px)',
+                }}>
+                    <div style={{
+                        background: 'var(--bg-secondary)',
+                        border: '1px solid var(--border)',
+                        borderRadius: 'var(--radius)',
+                        padding: '32px',
+                        maxWidth: '420px',
+                        width: '90%',
+                        boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                    }}>
+                        <div style={{ fontSize: '32px', textAlign: 'center', marginBottom: '12px' }}>🔒</div>
+                        <h3 style={{ margin: '0 0 8px', color: 'var(--text-primary)', textAlign: 'center' }}>
+                            Clôturer la journée ?
+                        </h3>
+                        <p style={{ color: 'var(--text-secondary)', textAlign: 'center', marginBottom: '24px', fontSize: '14px' }}>
+                            {format(new Date(), "EEEE d MMMM yyyy", { locale: fr })}
+                        </p>
+
+                        {clotureStats && (
+                            <div style={{ background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', padding: '16px', marginBottom: '24px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                    <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Ventes enregistrées</span>
+                                    <strong style={{ color: 'var(--success)' }}>{clotureStats.sales}</strong>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
+                                    <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Trocs enregistrés</span>
+                                    <strong style={{ color: 'var(--accent-primary-hover)' }}>{clotureStats.trades}</strong>
+                                </div>
+                                <div style={{
+                                    display: 'flex', justifyContent: 'space-between',
+                                    paddingTop: '12px', borderTop: '1px solid var(--border)'
+                                }}>
+                                    <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>Total Recette</span>
+                                    <span style={{ fontWeight: 800, fontSize: '18px', color: 'var(--success)' }}>
+                                        {formatCurrency(clotureStats.total)}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
+
+                        <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '20px', textAlign: 'center' }}>
+                            Cette recette sera enregistrée dans Finance. Cette action est réversible.
+                        </p>
+
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button
+                                onClick={confirmCloture}
+                                disabled={cloturing}
+                                className="btn btn-success"
+                                style={{ flex: 1 }}
+                            >
+                                {cloturing ? <span className="loading-spinner" /> : <FiCheck />}
+                                Confirmer la Clôture
+                            </button>
+                            <button
+                                onClick={() => setShowClotureModal(false)}
+                                className="btn btn-ghost"
+                                disabled={cloturing}
+                            >
+                                Annuler
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="page-header">
                 <div>
                     <h2 className="page-title">Ventes</h2>
                     <p className="page-subtitle">Enregistrez et suivez vos ventes</p>
                 </div>
+                {/* Bouton Clôture */}
+                <button className="btn btn-ghost" onClick={openCloture} style={{
+                    border: '1px solid var(--warning)',
+                    color: 'var(--warning)',
+                }}>
+                    <FiLock /> Clôturer la Journée
+                </button>
             </div>
 
             <div className="grid-2">
@@ -179,13 +333,14 @@ export default function VentesPage() {
                                 value={selectedBrandFilter}
                                 onChange={(e) => {
                                     setSelectedBrandFilter(e.target.value);
-                                    setSelectedProduct(''); // Reset product when brand changes
+                                    setSelectedProduct('');
                                 }}
                                 style={{ marginBottom: '12px' }}
+                                disabled={marquesLoading}
                             >
-                                <option value="">Toutes les marques</option>
-                                {BRANDS_LIST.map((b) => (
-                                    <option key={b} value={b}>{b}</option>
+                                <option value="">{marquesLoading ? 'Chargement...' : 'Toutes les marques'}</option>
+                                {marques.map((m) => (
+                                    <option key={m.id} value={m.id}>{m.name}</option>
                                 ))}
                             </select>
 
@@ -195,9 +350,11 @@ export default function VentesPage() {
                                 value={selectedProduct}
                                 onChange={(e) => setSelectedProduct(e.target.value)}
                                 required
-                                disabled={products.length === 0}
+                                disabled={filteredProducts.length === 0}
                             >
-                                <option value="">Sélectionner un produit</option>
+                                <option value="">
+                                    {filteredProducts.length === 0 ? 'Aucun produit disponible' : 'Sélectionner un produit'}
+                                </option>
                                 {filteredProducts.map((p) => (
                                     <option key={p.id} value={p.id}>
                                         {p.brands?.name} {p.model} (Stock: {p.quantity})

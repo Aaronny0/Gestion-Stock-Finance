@@ -3,14 +3,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/components/Toast';
-import { FiPlus, FiSearch, FiEdit2, FiCheck, FiX } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiEdit2, FiCheck, FiX, FiTrash2, FiAlertTriangle } from 'react-icons/fi';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-
-interface Brand {
-    id: string;
-    name: string;
-}
+import { useMarques } from '@/hooks/useMarques';
 
 interface Product {
     id: string;
@@ -24,21 +20,9 @@ interface Product {
     description?: string;
 }
 
-// Liste définie selon votre demande pour l'utiliser partout
-const TARGET_BRANDS = [
-    'ITEL',
-    'TECHNO',
-    'INFINIX',
-    'SAMSUNG',
-    'APPLE',
-    'REDMI',
-    'GOOGLE PIXEL',
-    'AUTRE'
-];
-
 export default function StockPage() {
     const { showToast } = useToast();
-    const [brands, setBrands] = useState<Brand[]>([]);
+    const { marques, loading: marquesLoading } = useMarques();
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
@@ -58,14 +42,12 @@ export default function StockPage() {
     const [editPrice, setEditPrice] = useState('');
     const [editQty, setEditQty] = useState('');
 
+    // Delete modal
+    const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
+    const [deleting, setDeleting] = useState(false);
+
     const loadData = useCallback(async () => {
         try {
-            const { data: brandsData } = await supabase
-                .from('brands')
-                .select('*')
-                .order('name');
-            setBrands(brandsData || []);
-
             let query = supabase
                 .from('products')
                 .select('*, brands(name)')
@@ -90,7 +72,6 @@ export default function StockPage() {
 
     async function handleAddProduct(e: React.FormEvent) {
         e.preventDefault();
-        // Validation: Description is now MANDATORY per user request
         if (!formBrand || !formModel || !formQuantity || !formDescription.trim()) {
             showToast('Veuillez remplir tous les champs obligatoires (incluant la Description)', 'error');
             return;
@@ -98,7 +79,6 @@ export default function StockPage() {
 
         setSubmitting(true);
         try {
-            // Check if product exists already
             const { data: existing } = await supabase
                 .from('products')
                 .select('id')
@@ -107,7 +87,6 @@ export default function StockPage() {
                 .single();
 
             if (existing) {
-                // Add stock entry to existing product
                 await supabase.from('stock_entries').insert({
                     product_id: existing.id,
                     quantity: parseInt(formQuantity),
@@ -115,7 +94,6 @@ export default function StockPage() {
                 });
                 showToast('Stock mis à jour avec succès !', 'success');
             } else {
-                // Create new product
                 const { data: newProduct, error: createErr } = await supabase
                     .from('products')
                     .insert({
@@ -130,7 +108,6 @@ export default function StockPage() {
 
                 if (createErr) throw createErr;
 
-                // Also create stock entry
                 if (newProduct) {
                     await supabase.from('stock_entries').insert({
                         product_id: newProduct.id,
@@ -141,7 +118,7 @@ export default function StockPage() {
                 showToast('Produit ajouté avec succès !', 'success');
             }
 
-            // Reset form
+            setFormBrand('');
             setFormModel('');
             setFormQuantity('1');
             setFormPrice('');
@@ -183,6 +160,35 @@ export default function StockPage() {
         }
     }
 
+    async function confirmDelete() {
+        if (!deleteProduct) return;
+        setDeleting(true);
+        try {
+            const { error } = await supabase
+                .from('products')
+                .delete()
+                .eq('id', deleteProduct.id);
+
+            if (error) {
+                // Postgres FK violation → produit lié à des ventes/trocs
+                if (error.code === '23503') {
+                    showToast('Impossible de supprimer : ce produit est lié à des ventes ou trocs existants.', 'error');
+                } else {
+                    throw error;
+                }
+            } else {
+                showToast(`"${deleteProduct.brands?.name} ${deleteProduct.model}" supprimé avec succès.`, 'success');
+                loadData();
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            showToast('Erreur lors de la suppression', 'error');
+        } finally {
+            setDeleting(false);
+            setDeleteProduct(null);
+        }
+    }
+
     const filteredProducts = products.filter(p => {
         if (!searchQuery) return true;
         const q = searchQuery.toLowerCase();
@@ -208,10 +214,76 @@ export default function StockPage() {
 
     return (
         <div className="animate-in">
+            {/* ── Delete Confirmation Modal ── */}
+            {deleteProduct && (
+                <div style={{
+                    position: 'fixed', inset: 0,
+                    background: 'rgba(0,0,0,0.75)',
+                    zIndex: 9999,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    backdropFilter: 'blur(4px)',
+                }}>
+                    <div style={{
+                        background: 'var(--bg-secondary)',
+                        border: '1px solid var(--border)',
+                        borderRadius: 'var(--radius)',
+                        padding: '32px',
+                        maxWidth: '420px',
+                        width: '90%',
+                        boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                    }}>
+                        <div style={{ fontSize: '40px', textAlign: 'center', marginBottom: '12px' }}>
+                            <FiAlertTriangle style={{ color: 'var(--danger)', width: 40, height: 40 }} />
+                        </div>
+                        <h3 style={{ margin: '0 0 8px', color: 'var(--text-primary)', textAlign: 'center' }}>
+                            Supprimer ce produit ?
+                        </h3>
+                        <p style={{ color: 'var(--text-secondary)', textAlign: 'center', marginBottom: '4px', fontSize: '14px' }}>
+                            Cette action est <strong>irréversible</strong>.
+                        </p>
+                        <div style={{
+                            background: 'var(--bg-tertiary)',
+                            borderRadius: 'var(--radius-sm)',
+                            padding: '12px 16px',
+                            margin: '16px 0 24px',
+                            textAlign: 'center',
+                        }}>
+                            <span className="badge badge-purple" style={{ marginRight: '8px' }}>
+                                {deleteProduct.brands?.name}
+                            </span>
+                            <strong style={{ color: 'var(--text-primary)' }}>
+                                {deleteProduct.model}
+                            </strong>
+                            <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '6px' }}>
+                                Stock actuel : {deleteProduct.quantity} unité{deleteProduct.quantity > 1 ? 's' : ''}
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            <button
+                                onClick={confirmDelete}
+                                disabled={deleting}
+                                className="btn btn-danger"
+                                style={{ flex: 1 }}
+                            >
+                                {deleting ? <span className="loading-spinner" /> : <FiTrash2 />}
+                                Supprimer
+                            </button>
+                            <button
+                                onClick={() => setDeleteProduct(null)}
+                                className="btn btn-ghost"
+                                disabled={deleting}
+                            >
+                                Annuler
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Page Header */}
             <div className="page-header">
                 <div>
-                    <h2 className="page-title">Stock & Inventaire</h2>
+                    <h2 className="page-title">Stock &amp; Inventaire</h2>
                     <p className="page-subtitle">Gérez vos produits et entrées de stock</p>
                 </div>
                 <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
@@ -234,13 +306,14 @@ export default function StockPage() {
                                     value={formBrand}
                                     onChange={(e) => setFormBrand(e.target.value)}
                                     required
+                                    disabled={marquesLoading}
                                 >
-                                    <option value="">Sélectionner une marque</option>
-                                    {TARGET_BRANDS.map((b) => {
-                                        // Recherche l'ID correspondant dans la BDD (insensible à la casse)
-                                        const brandId = brands.find(dbBrand => dbBrand.name.toUpperCase() === b.toUpperCase())?.id;
-                                        return brandId ? <option key={brandId} value={brandId}>{b}</option> : null;
-                                    })}
+                                    <option value="">
+                                        {marquesLoading ? 'Chargement...' : 'Sélectionner une marque'}
+                                    </option>
+                                    {marques.map((m) => (
+                                        <option key={m.id} value={m.id}>{m.name}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="form-group">
@@ -316,20 +389,17 @@ export default function StockPage() {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
-                {/* ICI J'AI MODIFIÉ LE SELECT DE FILTRE POUR UTILISER VOTRE LISTE SPECIFIQUE */}
                 <select
                     className="form-select"
                     value={filterBrand}
                     onChange={(e) => setFilterBrand(e.target.value)}
                     style={{ width: 'auto', minWidth: '180px' }}
+                    disabled={marquesLoading}
                 >
-                    <option value="">Toutes les marques</option>
-                    {TARGET_BRANDS.map((b) => {
-                        // On trouve l'ID de la marque correspondante dans la BDD
-                        const brand = brands.find(item => item.name.toUpperCase() === b.toUpperCase());
-                        // Si la marque existe en base, on l'affiche dans le filtre
-                        return brand ? <option key={brand.id} value={brand.id}>{b}</option> : null;
-                    })}
+                    <option value="">{marquesLoading ? 'Chargement...' : 'Toutes les marques'}</option>
+                    {marques.map((m) => (
+                        <option key={m.id} value={m.id}>{m.name}</option>
+                    ))}
                 </select>
             </div>
 
@@ -419,9 +489,22 @@ export default function StockPage() {
                                                 </button>
                                             </div>
                                         ) : (
-                                            <button className="btn btn-ghost btn-sm" onClick={() => startEdit(p)}>
-                                                <FiEdit2 /> Modifier
-                                            </button>
+                                            <div style={{ display: 'flex', gap: '4px' }}>
+                                                <button className="btn btn-ghost btn-sm" onClick={() => startEdit(p)}>
+                                                    <FiEdit2 /> Modifier
+                                                </button>
+                                                <button
+                                                    className="btn btn-sm"
+                                                    onClick={() => setDeleteProduct(p)}
+                                                    style={{
+                                                        background: 'rgba(239,68,68,0.1)',
+                                                        color: 'var(--danger)',
+                                                        border: '1px solid rgba(239,68,68,0.25)',
+                                                    }}
+                                                >
+                                                    <FiTrash2 />
+                                                </button>
+                                            </div>
                                         )}
                                     </td>
                                 </tr>
