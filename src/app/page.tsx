@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { formatCurrency } from '@/lib/format';
 import {
     FiPackage, FiShoppingCart, FiRepeat, FiDollarSign,
     FiTrendingUp, FiArrowUpRight, FiArrowDownRight
@@ -53,81 +54,99 @@ export default function DashboardPage() {
             const today = new Date();
             const todayStart = startOfDay(today).toISOString();
             const todayEnd = endOfDay(today).toISOString();
+            const weekAgoStart = startOfDay(subDays(today, 6)).toISOString();
 
-            // Total products & stock
-            const { data: products } = await supabase
-                .from('products')
-                .select('quantity');
+            // ── Toutes les requêtes en parallèle (au lieu de ~20 séquentielles) ──
+            const [
+                productsRes,
+                salesTodayRes,
+                trocsRes,
+                receiptRes,
+                weekSalesRes,
+                weekTradesRes,
+                recentSalesRes,
+                recentTradesRes,
+            ] = await Promise.all([
+                // 1. Total products & stock
+                supabase.from('products').select('quantity'),
+                // 2. Today's sales
+                supabase.from('sales').select('total_price')
+                    .gte('created_at', todayStart).lte('created_at', todayEnd),
+                // 3. Today's trades
+                supabase.from('trades').select('id')
+                    .gte('created_at', todayStart).lte('created_at', todayEnd),
+                // 4. Today's receipt
+                supabase.from('daily_receipts').select('total_amount')
+                    .eq('receipt_date', format(today, 'yyyy-MM-dd')),
+                // 5. Sales des 7 derniers jours (remplace la boucle de 14 requêtes)
+                supabase.from('sales').select('created_at')
+                    .gte('created_at', weekAgoStart).lte('created_at', todayEnd),
+                // 6. Trades des 7 derniers jours
+                supabase.from('trades').select('created_at')
+                    .gte('created_at', weekAgoStart).lte('created_at', todayEnd),
+                // 7. Recent sales for activity feed
+                supabase.from('sales')
+                    .select('id, total_price, created_at, products(model, brands(name))')
+                    .order('created_at', { ascending: false }).limit(5),
+                // 8. Recent trades for activity feed
+                supabase.from('trades')
+                    .select('id, client_phone_brand, client_phone_model, trade_gain, created_at')
+                    .order('created_at', { ascending: false }).limit(5),
+            ]);
 
-            const totalProducts = products?.length || 0;
-            const totalStock = products?.reduce((sum, p) => sum + (p.quantity || 0), 0) || 0;
+            // ── Vérification des erreurs ──
+            if (productsRes.error) throw productsRes.error;
+            if (salesTodayRes.error) throw salesTodayRes.error;
+            if (trocsRes.error) throw trocsRes.error;
+            if (receiptRes.error) throw receiptRes.error;
+            if (weekSalesRes.error) throw weekSalesRes.error;
+            if (weekTradesRes.error) throw weekTradesRes.error;
+            if (recentSalesRes.error) throw recentSalesRes.error;
+            if (recentTradesRes.error) throw recentTradesRes.error;
 
-            // Today's sales
-            const { data: salesTodayData } = await supabase
-                .from('sales')
-                .select('total_price')
-                .gte('created_at', todayStart)
-                .lte('created_at', todayEnd);
+            // ── Stats ──
+            const products = productsRes.data ?? [];
+            const totalProducts = products.length;
+            const totalStock = products.reduce((sum, p) => sum + (p.quantity || 0), 0);
 
-            const salesToday = salesTodayData?.length || 0;
-            const revenuToday = salesTodayData?.reduce((sum, s) => sum + Number(s.total_price || 0), 0) || 0;
+            const salesTodayData = salesTodayRes.data ?? [];
+            const salesToday = salesTodayData.length;
+            const revenuToday = salesTodayData.reduce((sum, s) => sum + Number(s.total_price || 0), 0);
 
-            // Today's trades
-            const { data: trocsData } = await supabase
-                .from('trades')
-                .select('id')
-                .gte('created_at', todayStart)
-                .lte('created_at', todayEnd);
-
-            const trocsToday = trocsData?.length || 0;
-
-            // Today's receipts
-            const { data: receiptData } = await supabase
-                .from('daily_receipts')
-                .select('total_amount')
-                .eq('receipt_date', format(today, 'yyyy-MM-dd'));
-
-            const recetteToday = receiptData?.[0]?.total_amount || 0;
+            const trocsToday = (trocsRes.data ?? []).length;
+            const recetteToday = receiptRes.data?.[0]?.total_amount || 0;
 
             setStats({ totalProducts, totalStock, salesToday, revenuToday, trocsToday, recetteToday });
 
-            // Chart data for last 7 days
+            // ── Chart data : grouper par jour côté client (au lieu de 14 requêtes) ──
+            const salesByDay: Record<string, number> = {};
+            const tradesByDay: Record<string, number> = {};
+
+            (weekSalesRes.data ?? []).forEach((s) => {
+                const day = format(new Date(s.created_at), 'yyyy-MM-dd');
+                salesByDay[day] = (salesByDay[day] || 0) + 1;
+            });
+            (weekTradesRes.data ?? []).forEach((t) => {
+                const day = format(new Date(t.created_at), 'yyyy-MM-dd');
+                tradesByDay[day] = (tradesByDay[day] || 0) + 1;
+            });
+
             const chartPoints: SalesChartData[] = [];
             for (let i = 6; i >= 0; i--) {
                 const day = subDays(today, i);
-                const dayStart = startOfDay(day).toISOString();
-                const dayEnd = endOfDay(day).toISOString();
-
-                const { data: daySales } = await supabase
-                    .from('sales')
-                    .select('id')
-                    .gte('created_at', dayStart)
-                    .lte('created_at', dayEnd);
-
-                const { data: dayTrades } = await supabase
-                    .from('trades')
-                    .select('id')
-                    .gte('created_at', dayStart)
-                    .lte('created_at', dayEnd);
-
+                const dayKey = format(day, 'yyyy-MM-dd');
                 chartPoints.push({
                     date: format(day, 'EEE dd', { locale: fr }),
-                    ventes: daySales?.length || 0,
-                    trocs: dayTrades?.length || 0,
+                    ventes: salesByDay[dayKey] || 0,
+                    trocs: tradesByDay[dayKey] || 0,
                 });
             }
             setChartData(chartPoints);
 
-            // Recent activities
+            // ── Recent activities ──
             const recentActivities: RecentActivity[] = [];
 
-            const { data: recentSales } = await supabase
-                .from('sales')
-                .select('id, total_price, created_at, products(model, brands(name))')
-                .order('created_at', { ascending: false })
-                .limit(5);
-
-            recentSales?.forEach((s: Record<string, unknown>) => {
+            (recentSalesRes.data ?? []).forEach((s: Record<string, unknown>) => {
                 const product = s.products as Record<string, unknown> | null;
                 const brand = product?.brands as Record<string, unknown> | null;
                 recentActivities.push({
@@ -139,13 +158,7 @@ export default function DashboardPage() {
                 });
             });
 
-            const { data: recentTrades } = await supabase
-                .from('trades')
-                .select('id, client_phone_brand, client_phone_model, trade_gain, created_at')
-                .order('created_at', { ascending: false })
-                .limit(5);
-
-            recentTrades?.forEach((t: Record<string, unknown>) => {
+            (recentTradesRes.data ?? []).forEach((t: Record<string, unknown>) => {
                 recentActivities.push({
                     id: t.id as string,
                     type: 'trade',
@@ -166,10 +179,6 @@ export default function DashboardPage() {
             setLoading(false);
         }
     }
-
-    const formatCurrency = (val: number) => {
-        return new Intl.NumberFormat('fr-FR').format(val) + ' FCFA';
-    };
 
     if (loading) {
         return (

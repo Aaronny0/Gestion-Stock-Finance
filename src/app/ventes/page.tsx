@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { formatCurrency } from '@/lib/format';
 import { useToast } from '@/components/Toast';
 import { FiShoppingCart, FiCheck, FiLock } from 'react-icons/fi';
 import { format, startOfDay, endOfDay } from 'date-fns';
@@ -52,11 +53,12 @@ export default function VentesPage() {
 
     const loadData = useCallback(async () => {
         try {
-            const { data: prods } = await supabase
+            const { data: prods, error: prodsErr } = await supabase
                 .from('products')
                 .select('*, brands(name)')
                 .gt('quantity', 0)
                 .order('model');
+            if (prodsErr) throw prodsErr;
             setProducts(prods || []);
 
             let query = supabase
@@ -70,7 +72,8 @@ export default function VentesPage() {
                     .lte('created_at', `${dateFilter}T23:59:59`);
             }
 
-            const { data: salesData } = await query;
+            const { data: salesData, error: salesErr } = await query;
+            if (salesErr) throw salesErr;
             setSales(salesData || []);
         } catch (error) {
             console.error('Load error:', error);
@@ -212,9 +215,7 @@ export default function VentesPage() {
     }
     // ──────────────────────────────────────────────────────────
 
-    const formatCurrency = (val: number) => {
-        return new Intl.NumberFormat('fr-FR').format(val) + ' FCFA';
-    };
+    // formatCurrency importé depuis @/lib/format
 
     const totalRevenue = sales.reduce((sum, s) => sum + Number(s.total_price), 0);
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
+import { formatCurrency } from '@/lib/format';
 import { useToast } from '@/components/Toast';
 import { FiRepeat, FiArrowRight, FiCheck, FiTrendingUp, FiTrendingDown, FiSearch, FiX, FiPackage } from 'react-icons/fi';
 import { format } from 'date-fns';
@@ -243,18 +244,20 @@ export default function TrocPage() {
 
     const loadData = useCallback(async () => {
         try {
-            const { data: prods } = await supabase
+            const { data: prods, error: prodsErr } = await supabase
                 .from('products')
                 .select('*, brands(name)')
                 .gt('quantity', 0)
                 .order('model');
+            if (prodsErr) throw prodsErr;
             setProducts(prods || []);
 
-            const { data: tradesData } = await supabase
+            const { data: tradesData, error: tradesErr } = await supabase
                 .from('trades')
                 .select('*, products(model, brands(name))')
                 .order('created_at', { ascending: false })
                 .limit(50);
+            if (tradesErr) throw tradesErr;
             setTrades(tradesData || []);
         } catch (error) {
             console.error('Load error:', error);
@@ -380,7 +383,7 @@ export default function TrocPage() {
         }
     }
 
-    const formatCurrency = (val: number) => new Intl.NumberFormat('fr-FR').format(val) + ' FCFA';
+    // formatCurrency importé depuis @/lib/format
 
     if (loading) {
         return (

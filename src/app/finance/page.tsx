@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { formatCurrency } from '@/lib/format';
 import { useToast } from '@/components/Toast';
 import {
     FiDollarSign, FiCheck, FiCalendar, FiTrendingUp
@@ -91,20 +92,22 @@ export default function FinancePage() {
             const endISO = end.toISOString();
 
             // Sales in period
-            const { data: salesData } = await supabase
+            const { data: salesData, error: salesErr } = await supabase
                 .from('sales')
                 .select('total_price, created_at, products(model, brands(name))')
                 .gte('created_at', startISO)
                 .lte('created_at', endISO)
                 .order('created_at', { ascending: false });
+            if (salesErr) throw salesErr;
 
             // Trades in period
-            const { data: tradesData } = await supabase
+            const { data: tradesData, error: tradesErr } = await supabase
                 .from('trades')
                 .select('client_complement, trade_gain, client_phone_brand, client_phone_model, created_at')
                 .gte('created_at', startISO)
                 .lte('created_at', endISO)
                 .order('created_at', { ascending: false });
+            if (tradesErr) throw tradesErr;
 
             // Build movements list
             const mvts: Movement[] = [];
@@ -112,7 +115,7 @@ export default function FinancePage() {
                 const product = s.products as Record<string, unknown> | null;
                 const brand = product?.brands as Record<string, unknown> | null;
                 mvts.push({
-                    id: `sale-${s.created_at}`,
+                    id: `sale-${s.created_at}-${mvts.length}`,
                     type: 'Vente',
                     description: `${brand?.name || ''} ${product?.model || ''}`,
                     amount: Number(s.total_price),
@@ -122,7 +125,7 @@ export default function FinancePage() {
 
             tradesData?.forEach((t: Record<string, unknown>) => {
                 mvts.push({
-                    id: `trade-${t.created_at}`,
+                    id: `trade-${t.created_at}-${mvts.length}`,
                     type: 'Troc',
                     description: `${t.client_phone_brand} ${t.client_phone_model}`,
                     amount: Number(t.client_complement),
@@ -249,9 +252,7 @@ export default function FinancePage() {
         }
     }
 
-    const formatCurrency = (val: number) => {
-        return new Intl.NumberFormat('fr-FR').format(val) + ' FCFA';
-    };
+    // formatCurrency importé depuis @/lib/format
 
     const totalVentes = financeData.reduce((s, f) => s + f.ventes, 0);
     const totalComps = financeData.reduce((s, f) => s + f.trocs_complement, 0);
@@ -289,7 +290,7 @@ export default function FinancePage() {
                         </span>
                     )}
                 </div>
-                <form onSubmit={handleReceipt} style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                <form onSubmit={handleReceipt} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
                     <div className="form-group" style={{ flex: 1, minWidth: '200px', marginBottom: 0 }}>
                         <label className="form-label">Montant Total (FCFA) *</label>
                         <input
@@ -329,7 +330,7 @@ export default function FinancePage() {
                             onChange={(e) => setReceiptNotes(e.target.value)}
                         />
                     </div>
-                    <button type="submit" className="btn btn-success" disabled={submitting}>
+                    <button type="submit" className="btn btn-success" disabled={submitting} style={{ marginTop: '24px' }}>
                         {submitting ? <span className="loading-spinner" /> : <FiCheck />}
                         Enregistrer
                     </button>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { formatCurrency } from '@/lib/format';
 import { useToast } from '@/components/Toast';
 import { FiPlus, FiSearch, FiEdit2, FiCheck, FiX, FiTrash2, FiAlertTriangle } from 'react-icons/fi';
 import { format } from 'date-fns';
@@ -57,7 +58,8 @@ export default function StockPage() {
                 query = query.eq('brand_id', filterBrand);
             }
 
-            const { data: productsData } = await query;
+            const { data: productsData, error } = await query;
+            if (error) throw error;
             setProducts(productsData || []);
         } catch (error) {
             console.error('Load error:', error);
@@ -99,7 +101,7 @@ export default function StockPage() {
                     .insert({
                         brand_id: formBrand,
                         model: formModel.trim(),
-                        quantity: parseInt(formQuantity),
+                        quantity: 0, // Le trigger add_stock_on_entry ajoutera la quantité via stock_entries
                         unit_price: formPrice ? parseFloat(formPrice) : null,
                         description: formDescription || null,
                     })
@@ -198,10 +200,7 @@ export default function StockPage() {
         );
     });
 
-    const formatCurrency = (val: number | null) => {
-        if (val === null || val === undefined) return '—';
-        return new Intl.NumberFormat('fr-FR').format(val) + ' FCFA';
-    };
+    // formatCurrency importé depuis @/lib/format
 
     if (loading) {
         return (

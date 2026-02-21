@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { formatCurrency } from '@/lib/format';
 import { useToast } from '@/components/Toast';
 import { FiShoppingBag, FiCheck, FiPackage } from 'react-icons/fi';
 import { format } from 'date-fns';
@@ -36,11 +37,12 @@ export default function RachatPage() {
 
     const loadData = useCallback(async () => {
         try {
-            const { data } = await supabase
+            const { data, error } = await supabase
                 .from('buybacks')
                 .select('*')
                 .order('created_at', { ascending: false })
                 .limit(50);
+            if (error) throw error;
             setBuybacks(data || []);
         } catch (error) {
             console.error('Load error:', error);
@@ -51,8 +53,7 @@ export default function RachatPage() {
 
     useEffect(() => { loadData(); }, [loadData]);
 
-    const formatCurrency = (val: number) =>
-        new Intl.NumberFormat('fr-FR').format(val) + ' FCFA';
+    // formatCurrency importé depuis @/lib/format
 
     async function handleBuyback(e: React.FormEvent) {
         e.preventDefault();
