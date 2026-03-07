@@ -34,6 +34,7 @@ CREATE TABLE public.products (
   unit_price numeric,
   quantity integer NOT NULL DEFAULT 0 CHECK (quantity >= 0),
   description text,
+  active boolean NOT NULL DEFAULT true,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   CONSTRAINT products_pkey PRIMARY KEY (id),

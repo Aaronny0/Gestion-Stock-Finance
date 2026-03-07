@@ -19,6 +19,7 @@ interface Product {
     updated_at: string;
     brands?: { name: string };
     description?: string;
+    active?: boolean;
 }
 
 export default function StockPage() {
@@ -52,6 +53,7 @@ export default function StockPage() {
             let query = supabase
                 .from('products')
                 .select('*, brands(name)')
+                .eq('active', true)
                 .order('created_at', { ascending: false });
 
             if (filterBrand) {
@@ -83,12 +85,15 @@ export default function StockPage() {
         try {
             const { data: existing } = await supabase
                 .from('products')
-                .select('id')
+                .select('id, active')
                 .eq('brand_id', formBrand)
                 .ilike('model', formModel.trim())
                 .single();
 
             if (existing) {
+                if (existing.active === false) {
+                    await supabase.from('products').update({ active: true }).eq('id', existing.id);
+                }
                 await supabase.from('stock_entries').insert({
                     product_id: existing.id,
                     quantity: parseInt(formQuantity),
@@ -174,7 +179,16 @@ export default function StockPage() {
             if (error) {
                 // Postgres FK violation → produit lié à des ventes/trocs
                 if (error.code === '23503') {
-                    showToast('Impossible de supprimer : ce produit est lié à des ventes ou trocs existants.', 'error');
+                    // Soft delete au lieu d'erreur
+                    const { error: updateError } = await supabase
+                        .from('products')
+                        .update({ active: false, quantity: 0 })
+                        .eq('id', deleteProduct.id);
+                    
+                    if (updateError) throw updateError;
+                    
+                    showToast(`"${deleteProduct.brands?.name} ${deleteProduct.model}" a été archivé car il est lié à des historiques.`, 'success');
+                    loadData();
                 } else {
                     throw error;
                 }
@@ -524,6 +538,9 @@ export default function StockPage() {
                     </span>
                     <span>
                         Total en stock : <strong>{filteredProducts.reduce((s, p) => s + p.quantity, 0)}</strong> unités
+                    </span>
+                    <span>
+                        Valeur totale : <strong style={{ color: 'var(--text-primary)' }}>{formatCurrency(filteredProducts.reduce((s, p) => s + ((p.unit_price || 0) * p.quantity), 0))}</strong>
                     </span>
                 </div>
             )}
