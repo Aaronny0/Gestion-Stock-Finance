@@ -26,27 +26,19 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
     return (
         <>
-            {isOpen && (
-                <div
-                    className="sidebar-overlay"
-                    onClick={onClose}
-                    style={{
-                        position: 'fixed',
-                        inset: 0,
-                        background: 'rgba(0,0,0,0.5)',
-                        zIndex: 99,
-                        display: 'none',
-                    }}
-                />
-            )}
-            <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+            {/* Overlay: controlled purely by CSS on mobile */}
+            <div
+                className={`sidebar-overlay${isOpen ? ' visible' : ''}`}
+                onClick={onClose}
+            />
+            <aside className={`sidebar${isOpen ? ' open' : ''}`}>
                 <div className="sidebar-logo">
                     <div className="sidebar-logo-icon">ES</div>
                     <span className="sidebar-logo-text">ES STORE</span>
                     <button
-                        className="mobile-menu-btn"
+                        className="sidebar-close-btn"
                         onClick={onClose}
-                        style={{ marginLeft: 'auto' }}
+                        aria-label="Fermer le menu"
                     >
                         <FiX />
                     </button>
@@ -61,7 +53,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                className={`nav-link ${isActive ? 'active' : ''}`}
+                                className={`nav-link${isActive ? ' active' : ''}`}
                                 onClick={onClose}
                             >
                                 <span className="nav-link-icon">
@@ -82,13 +74,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     ES STORE v1.0
                 </div>
             </aside>
-            <style jsx global>{`
-        @media (max-width: 768px) {
-          .sidebar-overlay {
-            display: block !important;
-          }
-        }
-      `}</style>
         </>
     );
 }

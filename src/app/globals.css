@@ -71,6 +71,9 @@
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
+  /* Aliases for inline usage */
+  --radius: 12px;
+  --border: rgba(0, 0, 0, 0.15);
 
   /* Transitions */
   --transition-fast: 150ms ease;
@@ -124,6 +127,9 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  /* Aliases for inline usage */
+  --border: rgba(255, 255, 255, 0.08);
+  --radius: 12px;
 }
 
 /* =========================================
@@ -148,7 +154,6 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
-  overflow-x: hidden;
 }
 
 h1,
@@ -202,8 +207,9 @@ a {
   border-right: 1px solid var(--border-primary);
   display: flex;
   flex-direction: column;
-  z-index: 100;
+  z-index: 300;
   transition: transform var(--transition-normal);
+  overflow-y: auto;
 }
 
 .sidebar-logo {
@@ -318,7 +324,7 @@ a {
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
-  z-index: 50;
+  z-index: 200;
 }
 
 .header-title {
@@ -1162,7 +1168,55 @@ a {
 }
 
 /* =========================================
-   RESPONSIVE
+   SIDEBAR OVERLAY & CLOSE BUTTON
+   ========================================= */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 98;
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.sidebar-overlay.visible {
+  opacity: 1;
+}
+
+/* Close button inside sidebar — hidden on desktop */
+.sidebar-close-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: auto;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
+}
+
+.sidebar-close-btn:hover {
+  color: var(--text-primary);
+}
+
+/* Mobile menu toggle button in header — hidden on desktop */
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+/* =========================================
+   RESPONSIVE — TABLET (≤ 1024px)
    ========================================= */
 @media (max-width: 1024px) {
   .grid-2 {
@@ -1177,77 +1231,174 @@ a {
     transform: rotate(90deg);
     padding: 0;
   }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
+/* =========================================
+   RESPONSIVE — MOBILE (≤ 768px)
+   ========================================= */
 @media (max-width: 768px) {
   :root {
     --sidebar-width: 0px;
   }
 
+  /* Sidebar: slide-in drawer */
   .sidebar {
     transform: translateX(-100%);
+    width: 260px;
+    z-index: 99;
   }
 
   .sidebar.open {
     transform: translateX(0);
-    width: 260px;
   }
 
+  /* Show overlay when sidebar is open */
+  .sidebar-overlay {
+    display: block;
+  }
+
+  /* Show close button inside sidebar */
+  .sidebar-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Show hamburger button in header */
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Header stretches full width */
   .header {
     left: 0;
+    padding: 0 16px;
   }
 
+  /* Hide the clock text on mobile, show shorter version via a trick or just hide */
+  .header-clock {
+    display: none;
+  }
+
+  /* Page content: reduced padding */
   .page-content {
-    padding: 16px;
+    padding: 16px 12px;
   }
 
+  /* Stats grid: 2 columns on mobile */
   .stats-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 
+  /* Form rows: single column */
   .form-row {
     grid-template-columns: 1fr;
   }
 
+  /* Modals: near full-width */
   .modal {
     width: 95%;
     padding: 20px;
+    max-height: 90vh;
   }
 
+  .modal-actions {
+    flex-wrap: wrap;
+  }
+
+  /* Grid 3: single column on mobile */
   .grid-3 {
     grid-template-columns: 1fr;
   }
+
+  /* Filter bar: wrap properly */
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-bar .form-input,
+  .filter-bar .form-select {
+    width: 100%;
+    min-width: unset;
+  }
+
+  /* Page header: stack on mobile */
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Tabs: scroll horizontally */
+  .tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Date range picker: wrap */
+  .date-range-picker {
+    flex-wrap: wrap;
+  }
+
+  /* Trade flow: already single-column at 1024px via grid-2 rule,
+     but ensure arrow is horizontal */
+  .trade-arrow {
+    padding: 4px 0;
+  }
 }
 
+/* =========================================
+   RESPONSIVE — SMALL MOBILE (≤ 480px)
+   ========================================= */
 @media (max-width: 480px) {
+
+  /* Stats grid: single column on very small screens */
   .stats-grid {
     grid-template-columns: 1fr;
   }
 
   .page-title {
-    font-size: 22px;
+    font-size: 20px;
   }
 
   .stat-value {
-    font-size: 24px;
+    font-size: 22px;
   }
-}
 
-/* Mobile menu toggle */
-.mobile-menu-btn {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  font-size: 22px;
-  cursor: pointer;
-  padding: 4px;
-}
+  .header-title {
+    font-size: 16px;
+  }
 
-@media (max-width: 768px) {
-  .mobile-menu-btn {
-    display: flex;
-    align-items: center;
+  /* Make buttons wrap in stat/page header areas */
+  .page-header .btn {
+    width: 100%;
     justify-content: center;
+  }
+
+  /* Reduce card padding */
+  .card {
+    padding: 16px;
+  }
+
+  .stat-card {
+    padding: 16px;
+  }
+
+  /* Table: allow horizontal scroll */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
