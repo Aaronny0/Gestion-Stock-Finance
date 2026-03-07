@@ -68,12 +68,12 @@ export default function DashboardPage() {
                 recentTradesRes,
             ] = await Promise.all([
                 // 1. Total products & stock
-                supabase.from('products').select('quantity'),
+                supabase.from('products').select('quantity').eq('active', true),
                 // 2. Today's sales
                 supabase.from('sales').select('total_price')
                     .gte('created_at', todayStart).lte('created_at', todayEnd),
                 // 3. Today's trades
-                supabase.from('trades').select('id')
+                supabase.from('trades').select('id, client_complement')
                     .gte('created_at', todayStart).lte('created_at', todayEnd),
                 // 4. Today's receipt
                 supabase.from('daily_receipts').select('total_amount')
@@ -113,8 +113,14 @@ export default function DashboardPage() {
             const salesToday = salesTodayData.length;
             const revenuToday = salesTodayData.reduce((sum, s) => sum + Number(s.total_price || 0), 0);
 
-            const trocsToday = (trocsRes.data ?? []).length;
-            const recetteToday = receiptRes.data?.[0]?.total_amount || 0;
+            const trocsTodayData = trocsRes.data ?? [];
+            const trocsToday = trocsTodayData.length;
+            const trocsComplement = trocsTodayData.reduce((sum, t) => sum + Number(t.client_complement || 0), 0);
+            
+            let recetteToday = receiptRes.data?.[0]?.total_amount;
+            if (recetteToday === undefined || recetteToday === null) {
+                recetteToday = revenuToday + trocsComplement;
+            }
 
             setStats({ totalProducts, totalStock, salesToday, revenuToday, trocsToday, recetteToday });
 

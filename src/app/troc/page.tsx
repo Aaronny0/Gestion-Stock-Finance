@@ -247,6 +247,7 @@ export default function TrocPage() {
             const { data: prods, error: prodsErr } = await supabase
                 .from('products')
                 .select('*, brands(name)')
+                .eq('active', true)
                 .gt('quantity', 0)
                 .order('model');
             if (prodsErr) throw prodsErr;
@@ -304,12 +305,16 @@ export default function TrocPage() {
         // 2. Trouver ou créer le produit
         const { data: existingProduct } = await supabase
             .from('products')
-            .select('id')
+            .select('id, active')
             .eq('brand_id', brandId)
             .ilike('model', model.trim())
             .single();
 
         let productId = existingProduct?.id;
+
+        if (productId && existingProduct?.active === false) {
+            await supabase.from('products').update({ active: true }).eq('id', productId);
+        }
 
         if (!productId) {
             const { data: newProduct } = await supabase

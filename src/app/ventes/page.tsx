@@ -56,6 +56,7 @@ export default function VentesPage() {
             const { data: prods, error: prodsErr } = await supabase
                 .from('products')
                 .select('*, brands(name)')
+                .eq('active', true)
                 .gt('quantity', 0)
                 .order('model');
             if (prodsErr) throw prodsErr;
