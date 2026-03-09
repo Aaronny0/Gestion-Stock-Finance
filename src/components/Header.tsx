@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { FiMenu, FiMoon, FiSun } from 'react-icons/fi';
+import { FiMenu, FiMoon, FiSun, FiLogOut } from 'react-icons/fi';
 
 const pageTitles: Record<string, string> = {
     '/': 'Tableau de bord',
@@ -47,6 +47,20 @@ export default function Header({ onMenuToggle }: HeaderProps) {
         }
     };
 
+    const handleLogout = async () => {
+        if (!confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) return;
+        try {
+            await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'logout' }),
+            });
+            window.location.href = '/login';
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
+
     useEffect(() => {
         const updateClock = () => {
             const now = new Date();
@@ -88,6 +102,14 @@ export default function Header({ onMenuToggle }: HeaderProps) {
                     title={isDark ? "Passer en mode clair" : "Passer en mode sombre"}
                 >
                     {isDark ? <FiSun /> : <FiMoon />}
+                </button>
+                <button
+                    onClick={handleLogout}
+                    className="btn btn-ghost"
+                    style={{ padding: '8px', borderRadius: '50%', color: 'var(--danger)' }}
+                    title="Se déconnecter"
+                >
+                    <FiLogOut />
                 </button>
                 <div className="header-clock">{clock}</div>
             </div>
