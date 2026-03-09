@@ -221,7 +221,7 @@ export default function StatistiquesPage() {
         >
             <div className="page-header">
                 <div>
-                    <h2 className="page-title">Statistiques & Performances</h2>
+                    <h2 className="page-title">Statistiques &amp; Performances</h2>
                     <p className="page-subtitle">Analysez vos meilleures ventes et marques les plus rentables</p>
                 </div>
             </div>

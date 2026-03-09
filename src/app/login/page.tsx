@@ -156,6 +156,7 @@ export default function LoginPage() {
                 style={{
                     width: '100%',
                     maxWidth: 420,
+                    margin: '0 16px',
                     padding: '40px 36px',
                     borderRadius: '20px',
                     background: 'rgba(22, 27, 34, 0.85)',

@@ -936,6 +936,12 @@ a {
   gap: 16px;
 }
 
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
 /* =========================================
    TRADE SPECIFIC
    ========================================= */
@@ -1248,6 +1254,10 @@ a {
   .grid-3 {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 /* =========================================
@@ -1262,7 +1272,7 @@ a {
   .sidebar {
     transform: translateX(-100%);
     width: 260px;
-    z-index: 99;
+    z-index: 301;
   }
 
   .sidebar.open {
@@ -1329,6 +1339,21 @@ a {
   /* Grid 3: single column on mobile */
   .grid-3 {
     grid-template-columns: 1fr;
+  }
+
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .stat-value {
+    overflow-wrap: break-word;
+    word-break: break-all;
   }
 
   /* Filter bar: wrap properly */
