@@ -21,6 +21,9 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="fr" suppressHydrationWarning>
+            <head>
+                <link rel="icon" href="/favicon.ico" sizes="any" />
+            </head>
             <body suppressHydrationWarning>
                 <AppShell>{children}</AppShell>
             </body>
