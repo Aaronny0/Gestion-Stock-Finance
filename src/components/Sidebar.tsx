@@ -73,7 +73,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     fontSize: '12px',
                     color: 'var(--text-muted)',
                 }}>
-                    VORTEX v1.0
+                    VORTEX v2.0
                 </div>
             </aside>
         </>
