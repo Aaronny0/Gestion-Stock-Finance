@@ -9,6 +9,7 @@ import { FiPlus, FiSearch, FiEdit2, FiCheck, FiX, FiTrash2, FiAlertTriangle } fr
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useMarques } from '@/hooks/useMarques';
+import ExportData from '@/components/ExportData';
 
 interface Product {
     id: string;
@@ -308,9 +309,12 @@ export default function StockPage() {
                     <h2 className="page-title">Stock &amp; Inventaire</h2>
                     <p className="page-subtitle">Gérez vos produits et entrées de stock</p>
                 </div>
-                <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
-                    <FiPlus /> Ajouter un Produit
-                </button>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <ExportData data={filteredProducts} filename="VORTEX_Inventaire" />
+                    <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
+                        <FiPlus /> Ajouter un Produit
+                    </button>
+                </div>
             </div>
 
             {/* Add Product Form */}
