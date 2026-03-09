@@ -1065,17 +1065,40 @@ a {
   color: var(--text-secondary) !important;
 }
 
-/* =========================================
-   DATE RANGE PICKER
-   ========================================= */
-.date-range-picker {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+@keyframes blinker {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0.3; transform: scale(1.1); }
 }
 
-.date-range-picker .form-input {
-  width: auto;
+/* =========================================
+   SKELETON LOADERS
+   ========================================= */
+.skeleton {
+  background: linear-gradient(
+    110deg,
+    rgba(148, 163, 184, 0.1) 8%,
+    rgba(148, 163, 184, 0.25) 18%,
+    rgba(148, 163, 184, 0.1) 33%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+}
+
+[data-theme="dark"] .skeleton,
+.dark .skeleton {
+  background: linear-gradient(
+    110deg,
+    rgba(51, 65, 85, 0.4) 8%,
+    rgba(71, 85, 105, 0.6) 18%,
+    rgba(51, 65, 85, 0.4) 33%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
 }
 
 .date-range-separator {

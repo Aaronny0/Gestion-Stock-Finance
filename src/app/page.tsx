@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/format';
 import {
@@ -8,6 +8,8 @@ import {
     FiTrendingUp, FiArrowUpRight, FiArrowDownRight
 } from 'react-icons/fi';
 import dynamic from 'next/dynamic';
+import useSWR from 'swr';
+import { DashboardSkeleton } from '@/components/ui/Skeleton';
 
 const DashboardChart = dynamic(() => import('@/components/charts/DashboardChart'), { ssr: false });
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
@@ -36,164 +38,124 @@ interface RecentActivity {
     created_at: string;
 }
 
-export default function DashboardPage() {
-    const [stats, setStats] = useState<DashStats>({
-        totalProducts: 0, totalStock: 0, salesToday: 0,
-        revenuToday: 0, trocsToday: 0, recetteToday: 0
+const fetchDashboardData = async () => {
+    const today = new Date();
+    const todayStart = startOfDay(today).toISOString();
+    const todayEnd = endOfDay(today).toISOString();
+    const weekAgoStart = startOfDay(subDays(today, 6)).toISOString();
+
+    const [
+        productsRes,
+        salesTodayRes,
+        trocsRes,
+        receiptRes,
+        weekSalesRes,
+        weekTradesRes,
+        recentSalesRes,
+        recentTradesRes,
+    ] = await Promise.all([
+        supabase.from('products').select('quantity').eq('active', true),
+        supabase.from('sales').select('total_price').gte('created_at', todayStart).lte('created_at', todayEnd),
+        supabase.from('trades').select('id, client_complement').gte('created_at', todayStart).lte('created_at', todayEnd),
+        supabase.from('daily_receipts').select('total_amount').eq('receipt_date', format(today, 'yyyy-MM-dd')),
+        supabase.from('sales').select('created_at').gte('created_at', weekAgoStart).lte('created_at', todayEnd),
+        supabase.from('trades').select('created_at').gte('created_at', weekAgoStart).lte('created_at', todayEnd),
+        supabase.from('sales').select('id, total_price, created_at, products(model, brands(name))').order('created_at', { ascending: false }).limit(5),
+        supabase.from('trades').select('id, client_phone_brand, client_phone_model, trade_gain, created_at').order('created_at', { ascending: false }).limit(5),
+    ]);
+
+    if (productsRes.error) throw productsRes.error;
+    if (salesTodayRes.error) throw salesTodayRes.error;
+    if (trocsRes.error) throw trocsRes.error;
+    if (receiptRes.error) throw receiptRes.error;
+    if (weekSalesRes.error) throw weekSalesRes.error;
+    if (weekTradesRes.error) throw weekTradesRes.error;
+    if (recentSalesRes.error) throw recentSalesRes.error;
+    if (recentTradesRes.error) throw recentTradesRes.error;
+
+    const products = productsRes.data ?? [];
+    const totalProducts = products.length;
+    const totalStock = products.reduce((sum, p) => sum + (p.quantity || 0), 0);
+
+    const salesTodayData = salesTodayRes.data ?? [];
+    const salesToday = salesTodayData.length;
+    const revenuToday = salesTodayData.reduce((sum, s) => sum + Number(s.total_price || 0), 0);
+
+    const trocsTodayData = trocsRes.data ?? [];
+    const trocsToday = trocsTodayData.length;
+    const trocsComplement = trocsTodayData.reduce((sum, t) => sum + Number(t.client_complement || 0), 0);
+    
+    let recetteToday = receiptRes.data?.[0]?.total_amount;
+    if (recetteToday === undefined || recetteToday === null) {
+        recetteToday = revenuToday + trocsComplement;
+    }
+
+    const salesByDay: Record<string, number> = {};
+    const tradesByDay: Record<string, number> = {};
+
+    (weekSalesRes.data ?? []).forEach((s) => {
+        const day = format(new Date(s.created_at), 'yyyy-MM-dd');
+        salesByDay[day] = (salesByDay[day] || 0) + 1;
     });
-    const [chartData, setChartData] = useState<SalesChartData[]>([]);
-    const [activities, setActivities] = useState<RecentActivity[]>([]);
-    const [loading, setLoading] = useState(true);
+    (weekTradesRes.data ?? []).forEach((t) => {
+        const day = format(new Date(t.created_at), 'yyyy-MM-dd');
+        tradesByDay[day] = (tradesByDay[day] || 0) + 1;
+    });
 
-    useEffect(() => {
-        loadDashboard();
-    }, []);
-
-    async function loadDashboard() {
-        try {
-            const today = new Date();
-            const todayStart = startOfDay(today).toISOString();
-            const todayEnd = endOfDay(today).toISOString();
-            const weekAgoStart = startOfDay(subDays(today, 6)).toISOString();
-
-            // ── Toutes les requêtes en parallèle (au lieu de ~20 séquentielles) ──
-            const [
-                productsRes,
-                salesTodayRes,
-                trocsRes,
-                receiptRes,
-                weekSalesRes,
-                weekTradesRes,
-                recentSalesRes,
-                recentTradesRes,
-            ] = await Promise.all([
-                // 1. Total products & stock
-                supabase.from('products').select('quantity').eq('active', true),
-                // 2. Today's sales
-                supabase.from('sales').select('total_price')
-                    .gte('created_at', todayStart).lte('created_at', todayEnd),
-                // 3. Today's trades
-                supabase.from('trades').select('id, client_complement')
-                    .gte('created_at', todayStart).lte('created_at', todayEnd),
-                // 4. Today's receipt
-                supabase.from('daily_receipts').select('total_amount')
-                    .eq('receipt_date', format(today, 'yyyy-MM-dd')),
-                // 5. Sales des 7 derniers jours (remplace la boucle de 14 requêtes)
-                supabase.from('sales').select('created_at')
-                    .gte('created_at', weekAgoStart).lte('created_at', todayEnd),
-                // 6. Trades des 7 derniers jours
-                supabase.from('trades').select('created_at')
-                    .gte('created_at', weekAgoStart).lte('created_at', todayEnd),
-                // 7. Recent sales for activity feed
-                supabase.from('sales')
-                    .select('id, total_price, created_at, products(model, brands(name))')
-                    .order('created_at', { ascending: false }).limit(5),
-                // 8. Recent trades for activity feed
-                supabase.from('trades')
-                    .select('id, client_phone_brand, client_phone_model, trade_gain, created_at')
-                    .order('created_at', { ascending: false }).limit(5),
-            ]);
-
-            // ── Vérification des erreurs ──
-            if (productsRes.error) throw productsRes.error;
-            if (salesTodayRes.error) throw salesTodayRes.error;
-            if (trocsRes.error) throw trocsRes.error;
-            if (receiptRes.error) throw receiptRes.error;
-            if (weekSalesRes.error) throw weekSalesRes.error;
-            if (weekTradesRes.error) throw weekTradesRes.error;
-            if (recentSalesRes.error) throw recentSalesRes.error;
-            if (recentTradesRes.error) throw recentTradesRes.error;
-
-            // ── Stats ──
-            const products = productsRes.data ?? [];
-            const totalProducts = products.length;
-            const totalStock = products.reduce((sum, p) => sum + (p.quantity || 0), 0);
-
-            const salesTodayData = salesTodayRes.data ?? [];
-            const salesToday = salesTodayData.length;
-            const revenuToday = salesTodayData.reduce((sum, s) => sum + Number(s.total_price || 0), 0);
-
-            const trocsTodayData = trocsRes.data ?? [];
-            const trocsToday = trocsTodayData.length;
-            const trocsComplement = trocsTodayData.reduce((sum, t) => sum + Number(t.client_complement || 0), 0);
-            
-            let recetteToday = receiptRes.data?.[0]?.total_amount;
-            if (recetteToday === undefined || recetteToday === null) {
-                recetteToday = revenuToday + trocsComplement;
-            }
-
-            setStats({ totalProducts, totalStock, salesToday, revenuToday, trocsToday, recetteToday });
-
-            // ── Chart data : grouper par jour côté client (au lieu de 14 requêtes) ──
-            const salesByDay: Record<string, number> = {};
-            const tradesByDay: Record<string, number> = {};
-
-            (weekSalesRes.data ?? []).forEach((s) => {
-                const day = format(new Date(s.created_at), 'yyyy-MM-dd');
-                salesByDay[day] = (salesByDay[day] || 0) + 1;
-            });
-            (weekTradesRes.data ?? []).forEach((t) => {
-                const day = format(new Date(t.created_at), 'yyyy-MM-dd');
-                tradesByDay[day] = (tradesByDay[day] || 0) + 1;
-            });
-
-            const chartPoints: SalesChartData[] = [];
-            for (let i = 6; i >= 0; i--) {
-                const day = subDays(today, i);
-                const dayKey = format(day, 'yyyy-MM-dd');
-                chartPoints.push({
-                    date: format(day, 'EEE dd', { locale: fr }),
-                    ventes: salesByDay[dayKey] || 0,
-                    trocs: tradesByDay[dayKey] || 0,
-                });
-            }
-            setChartData(chartPoints);
-
-            // ── Recent activities ──
-            const recentActivities: RecentActivity[] = [];
-
-            (recentSalesRes.data ?? []).forEach((s: Record<string, unknown>) => {
-                const product = s.products as Record<string, unknown> | null;
-                const brand = product?.brands as Record<string, unknown> | null;
-                recentActivities.push({
-                    id: s.id as string,
-                    type: 'sale',
-                    description: `Vente: ${brand?.name || ''} ${product?.model || ''}`,
-                    amount: Number(s.total_price) || null,
-                    created_at: s.created_at as string,
-                });
-            });
-
-            (recentTradesRes.data ?? []).forEach((t: Record<string, unknown>) => {
-                recentActivities.push({
-                    id: t.id as string,
-                    type: 'trade',
-                    description: `Troc: ${t.client_phone_brand} ${t.client_phone_model}`,
-                    amount: Number(t.trade_gain) || null,
-                    created_at: t.created_at as string,
-                });
-            });
-
-            recentActivities.sort((a, b) =>
-                new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-            );
-            setActivities(recentActivities.slice(0, 8));
-
-        } catch (error) {
-            console.error('Dashboard load error:', error);
-        } finally {
-            setLoading(false);
-        }
+    const chartPoints: SalesChartData[] = [];
+    for (let i = 6; i >= 0; i--) {
+        const day = subDays(today, i);
+        const dayKey = format(day, 'yyyy-MM-dd');
+        chartPoints.push({
+            date: format(day, 'EEE dd', { locale: fr }),
+            ventes: salesByDay[dayKey] || 0,
+            trocs: tradesByDay[dayKey] || 0,
+        });
     }
 
-    if (loading) {
-        return (
-            <div className="loading-container">
-                <div className="loading-spinner" />
-                <span>Chargement du tableau de bord...</span>
-            </div>
-        );
+    const recentActivities: RecentActivity[] = [];
+    (recentSalesRes.data ?? []).forEach((s: Record<string, unknown>) => {
+        const product = s.products as Record<string, unknown> | null;
+        const brand = product?.brands as Record<string, unknown> | null;
+        recentActivities.push({
+            id: s.id as string,
+            type: 'sale',
+            description: `Vente: ${brand?.name || ''} ${product?.model || ''}`,
+            amount: Number(s.total_price) || null,
+            created_at: s.created_at as string,
+        });
+    });
+
+    (recentTradesRes.data ?? []).forEach((t: Record<string, unknown>) => {
+        recentActivities.push({
+            id: t.id as string,
+            type: 'trade',
+            description: `Troc: ${t.client_phone_brand} ${t.client_phone_model}`,
+            amount: Number(t.trade_gain) || null,
+            created_at: t.created_at as string,
+        });
+    });
+
+    recentActivities.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    return {
+        stats: { totalProducts, totalStock, salesToday, revenuToday, trocsToday, recetteToday },
+        chartData: chartPoints,
+        activities: recentActivities.slice(0, 8)
+    };
+};
+
+export default function DashboardPage() {
+    const { data, isLoading, error } = useSWR('dashboardData', fetchDashboardData, {
+        refreshInterval: 60000, // Refresh automatically every minute
+        revalidateOnFocus: true
+    });
+
+    if (isLoading || error || !data) {
+        return <DashboardSkeleton />;
     }
+
+    const { stats, chartData, activities } = data;
 
     return (
         <div className="animate-in">

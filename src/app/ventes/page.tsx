@@ -8,6 +8,8 @@ import { FiShoppingCart, FiCheck, FiLock } from 'react-icons/fi';
 import { format, startOfDay, endOfDay, addDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useMarques } from '@/hooks/useMarques';
+import useSWR from 'swr';
+import { TableSkeleton } from '@/components/ui/Skeleton';
 
 interface Product {
     id: string;
@@ -31,9 +33,38 @@ interface Sale {
 export default function VentesPage() {
     const { showToast } = useToast();
     const { marques, loading: marquesLoading } = useMarques();
-    const [products, setProducts] = useState<Product[]>([]);
-    const [sales, setSales] = useState<Sale[]>([]);
-    const [loading, setLoading] = useState(true);
+    
+    // Filter — Point 4 : date du jour par défaut
+    const [dateFilter, setDateFilter] = useState(() => format(new Date(), 'yyyy-MM-dd'));
+
+    // SWR Fetcher
+    const fetchSalesData = async (key: string, dateStr: string) => {
+        const [prodsRes, salesRes] = await Promise.all([
+            supabase.from('products').select('*, brands(name)').eq('active', true).gt('quantity', 0).order('model'),
+            (async () => {
+                let query = supabase.from('sales').select('*, products(model, brands(name))').order('created_at', { ascending: false }).limit(50);
+                if (dateStr) {
+                    query = query.gte('created_at', `${dateStr}T00:00:00`).lte('created_at', `${dateStr}T23:59:59`);
+                }
+                return query;
+            })()
+        ]);
+
+        if (prodsRes.error) throw prodsRes.error;
+        if (salesRes.error) throw salesRes.error;
+
+        return {
+            products: prodsRes.data as Product[] || [],
+            sales: salesRes.data as Sale[] || []
+        };
+    };
+
+    const { data, isLoading: loading, mutate } = useSWR(['ventesData', dateFilter], ([key, date]) => fetchSalesData(key, date), {
+        revalidateOnFocus: true
+    });
+
+    const products = data?.products || [];
+    const sales = data?.sales || [];
 
     // Form
     const [selectedBrandFilter, setSelectedBrandFilter] = useState('');
@@ -43,49 +74,10 @@ export default function VentesPage() {
     const [saleNotes, setSaleNotes] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
-    // Filter — Point 4 : date du jour par défaut
-    const [dateFilter, setDateFilter] = useState(() => format(new Date(), 'yyyy-MM-dd'));
-
     // Clôture
     const [showClotureModal, setShowClotureModal] = useState(false);
     const [clotureStats, setClotureStats] = useState<{ sales: number; trades: number; total: number } | null>(null);
     const [cloturing, setCloturing] = useState(false);
-
-    const loadData = useCallback(async () => {
-        try {
-            const { data: prods, error: prodsErr } = await supabase
-                .from('products')
-                .select('*, brands(name)')
-                .eq('active', true)
-                .gt('quantity', 0)
-                .order('model');
-            if (prodsErr) throw prodsErr;
-            setProducts(prods || []);
-
-            let query = supabase
-                .from('sales')
-                .select('*, products(model, brands(name))')
-                .order('created_at', { ascending: false })
-                .limit(50);
-
-            if (dateFilter) {
-                query = query.gte('created_at', `${dateFilter}T00:00:00`)
-                    .lte('created_at', `${dateFilter}T23:59:59`);
-            }
-
-            const { data: salesData, error: salesErr } = await query;
-            if (salesErr) throw salesErr;
-            setSales(salesData || []);
-        } catch (error) {
-            console.error('Load error:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, [dateFilter]);
-
-    useEffect(() => {
-        loadData();
-    }, [loadData]);
 
     // Filtrage par brand_id
     const filteredProducts = products.filter(p => {
@@ -138,7 +130,7 @@ export default function VentesPage() {
             setSaleQty('1');
             setSalePrice('');
             setSaleNotes('');
-            loadData();
+            mutate(); // Mutate SWR Cache without full reload
         } catch (error: unknown) {
             console.error('Sale error:', error);
             const errMsg = error instanceof Error ? error.message : 'Erreur inconnue';
@@ -222,11 +214,24 @@ export default function VentesPage() {
 
     const totalRevenue = sales.reduce((sum, s) => sum + Number(s.total_price), 0);
 
-    if (loading) {
+    // Wait for initial data only (so that products aren't completely missing for the form render)
+    // SWR automatically handles background refreshing
+    if (!data && loading) {
         return (
-            <div className="loading-container">
-                <div className="loading-spinner" />
-                <span>Chargement des ventes...</span>
+            <div className="animate-in">
+                <div className="page-header">
+                   <div>
+                       <h2 className="page-title">Ventes</h2>
+                       <p className="page-subtitle">Enregistrez et suivez vos ventes</p>
+                   </div>
+                </div>
+                <div className="grid-2">
+                    <div className="card"><TableSkeleton rows={4} columns={2}/></div>
+                    <div className="card"><TableSkeleton rows={2} columns={1}/></div>
+                </div>
+                <div className="section" style={{ marginTop: '24px' }}>
+                    <TableSkeleton rows={8} columns={6} />
+                </div>
             </div>
         );
     }

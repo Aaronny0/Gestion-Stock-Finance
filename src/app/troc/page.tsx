@@ -9,6 +9,8 @@ import { FiRepeat, FiArrowRight, FiCheck, FiTrendingUp, FiTrendingDown, FiSearch
 import { format, startOfDay, endOfDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useMarques } from '@/hooks/useMarques';
+import useSWR from 'swr';
+import { TableSkeleton } from '@/components/ui/Skeleton';
 
 interface Product {
     id: string;
@@ -220,9 +222,35 @@ function ProductCombobox({ products, value, onChange }: ComboboxProps) {
 export default function TrocPage() {
     const { showToast } = useToast();
     const { marques, loading: marquesLoading } = useMarques();
-    const [products, setProducts] = useState<Product[]>([]);
-    const [trades, setTrades] = useState<Trade[]>([]);
-    const [loading, setLoading] = useState(true);
+
+    const fetchTrocData = async () => {
+        const today = new Date();
+        const todayStart = startOfDay(today).toISOString();
+        const todayEnd = endOfDay(today).toISOString();
+
+        const [prodsRes, tradesRes] = await Promise.all([
+            supabase.from('products').select('*, brands(name)').eq('active', true).gt('quantity', 0).order('model'),
+            supabase.from('trades').select('*, products(model, brands(name))')
+                .gte('created_at', todayStart)
+                .lte('created_at', todayEnd)
+                .order('created_at', { ascending: false })
+        ]);
+
+        if (prodsRes.error) throw prodsRes.error;
+        if (tradesRes.error) throw tradesRes.error;
+
+        return {
+            products: prodsRes.data as Product[] || [],
+            trades: tradesRes.data as Trade[] || []
+        };
+    };
+
+    const { data, isLoading: loading, mutate } = useSWR('trocData', fetchTrocData, {
+        revalidateOnFocus: true
+    });
+
+    const products = data?.products || [];
+    const trades = data?.trades || [];
 
     // ── Téléphone CLIENT (repris) ──
     const [clientBrand, setClientBrand] = useState('');
@@ -244,38 +272,7 @@ export default function TrocPage() {
     const [notes, setNotes] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
-    const loadData = useCallback(async () => {
-        try {
-            const { data: prods, error: prodsErr } = await supabase
-                .from('products')
-                .select('*, brands(name)')
-                .eq('active', true)
-                .gt('quantity', 0)
-                .order('model');
-            if (prodsErr) throw prodsErr;
-            setProducts(prods || []);
-
-            // Point 5 : Ne charger que l'historique du jour
-            const today = new Date();
-            const todayStart = startOfDay(today).toISOString();
-            const todayEnd = endOfDay(today).toISOString();
-
-            const { data: tradesData, error: tradesErr } = await supabase
-                .from('trades')
-                .select('*, products(model, brands(name))')
-                .gte('created_at', todayStart)
-                .lte('created_at', todayEnd)
-                .order('created_at', { ascending: false });
-            if (tradesErr) throw tradesErr;
-            setTrades(tradesData || []);
-        } catch (error) {
-            console.error('Load error:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => { loadData(); }, [loadData]);
+    // loadData removed, handled by SWR mutate()
 
     // Auto-fill shop phone price & infos depuis le produit sélectionné
     const selectedShopProduct = products.find(p => p.id === shopProductId);
@@ -401,7 +398,7 @@ export default function TrocPage() {
             setClientBrand(''); setClientModel(''); setClientValue(''); setClientDescription('');
             setShopProductId(''); setShopPrice(''); setShopPhoneValue(''); setShopDescription('');
             setComplement('0'); setNotes(''); setTrocBrandFilter('');
-            loadData();
+            mutate();
         } catch (error: unknown) {
             console.error('Trade error:', error);
             showToast(`Erreur: ${error instanceof Error ? error.message : 'Erreur inconnue'}`, 'error');
@@ -410,11 +407,23 @@ export default function TrocPage() {
         }
     }
 
-    if (loading) {
+    if (!data && loading) {
         return (
-            <div className="loading-container">
-                <div className="loading-spinner" />
-                <span>Chargement des trocs...</span>
+            <div className="animate-in">
+                <div className="page-header">
+                    <div>
+                        <h2 className="page-title">Troc / Échanges</h2>
+                        <p className="page-subtitle">Enregistrez les échanges de téléphones avec vos clients</p>
+                    </div>
+                </div>
+                <div className="trade-flow">
+                    <div className="trade-section"><TableSkeleton rows={4} columns={1}/></div>
+                    <div className="trade-arrow"><FiArrowRight /></div>
+                    <div className="trade-section"><TableSkeleton rows={5} columns={1}/></div>
+                </div>
+                <div className="section" style={{ marginTop: '32px' }}>
+                    <TableSkeleton rows={4} columns={6} />
+                </div>
             </div>
         );
     }

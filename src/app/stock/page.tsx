@@ -9,6 +9,8 @@ import { FiPlus, FiSearch, FiEdit2, FiCheck, FiX, FiTrash2, FiAlertTriangle } fr
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useMarques } from '@/hooks/useMarques';
+import useSWR from 'swr';
+import { TableSkeleton } from '@/components/ui/Skeleton';
 
 interface Product {
     id: string;
@@ -26,11 +28,30 @@ interface Product {
 export default function StockPage() {
     const { showToast } = useToast();
     const { marques, loading: marquesLoading } = useMarques();
-    const [products, setProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [filterBrand, setFilterBrand] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
+
+    const fetchStockData = async (key: string, brandId: string) => {
+        let query = supabase
+            .from('products')
+            .select('*, brands(name)')
+            .eq('active', true)
+            .order('created_at', { ascending: false });
+
+        if (brandId) {
+            query = query.eq('brand_id', brandId);
+        }
+
+        const { data: productsData, error } = await query;
+        if (error) throw error;
+        return (productsData as Product[]) || [];
+    };
+
+    const { data: products = [], isLoading: loading, mutate } = useSWR(
+        ['stockData', filterBrand],
+        ([key, brand]) => fetchStockData(key, brand)
+    );
 
     // Form state
     const [formBrand, setFormBrand] = useState('');
@@ -49,31 +70,7 @@ export default function StockPage() {
     const [deleteProduct, setDeleteProduct] = useState<Product | null>(null);
     const [deleting, setDeleting] = useState(false);
 
-    const loadData = useCallback(async () => {
-        try {
-            let query = supabase
-                .from('products')
-                .select('*, brands(name)')
-                .eq('active', true)
-                .order('created_at', { ascending: false });
-
-            if (filterBrand) {
-                query = query.eq('brand_id', filterBrand);
-            }
-
-            const { data: productsData, error } = await query;
-            if (error) throw error;
-            setProducts(productsData || []);
-        } catch (error) {
-            console.error('Load error:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, [filterBrand]);
-
-    useEffect(() => {
-        loadData();
-    }, [loadData]);
+    // Deleted loadData, managed by SWR mutate()
 
     async function handleAddProduct(e: React.FormEvent) {
         e.preventDefault();
@@ -132,7 +129,7 @@ export default function StockPage() {
             setFormPrice('');
             setFormDescription('');
             setShowForm(false);
-            loadData();
+            mutate();
         } catch (error) {
             console.error('Add product error:', error);
             showToast('Erreur lors de l\'ajout', 'error');
@@ -175,7 +172,7 @@ export default function StockPage() {
 
             showToast('Produit mis à jour !', 'success');
             setEditingId(null);
-            loadData();
+            mutate();
         } catch (error) {
             console.error('Edit error:', error);
             showToast('Erreur lors de la mise à jour', 'error');
@@ -206,7 +203,7 @@ export default function StockPage() {
                 `"${deleteProduct.brands?.name} ${deleteProduct.model}" supprimé du stock avec succès.`,
                 'success'
             );
-            loadData();
+            mutate();
         } catch (error) {
             console.error('Delete error:', error);
             showToast('Erreur lors de la suppression', 'error');
@@ -225,11 +222,18 @@ export default function StockPage() {
         );
     });
 
-    if (loading) {
+    if (loading && products.length === 0) {
         return (
-            <div className="loading-container">
-                <div className="loading-spinner" />
-                <span>Chargement du stock...</span>
+            <div className="animate-in">
+                <div className="page-header">
+                    <div>
+                        <h2 className="page-title">Stock &amp; Inventaire</h2>
+                        <p className="page-subtitle">Gérez vos produits et entrées de stock</p>
+                    </div>
+                </div>
+                <div className="table-container">
+                    <TableSkeleton rows={8} columns={7} />
+                </div>
             </div>
         );
     }

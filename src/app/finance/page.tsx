@@ -13,6 +13,8 @@ import {
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import dynamic from 'next/dynamic';
+import useSWR from 'swr';
+import { DashboardSkeleton } from '@/components/ui/Skeleton';
 
 const FinanceRecettesChart = dynamic(() => import('@/components/charts/FinanceRecettesChart'), { ssr: false });
 const FinanceGainsChart = dynamic(() => import('@/components/charts/FinanceGainsChart'), { ssr: false });
@@ -40,21 +42,16 @@ export default function FinancePage() {
     const [period, setPeriod] = useState<PeriodType>('jour');
     const [customStart, setCustomStart] = useState('');
     const [customEnd, setCustomEnd] = useState('');
-    const [financeData, setFinanceData] = useState<FinanceEntry[]>([]);
-    const [movements, setMovements] = useState<Movement[]>([]);
-    const [loading, setLoading] = useState(true);
     const [dateRangeLabel, setDateRangeLabel] = useState('');
 
     // Receipt form
     const [receiptAmount, setReceiptAmount] = useState('');
     const [receiptNotes, setReceiptNotes] = useState('');
-    const [todayReceipt, setTodayReceipt] = useState<number | null>(null);
-    const [todayComputedTotal, setTodayComputedTotal] = useState<number>(0);
     const [submitting, setSubmitting] = useState(false);
 
-    const getDateRange = useCallback((): { start: Date; end: Date } => {
+    const getDateRange = useCallback((p: PeriodType, startD: string, endD: string): { start: Date; end: Date } => {
         const now = new Date();
-        switch (period) {
+        switch (p) {
             case 'jour':
                 return { start: startOfDay(now), end: endOfDay(now) };
             case 'semaine':
@@ -80,26 +77,21 @@ export default function FinancePage() {
             case 'annee':
                 return { start: startOfYear(now), end: endOfYear(now) };
             case 'custom': {
-                const s = customStart ? new Date(`${customStart}T00:00:00`) : startOfMonth(now);
-                const e = customEnd ? new Date(`${customEnd}T23:59:59`) : now;
+                const s = startD ? new Date(`${startD}T00:00:00`) : startOfMonth(now);
+                const e = endD ? new Date(`${endD}T23:59:59`) : now;
                 return { start: startOfDay(s), end: endOfDay(e) };
             }
             default:
                 return { start: startOfDay(now), end: endOfDay(now) };
         }
-    }, [period, customStart, customEnd]);
+    }, []);
 
-    const loadData = useCallback(async () => {
-        setLoading(true);
-        try {
-            const { start, end } = getDateRange();
-            const startISO = start.toISOString();
-            const endISO = end.toISOString();
-
-            // Affichage de la plage de dates effective
-            setDateRangeLabel(
-                `${format(start, 'dd MMM yyyy', { locale: fr })} — ${format(end, 'dd MMM yyyy', { locale: fr })}`
-            );
+    const fetchFinanceData = async (key: string, p: PeriodType, startD: string, endD: string) => {
+        const { start, end } = getDateRange(p, startD, endD);
+        const startISO = start.toISOString();
+        const endISO = end.toISOString();
+        
+        const label = `${format(start, 'dd MMM yyyy', { locale: fr })} — ${format(end, 'dd MMM yyyy', { locale: fr })}`;
 
             // Sales in period
             const { data: salesData, error: salesErr } = await supabase
@@ -146,7 +138,6 @@ export default function FinancePage() {
             });
 
             mvts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-            setMovements(mvts);
 
             // Build chart data by day
             const dailyMap: Record<string, FinanceEntry> = {};
@@ -178,8 +169,6 @@ export default function FinancePage() {
                 e.date = format(new Date(e.date), 'dd/MM', { locale: fr });
             });
 
-            setFinanceData(chartEntries);
-
             // Load today's receipt
             const todayStr = format(new Date(), 'yyyy-MM-dd');
             const { data: receiptData } = await supabase
@@ -187,8 +176,6 @@ export default function FinancePage() {
                 .select('total_amount')
                 .eq('receipt_date', todayStr)
                 .single();
-
-            setTodayReceipt(receiptData ? Number(receiptData.total_amount) : null);
 
             // Calculer le total réel du jour depuis les ventes + trocs (Point 9: sans rachats)
             const todayStart = startOfDay(new Date()).toISOString();
@@ -203,20 +190,32 @@ export default function FinancePage() {
                 .select('client_complement')
                 .gte('created_at', todayStart)
                 .lte('created_at', todayEnd);
+            
             const computedSales = todaySalesData?.reduce((s, x) => s + Number(x.total_price), 0) || 0;
             const computedTrocs = todayTradesData?.reduce((s, x) => s + Number(x.client_complement), 0) || 0;
-            setTodayComputedTotal(computedSales + computedTrocs);
 
-        } catch (error) {
-            console.error('Finance load error:', error);
-        } finally {
-            setLoading(false);
+        return {
+            financeData: chartEntries,
+            movements: mvts,
+            todayReceipt: receiptData ? Number(receiptData.total_amount) : null,
+            todayComputedTotal: computedSales + computedTrocs,
+            label
+        };
+    };
+
+    const { data, isLoading: loading, mutate } = useSWR(
+        ['financeData', period, customStart, customEnd],
+        ([key, p, s, e]) => fetchFinanceData(key, p as PeriodType, s, e),
+        {
+            revalidateOnFocus: true,
+            onSuccess: (data) => setDateRangeLabel(data.label)
         }
-    }, [getDateRange]);
+    );
 
-    useEffect(() => {
-        loadData();
-    }, [loadData]);
+    const financeData = data?.financeData || [];
+    const movements = data?.movements || [];
+    const todayReceipt = data?.todayReceipt ?? null;
+    const todayComputedTotal = data?.todayComputedTotal || 0;
 
     async function handleReceipt(e: React.FormEvent) {
         e.preventDefault();
@@ -254,7 +253,7 @@ export default function FinancePage() {
             showToast('Recette du jour enregistrée !', 'success');
             setReceiptAmount('');
             setReceiptNotes('');
-            loadData();
+            mutate();
         } catch (error) {
             console.error('Receipt error:', error);
             showToast('Erreur lors de l\'enregistrement', 'error');
@@ -391,16 +390,13 @@ export default function FinancePage() {
                         onChange={(e) => setCustomEnd(e.target.value)}
                         style={{ width: 'auto' }}
                     />
-                    <button className="btn btn-primary btn-sm" onClick={loadData}>
-                        Rechercher
-                    </button>
+                    {/* The fetcher is automatically triggered by SWR when customEnd or customStart state changes */}
                 </div>
             )}
 
-            {loading ? (
-                <div className="loading-container">
-                    <div className="loading-spinner" />
-                    <span>Chargement des données financières...</span>
+            {!data && loading ? (
+                <div style={{ marginTop: '20px' }}>
+                     <DashboardSkeleton />
                 </div>
             ) : (
                 <>
