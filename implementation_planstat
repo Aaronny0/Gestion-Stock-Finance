@@ -1,0 +1,44 @@
+# Implementation Plan: Authentication & Login Page
+
+## Goal Description
+The user wants a highly designed, robust login page for the "Vortex" application. Authentication should use a hardcoded username ("robert") but allow the password setup and change. If the user forgets the password, they can change it if they know the exact username. The backend must be secure to prevent account enumeration, and the whole application must be protected by a middleware.
+
+## Proposed Changes
+
+### 1. Database & Security
+Since we need to be able to change the password, keeping it hardcoded in the frontend or `.env` is not enough. We will create a Supabase table `auth_users` or simply use a single-record configuration table `app_settings` to store the hashed password.
+- Create a migration/script to initialize the table `app_settings` with the username `robert` and a bcrypt-hashed version of `002026`.
+- Add dependencies: `bcryptjs` (password hashing), `jose` (JWT signing/verification for Edge Middleware), `cookies-next` (client/server cookie management).
+
+### 2. Next.js Middleware (Protecting Routes)
+#### [NEW] src/middleware.ts
+- Create a middleware that intercepts all requests.
+- If the route is `/login` or `/api/auth`, let it pass.
+- Otherwise, check for the presence and validity of the `vortex_session` cookie (JWT). If missing or invalid, redirect to `/login`.
+
+### 3. Server Actions / API Routes
+#### [NEW] src/app/api/auth/route.ts
+- Create an endpoint `POST /api/auth` to handle login and password changes.
+- **Login Action**: Compare the provided username and password against the database (using `bcryptjs.compare`). Return a signed JWT using `jose` if successful, or a generic "Identifiants incorrects" error.
+- **Change Password Action**: Update the hashed password in the database.
+
+### 4. Layout and AppShell modifications
+#### [MODIFY] src/components/AppShell.tsx
+- Read the current `pathname` from `next/navigation`.
+- If `pathname === '/login'`, render only the `children` without the [Sidebar](file:///c:/Users/PEAQ/Documents/DEV/ES%20STORE/src/components/Sidebar.tsx#26-82), `Header`, and `.app-layout` styling to allow the login page to fully own the screen.
+
+### 5. Login Page (UI)
+#### [NEW] src/app/login/page.tsx
+- Design a stunning, animated login screen using `framer-motion`.
+- Show the app name "VORTEX" prominently.
+- Implement a flip-card or state-change UI to toggle between "Se Connecter" and "Changer de mot de passe".
+- Provide explicit but secure error messages using the existing `useToast`.
+
+## Verification Plan
+### Automated Tests
+- Run `npm run lint` and `npm run build` to ensure type safety, especially with `jose` and `bcryptjs`.
+### Manual Verification
+- Access the root URL `/` incognito; expect a redirect to `/login`.
+- Attempt login with invalid credentials; expect generic error "Identifiants incorrects".
+- Login successfully with `robert` / `002026`; expect a redirect to `/`.
+- Test the "Change Password" feature; ensure it updates and the old password no longer works.

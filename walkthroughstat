@@ -1,0 +1,31 @@
+# Authentification & Page de Connexion — Walkthrough
+
+## Résumé
+Le système d'authentification de **VORTEX** est désormais opérationnel. L'application est entièrement protégée par un middleware JWT, et la page de connexion arbore un design premium avec animations.
+
+## Fichiers Créés / Modifiés
+
+| Fichier | Rôle |
+|---|---|
+| [migration_auth.sql](file:///c:/Users/PEAQ/Documents/DEV/ES%20STORE/supabase/migration_auth.sql) | Table `app_users` + seed (robert / 002026 hashé) |
+| [auth.ts](file:///c:/Users/PEAQ/Documents/DEV/ES%20STORE/src/lib/auth.ts) | Helpers JWT (sign / verify) via `jose` |
+| [route.ts](file:///c:/Users/PEAQ/Documents/DEV/ES%20STORE/src/app/api/auth/route.ts) | API : login, logout, change_password |
+| [middleware.ts](file:///c:/Users/PEAQ/Documents/DEV/ES%20STORE/src/middleware.ts) | Protection de toutes les routes (Edge) |
+| [AppShell.tsx](file:///c:/Users/PEAQ/Documents/DEV/ES%20STORE/src/components/AppShell.tsx) | Bypass Sidebar/Header sur `/login` |
+| [login/page.tsx](file:///c:/Users/PEAQ/Documents/DEV/ES%20STORE/src/app/login/page.tsx) | UI Login premium + changement de MDP |
+
+## Comment Activer
+
+> [!IMPORTANT]
+> Vous devez exécuter le script SQL [supabase/migration_auth.sql](file:///c:/Users/PEAQ/Documents/DEV/ES%20STORE/supabase/migration_auth.sql) dans la console SQL de votre projet Supabase **avant** de tester la connexion.
+
+1. Allez dans votre [Dashboard Supabase → SQL Editor](https://supabase.com/dashboard)
+2. Copiez-collez le contenu de [migration_auth.sql](file:///c:/Users/PEAQ/Documents/DEV/ES%20STORE/supabase/migration_auth.sql) et exécutez-le
+3. Ouvrez l'application : vous serez redirigé vers `/login`
+4. Connectez-vous avec **robert** / **002026**
+
+## Fonctionnalités Clés
+- **Anti-énumération** : Le message d'erreur est identique que l'utilisateur ou le mot de passe soit incorrect
+- **Mot de passe oublié** : L'utilisateur peut changer son mot de passe en fournissant l'identifiant correct
+- **Session JWT 7 jours** : Cookie `httpOnly` signé, vérifié à chaque requête par le middleware Edge
+- **UI** : Orbes animées en arrière-plan, glassmorphism, transitions Framer Motion entre les vues login/changement
