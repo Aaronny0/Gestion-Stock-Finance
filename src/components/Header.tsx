@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { FiMenu, FiMoon, FiSun, FiLogOut } from 'react-icons/fi';
+import GlobalExportMenu from './GlobalExportMenu';
 
 const pageTitles: Record<string, string> = {
     '/': 'Tableau de bord',
@@ -95,6 +96,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
                 <h1 className="header-title">{title}</h1>
             </div>
             <div className="header-right">
+                <GlobalExportMenu />
                 <button
                     onClick={toggleTheme}
                     className="btn btn-ghost"
