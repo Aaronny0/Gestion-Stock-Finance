@@ -3,9 +3,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/format';
+import { logAudit } from '@/lib/audit';
 import { useToast } from '@/components/Toast';
 import { FiRepeat, FiArrowRight, FiCheck, FiTrendingUp, FiTrendingDown, FiSearch, FiX, FiPackage } from 'react-icons/fi';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useMarques } from '@/hooks/useMarques';
 
@@ -14,6 +15,7 @@ interface Product {
     model: string;
     unit_price: number | null;
     quantity: number;
+    brand_id: string;
     brands?: { name: string };
 }
 
@@ -37,7 +39,7 @@ interface Trade {
 // ── Combobox Component ──────────────────────────────────────────────────────
 interface ComboboxProps {
     products: Product[];
-    value: string; // product id
+    value: string;
     onChange: (productId: string) => void;
 }
 
@@ -49,7 +51,6 @@ function ProductCombobox({ products, value, onChange }: ComboboxProps) {
 
     const selectedProduct = products.find(p => p.id === value);
 
-    // When a product is selected, show its label in the input
     useEffect(() => {
         if (selectedProduct) {
             setQuery(`${selectedProduct.brands?.name ?? ''} ${selectedProduct.model}`);
@@ -79,12 +80,10 @@ function ProductCombobox({ products, value, onChange }: ComboboxProps) {
         inputRef.current?.focus();
     }
 
-    // Close on outside click
     useEffect(() => {
         function handleClick(e: MouseEvent) {
             if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
                 setOpen(false);
-                // If nothing valid is typed, clear selection to avoid stale state
                 if (!selectedProduct) {
                     setQuery('');
                 } else {
@@ -113,7 +112,7 @@ function ProductCombobox({ products, value, onChange }: ComboboxProps) {
                     value={query}
                     onChange={(e) => {
                         setQuery(e.target.value);
-                        onChange(''); // clear selection when typing
+                        onChange('');
                         setOpen(true);
                     }}
                     onFocus={() => setOpen(true)}
@@ -237,6 +236,9 @@ export default function TrocPage() {
     const [shopPhoneValue, setShopPhoneValue] = useState('');
     const [shopDescription, setShopDescription] = useState('');
 
+    // Point 11 : Filtre par marque pour le combobox
+    const [trocBrandFilter, setTrocBrandFilter] = useState('');
+
     // Complément & notes
     const [complement, setComplement] = useState('0');
     const [notes, setNotes] = useState('');
@@ -253,11 +255,17 @@ export default function TrocPage() {
             if (prodsErr) throw prodsErr;
             setProducts(prods || []);
 
+            // Point 5 : Ne charger que l'historique du jour
+            const today = new Date();
+            const todayStart = startOfDay(today).toISOString();
+            const todayEnd = endOfDay(today).toISOString();
+
             const { data: tradesData, error: tradesErr } = await supabase
                 .from('trades')
                 .select('*, products(model, brands(name))')
-                .order('created_at', { ascending: false })
-                .limit(50);
+                .gte('created_at', todayStart)
+                .lte('created_at', todayEnd)
+                .order('created_at', { ascending: false });
             if (tradesErr) throw tradesErr;
             setTrades(tradesData || []);
         } catch (error) {
@@ -279,8 +287,15 @@ export default function TrocPage() {
         }
     }, [shopProductId, selectedShopProduct]);
 
-    // Calcul du gain (preview)
-    const gain = (parseFloat(complement) || 0) + (parseFloat(clientValue) || 0) - (parseFloat(shopPrice) || 0);
+    // Point 11 : Filtrage des produits par marque
+    const filteredComboboxProducts = products.filter(p => {
+        if (!trocBrandFilter) return true;
+        return p.brand_id === trocBrandFilter;
+    });
+
+    // Point 8 : Le prix de vente effectif est shopPhoneValue si renseigné, sinon shopPrice
+    const effectiveSalePrice = shopPhoneValue ? parseFloat(shopPhoneValue) : (parseFloat(shopPrice) || 0);
+    const gain = (parseFloat(complement) || 0) + (parseFloat(clientValue) || 0) - effectiveSalePrice;
 
     // ── Ajoute le tél. client au stock après un troc ──────────────────────────
     async function addClientPhoneToStock(
@@ -289,7 +304,6 @@ export default function TrocPage() {
         description: string,
         estimatedValue: number | null
     ) {
-        // 1. Trouver la marque par nom
         const { data: brandData } = await supabase
             .from('brands')
             .select('id')
@@ -302,7 +316,6 @@ export default function TrocPage() {
             return;
         }
 
-        // 2. Trouver ou créer le produit
         const { data: existingProduct } = await supabase
             .from('products')
             .select('id, active')
@@ -333,7 +346,6 @@ export default function TrocPage() {
 
         if (!productId) return;
 
-        // 3. Ajouter une entrée de stock (+1)
         await supabase.from('stock_entries').insert({
             product_id: productId,
             quantity: 1,
@@ -352,7 +364,7 @@ export default function TrocPage() {
 
         setSubmitting(true);
         try {
-            const { error } = await supabase.from('trades').insert({
+            const { data: tradeData, error } = await supabase.from('trades').insert({
                 client_phone_brand: clientBrand,
                 client_phone_model: clientModel.trim(),
                 client_phone_value: clientValue ? parseFloat(clientValue) : null,
@@ -363,11 +375,21 @@ export default function TrocPage() {
                 shop_phone_description: shopDescription || null,
                 client_complement: parseFloat(complement) || 0,
                 notes: notes || null,
-            });
+            }).select('id').single();
 
             if (error) throw error;
 
-            // ✅ Ajouter le téléphone du client au stock (avoir)
+            // Audit log
+            if (tradeData) {
+                await logAudit('CREATE', 'trade', tradeData.id, {
+                    client_phone: `${clientBrand} ${clientModel}`,
+                    shop_product_id: shopProductId,
+                    effective_sale_price: effectiveSalePrice,
+                    complement: parseFloat(complement) || 0,
+                });
+            }
+
+            // Ajouter le téléphone du client au stock
             await addClientPhoneToStock(
                 clientBrand,
                 clientModel,
@@ -378,7 +400,7 @@ export default function TrocPage() {
             showToast('Troc enregistré — tél. client ajouté au stock !', 'success');
             setClientBrand(''); setClientModel(''); setClientValue(''); setClientDescription('');
             setShopProductId(''); setShopPrice(''); setShopPhoneValue(''); setShopDescription('');
-            setComplement('0'); setNotes('');
+            setComplement('0'); setNotes(''); setTrocBrandFilter('');
             loadData();
         } catch (error: unknown) {
             console.error('Trade error:', error);
@@ -387,8 +409,6 @@ export default function TrocPage() {
             setSubmitting(false);
         }
     }
-
-    // formatCurrency importé depuis @/lib/format
 
     if (loading) {
         return (
@@ -491,10 +511,29 @@ export default function TrocPage() {
                             🏪 Téléphone Boutique (Donné)
                         </div>
 
+                        {/* Point 11 : Filtre par marque */}
+                        <div className="form-group">
+                            <label className="form-label">Filtrer par Marque (Optionnel)</label>
+                            <select
+                                className="form-select"
+                                value={trocBrandFilter}
+                                onChange={(e) => {
+                                    setTrocBrandFilter(e.target.value);
+                                    setShopProductId('');
+                                }}
+                                disabled={marquesLoading}
+                            >
+                                <option value="">{marquesLoading ? 'Chargement...' : 'Toutes les marques'}</option>
+                                {marques.map((m) => (
+                                    <option key={m.id} value={m.id}>{m.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
                         <div className="form-group">
                             <label className="form-label">Produit du Stock *</label>
                             <ProductCombobox
-                                products={products}
+                                products={filteredComboboxProducts}
                                 value={shopProductId}
                                 onChange={setShopProductId}
                             />
@@ -552,7 +591,11 @@ export default function TrocPage() {
                                 onChange={(e) => setShopPhoneValue(e.target.value)}
                                 placeholder="Optionnel — FCFA"
                             />
-                            <span className="form-hint">Valeur marchande estimée du téléphone donné</span>
+                            <span className="form-hint">
+                                {shopPhoneValue
+                                    ? `⚡ Ce prix (${formatCurrency(parseFloat(shopPhoneValue))}) sera utilisé comme prix de vente effectif pour la recette`
+                                    : 'Si renseigné, ce prix remplace le prix initial pour le calcul de la recette'}
+                            </span>
                         </div>
 
                         <div className="form-group">
@@ -603,9 +646,11 @@ export default function TrocPage() {
                                 </div>
                             </div>
                             <div style={{ textAlign: 'center', padding: '12px', background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)' }}>
-                                <div className="stat-label">Prix Boutique</div>
+                                <div className="stat-label">
+                                    {shopPhoneValue ? 'Prix Vente Effectif' : 'Prix Boutique'}
+                                </div>
                                 <div style={{ fontWeight: 700, color: 'var(--warning)' }}>
-                                    {shopPrice ? formatCurrency(parseFloat(shopPrice)) : '—'}
+                                    {formatCurrency(effectiveSalePrice)}
                                 </div>
                             </div>
                             <div className={`gain-display ${gain >= 0 ? 'positive' : 'negative'}`}>
@@ -635,14 +680,16 @@ export default function TrocPage() {
                 </button>
             </form>
 
-            {/* Historique */}
+            {/* Historique du jour */}
             <div className="section" style={{ marginTop: '32px' }}>
-                <h3 className="section-title">Historique des Trocs</h3>
+                <h3 className="section-title">
+                    Historique des Trocs — {format(new Date(), 'dd MMMM yyyy', { locale: fr })}
+                </h3>
                 <div className="table-container">
                     <table className="table">
                         <thead>
                             <tr>
-                                <th>Date</th>
+                                <th>Heure</th>
                                 <th>Tél. Client (Repris)</th>
                                 <th>Valeur Client</th>
                                 <th>Tél. Boutique (Donné)</th>
@@ -657,7 +704,7 @@ export default function TrocPage() {
                                     <td colSpan={7}>
                                         <div className="empty-state">
                                             <div className="empty-state-icon">🔄</div>
-                                            <div className="empty-state-text">Aucun troc enregistré</div>
+                                            <div className="empty-state-text">Aucun troc enregistré aujourd&apos;hui</div>
                                         </div>
                                     </td>
                                 </tr>
@@ -665,7 +712,7 @@ export default function TrocPage() {
                                 trades.map((t) => (
                                     <tr key={t.id}>
                                         <td style={{ whiteSpace: 'nowrap', fontSize: '13px' }}>
-                                            {format(new Date(t.created_at), 'dd MMM yyyy HH:mm', { locale: fr })}
+                                            {format(new Date(t.created_at), 'HH:mm', { locale: fr })}
                                         </td>
                                         <td>
                                             <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
@@ -694,7 +741,17 @@ export default function TrocPage() {
                                                 </div>
                                             )}
                                         </td>
-                                        <td>{formatCurrency(Number(t.shop_phone_price))}</td>
+                                        <td>
+                                            {t.shop_phone_value
+                                                ? <span title={`Prix initial : ${formatCurrency(Number(t.shop_phone_price))}`}>
+                                                    {formatCurrency(Number(t.shop_phone_value))}
+                                                    <span style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'block' }}>
+                                                        (VM Estimée)
+                                                    </span>
+                                                </span>
+                                                : formatCurrency(Number(t.shop_phone_price))
+                                            }
+                                        </td>
                                         <td style={{ fontWeight: 600 }}>
                                             {formatCurrency(Number(t.client_complement))}
                                         </td>
@@ -719,7 +776,7 @@ export default function TrocPage() {
                 {trades.length > 0 && (
                     <div style={{ display: 'flex', gap: '24px', justifyContent: 'flex-end', marginTop: '16px', fontSize: '14px' }}>
                         <span style={{ color: 'var(--text-secondary)' }}>
-                            <strong>{trades.length}</strong> troc{trades.length > 1 ? 's' : ''}
+                            <strong>{trades.length}</strong> troc{trades.length > 1 ? 's' : ''} aujourd&apos;hui
                         </span>
                         <span style={{
                             fontWeight: 700,

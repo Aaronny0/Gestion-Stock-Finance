@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/format';
 import { useToast } from '@/components/Toast';
 import { FiShoppingCart, FiCheck, FiLock } from 'react-icons/fi';
-import { format, startOfDay, endOfDay } from 'date-fns';
+import { format, startOfDay, endOfDay, addDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useMarques } from '@/hooks/useMarques';
 
@@ -43,8 +43,8 @@ export default function VentesPage() {
     const [saleNotes, setSaleNotes] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
-    // Filter
-    const [dateFilter, setDateFilter] = useState('');
+    // Filter — Point 4 : date du jour par défaut
+    const [dateFilter, setDateFilter] = useState(() => format(new Date(), 'yyyy-MM-dd'));
 
     // Clôture
     const [showClotureModal, setShowClotureModal] = useState(false);
@@ -87,7 +87,7 @@ export default function VentesPage() {
         loadData();
     }, [loadData]);
 
-    // Filtrage par brand_id (utilise UUID, cohérent avec useMarques)
+    // Filtrage par brand_id
     const filteredProducts = products.filter(p => {
         if (!selectedBrandFilter) return true;
         return p.brand_id === selectedBrandFilter;
@@ -207,6 +207,10 @@ export default function VentesPage() {
 
             showToast(`Journée du ${format(new Date(), 'dd MMMM yyyy', { locale: fr })} clôturée !`, 'success');
             setShowClotureModal(false);
+
+            // Point 4 : après clôture, passer au lendemain
+            const tomorrow = addDays(new Date(), 1);
+            setDateFilter(format(tomorrow, 'yyyy-MM-dd'));
         } catch (error) {
             console.error('Cloture error:', error);
             showToast('Erreur lors de la clôture', 'error');
@@ -215,8 +219,6 @@ export default function VentesPage() {
         }
     }
     // ──────────────────────────────────────────────────────────
-
-    // formatCurrency importé depuis @/lib/format
 
     const totalRevenue = sales.reduce((sum, s) => sum + Number(s.total_price), 0);
 
@@ -280,7 +282,7 @@ export default function VentesPage() {
                         )}
 
                         <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '20px', textAlign: 'center' }}>
-                            Cette recette sera enregistrée dans Finance. Cette action est réversible.
+                            Cette recette sera enregistrée dans Finance. Le filtre passera automatiquement au lendemain.
                         </p>
 
                         <div style={{ display: 'flex', gap: '12px' }}>
@@ -453,13 +455,20 @@ export default function VentesPage() {
                             onChange={(e) => setDateFilter(e.target.value)}
                         />
                         {dateFilter && (
-                            <button
-                                className="btn btn-ghost btn-sm"
-                                style={{ marginTop: '8px' }}
-                                onClick={() => setDateFilter('')}
-                            >
-                                Effacer le filtre
-                            </button>
+                            <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                <button
+                                    className="btn btn-ghost btn-sm"
+                                    onClick={() => setDateFilter(format(new Date(), 'yyyy-MM-dd'))}
+                                >
+                                    Aujourd&apos;hui
+                                </button>
+                                <button
+                                    className="btn btn-ghost btn-sm"
+                                    onClick={() => setDateFilter('')}
+                                >
+                                    Toutes les dates
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>

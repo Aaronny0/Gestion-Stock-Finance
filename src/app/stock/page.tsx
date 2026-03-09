@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/format';
+import { logAudit } from '@/lib/audit';
 import { useToast } from '@/components/Toast';
 import { FiPlus, FiSearch, FiEdit2, FiCheck, FiX, FiTrash2, FiAlertTriangle } from 'react-icons/fi';
 import { format } from 'date-fns';
@@ -106,7 +107,7 @@ export default function StockPage() {
                     .insert({
                         brand_id: formBrand,
                         model: formModel.trim(),
-                        quantity: 0, // Le trigger add_stock_on_entry ajoutera la quantité via stock_entries
+                        quantity: 0,
                         unit_price: formPrice ? parseFloat(formPrice) : null,
                         description: formDescription || null,
                     })
@@ -148,6 +149,12 @@ export default function StockPage() {
 
     async function saveEdit(productId: string) {
         try {
+            const product = products.find(p => p.id === productId);
+            const oldValues = {
+                quantity: product?.quantity,
+                unit_price: product?.unit_price,
+            };
+
             const updates: Record<string, unknown> = {};
             if (editQty) updates.quantity = parseInt(editQty);
             if (editPrice) updates.unit_price = parseFloat(editPrice);
@@ -157,6 +164,14 @@ export default function StockPage() {
                 .from('products')
                 .update(updates)
                 .eq('id', productId);
+
+            // Audit log
+            await logAudit('UPDATE', 'product', productId, {
+                old: oldValues,
+                new: updates,
+                model: product?.model,
+                brand: product?.brands?.name,
+            });
 
             showToast('Produit mis à jour !', 'success');
             setEditingId(null);
@@ -171,31 +186,27 @@ export default function StockPage() {
         if (!deleteProduct) return;
         setDeleting(true);
         try {
-            const { error } = await supabase
+            // Toujours faire un soft-delete (archivage) pour préserver l'intégrité
+            const { error: updateError } = await supabase
                 .from('products')
-                .delete()
+                .update({ active: false, quantity: 0 })
                 .eq('id', deleteProduct.id);
 
-            if (error) {
-                // Postgres FK violation → produit lié à des ventes/trocs
-                if (error.code === '23503') {
-                    // Soft delete au lieu d'erreur
-                    const { error: updateError } = await supabase
-                        .from('products')
-                        .update({ active: false, quantity: 0 })
-                        .eq('id', deleteProduct.id);
-                    
-                    if (updateError) throw updateError;
-                    
-                    showToast(`"${deleteProduct.brands?.name} ${deleteProduct.model}" a été archivé car il est lié à des historiques.`, 'success');
-                    loadData();
-                } else {
-                    throw error;
-                }
-            } else {
-                showToast(`"${deleteProduct.brands?.name} ${deleteProduct.model}" supprimé avec succès.`, 'success');
-                loadData();
-            }
+            if (updateError) throw updateError;
+
+            // Audit log
+            await logAudit('ARCHIVE', 'product', deleteProduct.id, {
+                model: deleteProduct.model,
+                brand: deleteProduct.brands?.name,
+                previous_quantity: deleteProduct.quantity,
+                previous_price: deleteProduct.unit_price,
+            });
+
+            showToast(
+                `"${deleteProduct.brands?.name} ${deleteProduct.model}" supprimé du stock avec succès.`,
+                'success'
+            );
+            loadData();
         } catch (error) {
             console.error('Delete error:', error);
             showToast('Erreur lors de la suppression', 'error');
@@ -213,8 +224,6 @@ export default function StockPage() {
             p.brands?.name.toLowerCase().includes(q)
         );
     });
-
-    // formatCurrency importé depuis @/lib/format
 
     if (loading) {
         return (
@@ -252,7 +261,7 @@ export default function StockPage() {
                             Supprimer ce produit ?
                         </h3>
                         <p style={{ color: 'var(--text-secondary)', textAlign: 'center', marginBottom: '4px', fontSize: '14px' }}>
-                            Cette action est <strong>irréversible</strong>.
+                            Le produit sera retiré de votre stock et inventaire.
                         </p>
                         <div style={{
                             background: 'var(--bg-tertiary)',
@@ -448,7 +457,9 @@ export default function StockPage() {
                                     <td>
                                         <span className="badge badge-purple">{p.brands?.name}</span>
                                     </td>
-                                    <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{p.model}</td>
+                                    <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                                        {p.model}
+                                    </td>
                                     <td style={{ fontSize: '12px', color: 'var(--text-secondary)', maxWidth: '200px' }}>
                                         {p.description || '—'}
                                     </td>
@@ -502,7 +513,7 @@ export default function StockPage() {
                                                 </button>
                                             </div>
                                         ) : (
-                                            <div style={{ display: 'flex', gap: '4px' }}>
+                                            <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                                                 <button className="btn btn-ghost btn-sm" onClick={() => startEdit(p)}>
                                                     <FiEdit2 /> Modifier
                                                 </button>
@@ -517,6 +528,10 @@ export default function StockPage() {
                                                 >
                                                     <FiTrash2 />
                                                 </button>
+                                                {/* Point 7 : alerte ⚠️ après le bouton supprimer si stock = 0 */}
+                                                {p.quantity === 0 && (
+                                                    <span title="Stock épuisé : Réapprovisionnement nécessaire" className="blink-alert" style={{ fontSize: '18px', marginLeft: '6px' }}>⚠️</span>
+                                                )}
                                             </div>
                                         )}
                                     </td>

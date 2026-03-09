@@ -254,7 +254,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Recent Activity */}
-                < div className="card" >
+                <div className="card">
                     <div className="card-header">
                         <div>
                             <div className="card-title">Activité Récente</div>
@@ -311,8 +311,8 @@ export default function DashboardPage() {
                             ))
                         )}
                     </div>
-                </div >
-            </div >
-        </div >
+                </div>
+            </div>
+        </div>
     );
 }

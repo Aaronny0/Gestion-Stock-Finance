@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/format';
 import { useToast } from '@/components/Toast';
 import { FiShoppingBag, FiCheck, FiPackage } from 'react-icons/fi';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useMarques } from '@/hooks/useMarques';
 
@@ -35,13 +35,24 @@ export default function RachatPage() {
     const [purchasePrice, setPurchasePrice] = useState('');
     const [notes, setNotes] = useState('');
 
+    // Date filter — auto-date du jour
+    const [dateFilter, setDateFilter] = useState(() => format(new Date(), 'yyyy-MM-dd'));
+
     const loadData = useCallback(async () => {
         try {
-            const { data, error } = await supabase
+            let query = supabase
                 .from('buybacks')
                 .select('*')
                 .order('created_at', { ascending: false })
                 .limit(50);
+
+            if (dateFilter) {
+                const dayStart = startOfDay(new Date(dateFilter)).toISOString();
+                const dayEnd = endOfDay(new Date(dateFilter)).toISOString();
+                query = query.gte('created_at', dayStart).lte('created_at', dayEnd);
+            }
+
+            const { data, error } = await query;
             if (error) throw error;
             setBuybacks(data || []);
         } catch (error) {
@@ -49,7 +60,7 @@ export default function RachatPage() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [dateFilter]);
 
     useEffect(() => { loadData(); }, [loadData]);
 
@@ -310,6 +321,32 @@ export default function RachatPage() {
                         </div>
                     </div>
 
+                    <div className="card" style={{ marginBottom: '16px' }}>
+                        <div className="card-header">
+                            <div className="card-title">Filtrer par date</div>
+                        </div>
+                        <input
+                            type="date"
+                            className="form-input"
+                            value={dateFilter}
+                            onChange={(e) => setDateFilter(e.target.value)}
+                        />
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                            <button
+                                className="btn btn-ghost btn-sm"
+                                onClick={() => setDateFilter(format(new Date(), 'yyyy-MM-dd'))}
+                            >
+                                Aujourd&apos;hui
+                            </button>
+                            <button
+                                className="btn btn-ghost btn-sm"
+                                onClick={() => setDateFilter('')}
+                            >
+                                Toutes les dates
+                            </button>
+                        </div>
+                    </div>
+
                     <div className="card" style={{ background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)' }}>
                         <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
                             <div style={{ fontWeight: 700, color: 'var(--accent-primary-hover)', marginBottom: '8px' }}>
@@ -327,7 +364,9 @@ export default function RachatPage() {
 
             {/* ── Historique ── */}
             <div className="section" style={{ marginTop: '32px' }}>
-                <h3 className="section-title">Historique des Rachats</h3>
+                <h3 className="section-title">
+                    Historique des Rachats{dateFilter ? ` — ${format(new Date(dateFilter), 'dd MMMM yyyy', { locale: fr })}` : ''}
+                </h3>
                 <div className="table-container">
                     <table className="table">
                         <thead>

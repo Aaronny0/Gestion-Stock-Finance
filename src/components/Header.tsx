@@ -9,6 +9,8 @@ const pageTitles: Record<string, string> = {
     '/stock': 'Stock & Inventaire',
     '/ventes': 'Ventes',
     '/troc': 'Troc / Échanges',
+    '/rachat': 'Rachat Clients',
+    '/historique': 'Historique',
     '/finance': 'Finance & Reporting',
 };
 
@@ -68,7 +70,7 @@ export default function Header({ onMenuToggle }: HeaderProps) {
         return () => clearInterval(interval);
     }, []);
 
-    const title = pageTitles[pathname] || 'ES STORE';
+    const title = pageTitles[pathname] || 'VORTEX';
 
     return (
         <header className="header">

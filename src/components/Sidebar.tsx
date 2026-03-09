@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
     FiHome, FiPackage, FiShoppingCart, FiRepeat,
-    FiDollarSign, FiX, FiShoppingBag
+    FiDollarSign, FiX, FiShoppingBag, FiClock
 } from 'react-icons/fi';
 
 interface SidebarProps {
@@ -18,6 +18,7 @@ const navItems = [
     { label: 'Ventes', href: '/ventes', icon: FiShoppingCart },
     { label: 'Troc / Échanges', href: '/troc', icon: FiRepeat },
     { label: 'Rachat Clients', href: '/rachat', icon: FiShoppingBag },
+    { label: 'Historique', href: '/historique', icon: FiClock },
     { label: 'Finance', href: '/finance', icon: FiDollarSign },
 ];
 
@@ -33,8 +34,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             />
             <aside className={`sidebar${isOpen ? ' open' : ''}`}>
                 <div className="sidebar-logo">
-                    <div className="sidebar-logo-icon">ES</div>
-                    <span className="sidebar-logo-text">ES STORE</span>
+                    <div className="sidebar-logo-icon">V</div>
+                    <span className="sidebar-logo-text">VORTEX</span>
                     <button
                         className="sidebar-close-btn"
                         onClick={onClose}
@@ -71,7 +72,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     fontSize: '12px',
                     color: 'var(--text-muted)',
                 }}>
-                    ES STORE v1.0
+                    VORTEX v1.0
                 </div>
             </aside>
         </>

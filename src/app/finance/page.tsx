@@ -8,7 +8,7 @@ import {
     FiDollarSign, FiCheck, FiCalendar, FiTrendingUp
 } from 'react-icons/fi';
 import {
-    format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth,
+    format, startOfWeek, endOfWeek, startOfMonth, endOfMonth,
     startOfQuarter, endOfQuarter, startOfYear, endOfYear, startOfDay, endOfDay
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -43,6 +43,7 @@ export default function FinancePage() {
     const [financeData, setFinanceData] = useState<FinanceEntry[]>([]);
     const [movements, setMovements] = useState<Movement[]>([]);
     const [loading, setLoading] = useState(true);
+    const [dateRangeLabel, setDateRangeLabel] = useState('');
 
     // Receipt form
     const [receiptAmount, setReceiptAmount] = useState('');
@@ -64,21 +65,25 @@ export default function FinancePage() {
                 return { start: startOfQuarter(now), end: endOfQuarter(now) };
             case 'semestre': {
                 const month = now.getMonth();
-                const semestreStart = month < 6
-                    ? new Date(now.getFullYear(), 0, 1)
-                    : new Date(now.getFullYear(), 6, 1);
-                const semestreEnd = month < 6
-                    ? new Date(now.getFullYear(), 5, 30, 23, 59, 59)
-                    : new Date(now.getFullYear(), 11, 31, 23, 59, 59);
-                return { start: semestreStart, end: semestreEnd };
+                if (month < 6) {
+                    return {
+                        start: new Date(now.getFullYear(), 0, 1),
+                        end: new Date(now.getFullYear(), 5, 30, 23, 59, 59, 999),
+                    };
+                } else {
+                    return {
+                        start: new Date(now.getFullYear(), 6, 1),
+                        end: new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999),
+                    };
+                }
             }
             case 'annee':
                 return { start: startOfYear(now), end: endOfYear(now) };
-            case 'custom':
-                return {
-                    start: customStart ? new Date(`${customStart}T00:00:00`) : subDays(now, 30),
-                    end: customEnd ? new Date(`${customEnd}T23:59:59`) : now,
-                };
+            case 'custom': {
+                const s = customStart ? new Date(`${customStart}T00:00:00`) : startOfMonth(now);
+                const e = customEnd ? new Date(`${customEnd}T23:59:59`) : now;
+                return { start: startOfDay(s), end: endOfDay(e) };
+            }
             default:
                 return { start: startOfDay(now), end: endOfDay(now) };
         }
@@ -91,6 +96,11 @@ export default function FinancePage() {
             const startISO = start.toISOString();
             const endISO = end.toISOString();
 
+            // Affichage de la plage de dates effective
+            setDateRangeLabel(
+                `${format(start, 'dd MMM yyyy', { locale: fr })} — ${format(end, 'dd MMM yyyy', { locale: fr })}`
+            );
+
             // Sales in period
             const { data: salesData, error: salesErr } = await supabase
                 .from('sales')
@@ -100,14 +110,16 @@ export default function FinancePage() {
                 .order('created_at', { ascending: false });
             if (salesErr) throw salesErr;
 
-            // Trades in period
+            // Trades in period — Point 8 : récupérer shop_phone_value pour le prix effectif
             const { data: tradesData, error: tradesErr } = await supabase
                 .from('trades')
-                .select('client_complement, trade_gain, client_phone_brand, client_phone_model, created_at')
+                .select('client_complement, trade_gain, client_phone_brand, client_phone_model, shop_phone_price, shop_phone_value, created_at')
                 .gte('created_at', startISO)
                 .lte('created_at', endISO)
                 .order('created_at', { ascending: false });
             if (tradesErr) throw tradesErr;
+
+            // Point 9 : Les rachats (buybacks) ne sont PAS inclus dans la recette — rien à ajouter
 
             // Build movements list
             const mvts: Movement[] = [];
@@ -162,7 +174,6 @@ export default function FinancePage() {
                 a.date.localeCompare(b.date)
             );
 
-            // Format dates for display
             chartEntries.forEach(e => {
                 e.date = format(new Date(e.date), 'dd/MM', { locale: fr });
             });
@@ -179,7 +190,7 @@ export default function FinancePage() {
 
             setTodayReceipt(receiptData ? Number(receiptData.total_amount) : null);
 
-            // Calculer le total réel du jour depuis les ventes
+            // Calculer le total réel du jour depuis les ventes + trocs (Point 9: sans rachats)
             const todayStart = startOfDay(new Date()).toISOString();
             const todayEnd = endOfDay(new Date()).toISOString();
             const { data: todaySalesData } = await supabase
@@ -252,8 +263,6 @@ export default function FinancePage() {
         }
     }
 
-    // formatCurrency importé depuis @/lib/format
-
     const totalVentes = financeData.reduce((s, f) => s + f.ventes, 0);
     const totalComps = financeData.reduce((s, f) => s + f.trocs_complement, 0);
     const totalGains = financeData.reduce((s, f) => s + f.trocs_gain, 0);
@@ -273,7 +282,7 @@ export default function FinancePage() {
         <div className="animate-in">
             <div className="page-header">
                 <div>
-                    <h2 className="page-title">Finance & Reporting</h2>
+                    <h2 className="page-title">Finance &amp; Reporting</h2>
                     <p className="page-subtitle">Suivi des recettes et analyses financières</p>
                 </div>
             </div>
@@ -304,7 +313,7 @@ export default function FinancePage() {
                         {todayComputedTotal > 0 && (
                             <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                                 <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                                    Calculé depuis les ventes :
+                                    Calculé (ventes + trocs, hors rachats) :
                                 </span>
                                 <strong style={{ fontSize: '13px', color: 'var(--success)' }}>
                                     {formatCurrency(todayComputedTotal)}
@@ -351,6 +360,17 @@ export default function FinancePage() {
                     </button>
                 ))}
             </div>
+
+            {/* Plage de dates effective */}
+            {dateRangeLabel && (
+                <div style={{
+                    fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px',
+                    display: 'flex', alignItems: 'center', gap: '8px'
+                }}>
+                    <FiCalendar size={14} />
+                    <span>Période : <strong style={{ color: 'var(--text-secondary)' }}>{dateRangeLabel}</strong></span>
+                </div>
+            )}
 
             {/* Custom Date Range */}
             {period === 'custom' && (
@@ -457,7 +477,7 @@ export default function FinancePage() {
                             <table className="table">
                                 <thead>
                                     <tr>
-                                        <th>Date & Heure</th>
+                                        <th>Date &amp; Heure</th>
                                         <th>Type</th>
                                         <th>Description</th>
                                         <th>Montant</th>
