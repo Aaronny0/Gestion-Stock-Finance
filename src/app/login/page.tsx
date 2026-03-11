@@ -10,7 +10,7 @@ type ViewMode = 'login' | 'change_password';
 export default function LoginPage() {
     const router = useRouter();
     const [view, setView] = useState<ViewMode>('login');
-    
+
     // Login state
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -44,6 +44,7 @@ export default function LoginPage() {
                 return;
             }
 
+            sessionStorage.removeItem('vortex_locked');
             router.push('/');
             router.refresh();
         } catch {
@@ -200,7 +201,6 @@ export default function LoginPage() {
                         Gestion de Boutique
                     </p>
                 </motion.div>
-
                 <AnimatePresence mode="wait">
                     {view === 'login' ? (
                         <motion.form

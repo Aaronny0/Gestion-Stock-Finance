@@ -47,11 +47,57 @@ export async function POST(req: NextRequest) {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
                 sameSite: 'lax',
-                maxAge: 60 * 60 * 24 * 7, // 7 days
                 path: '/',
             });
 
             return response;
+
+        } else if (action === 'me') {
+            // -- GET CURRENT USER --
+            const token = req.cookies.get(SESSION_COOKIE_NAME)?.value;
+            if (!token) {
+                return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+            }
+
+            try {
+                const { jwtVerify } = await import('jose');
+                const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'vortex_super_secret_key_2026_es_store');
+                const { payload } = await jwtVerify(token, JWT_SECRET);
+
+                return NextResponse.json({ username: payload.username });
+            } catch {
+                return NextResponse.json({ error: 'Token invalide' }, { status: 401 });
+            }
+
+        } else if (action === 'verify_password') {
+            // -- VERIFY PASSWORD (LOCK SCREEN) --
+            const token = req.cookies.get(SESSION_COOKIE_NAME)?.value;
+            if (!token) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 });
+
+            let username = '';
+            try {
+                const { jwtVerify } = await import('jose');
+                const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'vortex_super_secret_key_2026_es_store');
+                const { payload } = await jwtVerify(token, JWT_SECRET);
+                username = payload.username as string;
+            } catch {
+                return NextResponse.json({ error: 'Token invalide' }, { status: 401 });
+            }
+
+            const { data: user } = await supabase
+                .from('app_users')
+                .select('password_hash')
+                .eq('username', username)
+                .single();
+
+            if (!user) return NextResponse.json({ error: 'Utilisateur introuvable' }, { status: 401 });
+
+            const passwordMatch = await bcrypt.compare(password, user.password_hash);
+            if (!passwordMatch) {
+                return NextResponse.json({ error: 'Mot de passe incorrect' }, { status: 401 });
+            }
+
+            return NextResponse.json({ success: true });
 
         } else if (action === 'change_password') {
             // -- CHANGE PASSWORD --
@@ -107,9 +153,9 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ error: 'Action non reconnue' }, { status: 400 });
 
-    } catch {
+    } catch (err: any) {
         return NextResponse.json(
-            { error: 'Erreur interne du serveur' },
+            { error: err?.message || 'Erreur interne du serveur' },
             { status: 500 }
         );
     }

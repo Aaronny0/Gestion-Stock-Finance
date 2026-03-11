@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from 'jose';
 
 const JWT_SECRET = new TextEncoder().encode(
-    process.env.JWT_SECRET || 'vortex_fallback_secret'
+    process.env.JWT_SECRET || 'vortex_super_secret_key_2026_es_store'
 );
 
 const SESSION_COOKIE_NAME = 'vortex_session';

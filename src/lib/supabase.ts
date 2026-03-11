@@ -17,4 +17,30 @@ if (!supabaseAnonKey || supabaseAnonKey.includes('placeholder')) {
     );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Wrapper fetch avec timeout pour éviter les chargements infinis
+const fetchWithTimeout = async (url: RequestInfo | URL, options: RequestInit = {}) => {
+    const timeout = 8000; // 8 secondes max
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+
+    try {
+        const response = await fetch(url, {
+            ...options,
+            signal: controller.signal
+        });
+        clearTimeout(id);
+        return response;
+    } catch (error: any) {
+        clearTimeout(id);
+        if (error.name === 'AbortError') {
+            throw new Error('Le serveur de base de données met trop de temps à répondre (timeout).');
+        }
+        throw error;
+    }
+};
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+        fetch: fetchWithTimeout
+    }
+});
