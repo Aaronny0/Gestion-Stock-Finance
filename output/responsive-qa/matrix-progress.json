@@ -1,0 +1,1986 @@
+{
+  "checks": [
+    {
+      "route": "/demo",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/pos",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/pos",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/pos",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/stock",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/stock",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/stock",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/products/p0",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/products/p0",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/products/p0",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/stock/replenishment",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/stock/replenishment",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/stock/replenishment",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/sales",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/sales",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/sales",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/sales/sale0",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/sales/sale0",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/sales/sale0",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/sales/credits",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/sales/credits",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/sales/credits",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/trade",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/trade",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/trade",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/buyback",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/buyback",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/buyback",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/purchases",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/purchases",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/purchases",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/suppliers",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/suppliers",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/suppliers",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/clients",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/clients",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/clients",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/cash",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/cash",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/cash",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/expenses",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/expenses",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/expenses",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/payments",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/payments",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/payments",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/team",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/team",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/team",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/audit",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/audit",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/audit",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/accounting/journals",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/accounting/journals",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/accounting/journals",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/accounting/accounts",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/accounting/accounts",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/accounting/accounts",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/accounting/ledger",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/accounting/ledger",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/accounting/ledger",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/accounting/trial-balance",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/accounting/trial-balance",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/accounting/trial-balance",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/accounting/statements",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/accounting/statements",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/accounting/statements",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/accounting/periods",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/accounting/periods",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/accounting/periods",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/analytics/executive",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/analytics/executive",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/analytics/executive",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/analytics/sales",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/analytics/sales",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/analytics/sales",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/analytics/stock",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/analytics/stock",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/analytics/stock",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/analytics/margin",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/analytics/margin",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/analytics/margin",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/analytics/team",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/analytics/clients",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/analytics/team",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/analytics/team",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/analytics/clients",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/analytics/cash",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/analytics/clients",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/analytics/cash",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/analytics/accounting",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/analytics/cash",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/analytics/accounting",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/analytics/trade",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/analytics/trade",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/analytics/accounting",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/analytics/trade",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/settings/organization",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/settings/organization",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/settings/stores",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/settings/stores",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/settings/organization",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/settings/sales",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/settings/sales",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/settings/stores",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/settings/stock",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/settings/stock",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/settings/sales",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/settings/accounting",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/settings/accounting",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/settings/stock",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/settings/fiscal",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/settings/accounting",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo/settings/security",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/settings/fiscal",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/settings/security",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/login",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/demo/settings/fiscal",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/signup",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/login",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/demo/settings/security",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/forgot-password",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/signup",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/login",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/forgot-password",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/signup",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/invite/activate",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "route": "/forgot-password",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/invite/activate",
+      "width": 320,
+      "height": 568
+    },
+    {
+      "route": "/invite/activate",
+      "width": 360,
+      "height": 800
+    },
+    {
+      "route": "/demo",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/pos",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/pos",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/stock",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/pos",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/products/p0",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/stock",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/stock/replenishment",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/products/p0",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/stock",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/sales",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/products/p0",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/stock/replenishment",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/stock/replenishment",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/sales/sale0",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/sales",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/sales/credits",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/sales",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/sales/sale0",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/sales/sale0",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/trade",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/sales/credits",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/buyback",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/sales/credits",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/trade",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/purchases",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/trade",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/buyback",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/suppliers",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/purchases",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/buyback",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/clients",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/suppliers",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/purchases",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/cash",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/clients",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/suppliers",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/expenses",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/cash",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/clients",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/payments",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/expenses",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/team",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/cash",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/payments",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/audit",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/expenses",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/team",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/payments",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/audit",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/accounting/journals",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/team",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/accounting/accounts",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/audit",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/accounting/journals",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/accounting/ledger",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/accounting/accounts",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/accounting/journals",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/accounting/trial-balance",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/accounting/accounts",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/accounting/statements",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/accounting/ledger",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/accounting/ledger",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/accounting/periods",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/accounting/trial-balance",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/accounting/trial-balance",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/accounting/statements",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/accounting/statements",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/analytics/executive",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/accounting/periods",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/analytics/sales",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/accounting/periods",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/analytics/stock",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/analytics/executive",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/analytics/executive",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/analytics/margin",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/analytics/sales",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/analytics/team",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/analytics/sales",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/analytics/stock",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/analytics/clients",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/analytics/stock",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/analytics/cash",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/analytics/margin",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/analytics/accounting",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/analytics/margin",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/analytics/team",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/analytics/trade",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/analytics/clients",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/analytics/team",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/analytics/cash",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/analytics/clients",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/settings/organization",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/analytics/accounting",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/settings/stores",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/analytics/cash",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/analytics/trade",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/analytics/accounting",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/settings/sales",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/settings/organization",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/analytics/trade",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/settings/stock",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/settings/stores",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/settings/accounting",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/settings/organization",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/settings/sales",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/settings/stores",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/settings/stock",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/settings/fiscal",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/settings/sales",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/settings/security",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/settings/accounting",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/settings/stock",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/login",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/settings/fiscal",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo/settings/accounting",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/settings/fiscal",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/signup",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/settings/security",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/forgot-password",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/demo/settings/security",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/login",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/invite/activate",
+      "width": 430,
+      "height": 932
+    },
+    {
+      "route": "/signup",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/login",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/forgot-password",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/signup",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/invite/activate",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "route": "/demo",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/forgot-password",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/invite/activate",
+      "width": 820,
+      "height": 1180
+    },
+    {
+      "route": "/demo/pos",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/stock",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/products/p0",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/pos",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/stock/replenishment",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/pos",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/stock",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/sales",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/sales/sale0",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/products/p0",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/stock",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/sales/credits",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/products/p0",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/stock/replenishment",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/sales",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/trade",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/stock/replenishment",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/buyback",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/sales/sale0",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/sales",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/sales/credits",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/sales/sale0",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/purchases",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/trade",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/sales/credits",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/suppliers",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/buyback",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/trade",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/clients",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/purchases",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/buyback",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/purchases",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/suppliers",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/cash",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/clients",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/expenses",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/suppliers",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/cash",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/clients",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/payments",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/cash",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/expenses",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/team",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/payments",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/expenses",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/audit",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/team",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/payments",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/accounting/journals",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/audit",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/accounting/accounts",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/team",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/accounting/journals",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/accounting/ledger",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/audit",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/accounting/accounts",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/accounting/trial-balance",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/accounting/ledger",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/accounting/journals",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/accounting/trial-balance",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/accounting/statements",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/accounting/accounts",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/accounting/periods",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/accounting/ledger",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/accounting/statements",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/accounting/periods",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/analytics/executive",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/accounting/trial-balance",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/analytics/executive",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/accounting/statements",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/analytics/sales",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/accounting/periods",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/analytics/stock",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/analytics/sales",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/analytics/stock",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/analytics/margin",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/analytics/executive",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/analytics/sales",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/analytics/margin",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/analytics/team",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/analytics/stock",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/analytics/clients",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/analytics/team",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/analytics/cash",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/analytics/clients",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/analytics/margin",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/analytics/cash",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/analytics/accounting",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/analytics/team",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/analytics/accounting",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/analytics/trade",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/analytics/clients",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/analytics/trade",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/settings/organization",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/analytics/cash",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/settings/stores",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/analytics/accounting",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/settings/organization",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/settings/sales",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/analytics/trade",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/settings/stores",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/settings/stock",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/settings/sales",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/settings/organization",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/settings/accounting",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/settings/stores",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/settings/stock",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/settings/sales",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/settings/fiscal",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/settings/accounting",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/settings/stock",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/settings/fiscal",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/demo/settings/security",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/settings/accounting",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/demo/settings/security",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/login",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/settings/fiscal",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/login",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/signup",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/forgot-password",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/demo/settings/security",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/signup",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/forgot-password",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/invite/activate",
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "route": "/login",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/invite/activate",
+      "width": 1180,
+      "height": 820
+    },
+    {
+      "route": "/signup",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/forgot-password",
+      "width": 844,
+      "height": 390
+    },
+    {
+      "route": "/invite/activate",
+      "width": 844,
+      "height": 390
+    }
+  ],
+  "failures": [],
+  "errors": []
+}

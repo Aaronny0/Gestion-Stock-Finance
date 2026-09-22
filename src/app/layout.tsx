@@ -1,32 +1,29 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import AppShell from "@/components/AppShell";
-
+import { FrontendShell } from "@/frontend/shell";
 export const metadata: Metadata = {
-    title: "VORTEX — Gestion de Boutique",
-    description: "Application de gestion commerciale pour boutique de téléphones. Stock, ventes, troc et reporting financier.",
+  title: "Vortex · Gestion Stock & Finance",
+  description: "Pilotez votre commerce, votre stock et vos finances.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "Vortex", statusBarStyle: "default" },
 };
-
-export const viewport = {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#4F46E5",
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
 };
-
 export default function RootLayout({
-    children,
-}: Readonly<{
-    children: React.ReactNode;
-}>) {
-    return (
-        <html lang="fr" suppressHydrationWarning>
-            <head>
-                <link rel="icon" href="/favicon.ico" sizes="any" />
-            </head>
-            <body suppressHydrationWarning>
-                <AppShell>{children}</AppShell>
-            </body>
-        </html>
-    );
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="fr">
+      <body>
+        <FrontendShell>{children}</FrontendShell>
+      </body>
+    </html>
+  );
 }

@@ -1,0 +1,20 @@
+{
+  "date": "2026-09-17T09:54:57.577Z",
+  "checks": [
+    "Dashboard desktop",
+    "Entrée de 2000 unités sans IMEI",
+    "Vente de 3 unités, reçu et impression",
+    "Stock après vente : 2015 unités",
+    "Isolation des boutiques dans les listes",
+    "Caissier : aucun accès coûts/comptabilité/ajustement",
+    "Écriture : déséquilibre bloqué puis brouillon équilibré",
+    "24 routes métier sans erreur",
+    "Drill-down graphique vers les ventes",
+    "Responsive 768px",
+    "Responsive 360px",
+    "API absente : état explicite, aucun faux succès",
+    "Proxy : mutation externe refusée",
+    "Ancien endpoint sensible retiré"
+  ],
+  "pageErrors": []
+}

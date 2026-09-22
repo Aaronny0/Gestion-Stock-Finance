@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint src/frontend src/app src/proxy.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/accounting.test.cjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.9.0",

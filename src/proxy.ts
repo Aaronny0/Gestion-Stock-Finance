@@ -1,40 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { SESSION_COOKIE_NAME, verifySession } from '@/lib/auth';
-
-export default async function proxy(req: NextRequest) {
-    const { pathname } = req.nextUrl;
-
-    // Allow public routes
-    if (
-        pathname === '/login' ||
-        pathname.startsWith('/api/auth') ||
-        pathname.startsWith('/_next') ||
-        pathname.startsWith('/favicon') ||
-        pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js|woff2?)$/)
-    ) {
-        return NextResponse.next();
-    }
-
-    const token = req.cookies.get(SESSION_COOKIE_NAME)?.value;
-
-    if (!token) {
-        return NextResponse.redirect(new URL('/login', req.url));
-    }
-
-    try {
-        const isValid = await verifySession(token);
-        if (!isValid) {
-            throw new Error('Invalid token');
-        }
-    } catch {
-        const response = NextResponse.redirect(new URL('/login', req.url));
-        response.cookies.delete(SESSION_COOKIE_NAME);
-        return response;
-    }
-
-    return NextResponse.next();
+import { NextResponse, type NextRequest } from "next/server";
+// Authentication and permissions are checked by the session API before any business data is rendered.
+export default function proxy(request: NextRequest) {
+  const response = NextResponse.next();
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("X-Frame-Options", "DENY");
+  if (!request.nextUrl.pathname.startsWith("/_next/"))
+    response.headers.set("Cache-Control", "no-store");
+  return response;
 }
-
 export const config = {
-    matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
