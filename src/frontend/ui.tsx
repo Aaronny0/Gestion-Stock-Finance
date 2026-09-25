@@ -7,22 +7,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  FiCheck,
-  FiClock,
-  FiInfo,
-  FiMinusCircle,
-  FiChevronLeft,
-  FiChevronRight,
-  FiDownload,
-  FiSearch,
-  FiX,
-  FiInbox,
-  FiAlertCircle,
-} from "react-icons/fi";
+import { Check, Clock, Info, CircleMinus, ChevronLeft, ChevronRight, Download, Search, X, Inbox, CircleAlert } from "lucide-react";
 import { money } from "./accounting";
 import { useWorkspace, useViewState } from "./provider";
-import type { Permission } from "./types";
 export function Money({ value }: { value: number }) {
   const { snapshot } = useWorkspace();
   return (
@@ -30,15 +17,6 @@ export function Money({ value }: { value: number }) {
       {money(value, snapshot?.session.organization.currency)}
     </span>
   );
-}
-export function PermissionGate({
-  permission,
-  children,
-}: {
-  permission: Permission;
-  children: ReactNode;
-}) {
-  return useWorkspace().can(permission) ? children : null;
 }
 export function Badge({ value }: { value: string }) {
   const labels: Record<string, string> = {
@@ -71,14 +49,14 @@ export function Badge({ value }: { value: string }) {
           ? "blue"
           : "neutral";
   const Icon = danger
-    ? FiAlertCircle
+    ? CircleAlert
     : warning
-      ? FiClock
+      ? Clock
       : success
-        ? FiCheck
+        ? Check
         : info
-          ? FiInfo
-          : FiMinusCircle;
+          ? Info
+          : CircleMinus;
   return (
     <span className={`badge ${color}`}>
       <Icon aria-hidden="true" />
@@ -98,7 +76,7 @@ export function Alert({
       className={`alert ${error ? "error" : ""}`}
       role={error ? "alert" : "status"}
     >
-      <FiAlertCircle aria-hidden />
+      <CircleAlert aria-hidden />
       {children}
     </div>
   );
@@ -115,7 +93,7 @@ export function EmptyState({
   return (
     <div className="empty-state">
       <span>
-        <FiInbox />
+        <Inbox />
       </span>
       <h3>{title}</h3>
       <p>{description}</p>
@@ -225,72 +203,11 @@ export function Modal({
       <div className="modal-head">
         <h2 id={titleId}>{title}</h2>
         <button className="icon-button" aria-label="Fermer" onClick={onClose}>
-          <FiX />
+          <X />
         </button>
       </div>
       {children}
     </dialog>
-  );
-}
-export function ConfirmDialog({
-  title,
-  children,
-  onConfirm,
-  onClose,
-}: {
-  title: string;
-  children: ReactNode;
-  onConfirm: () => Promise<unknown>;
-  onClose: () => void;
-}) {
-  const [busy, setBusy] = useState(false),
-    [error, setError] = useState("");
-  const lock = useRef(false);
-  return (
-    <Modal
-      title={title}
-      onClose={() => {
-        if (!busy) onClose();
-      }}
-    >
-      <div className="modal-body">
-        {children}
-        {error && <Alert error>{error}</Alert>}
-      </div>
-      <div className="modal-foot">
-        <button className="button secondary" disabled={busy} onClick={onClose}>
-          Retour
-        </button>
-        <button
-          type="button"
-          className="button primary"
-          disabled={busy}
-          onClick={async () => {
-            if (lock.current) return;
-            lock.current = true;
-            setBusy(true);
-            try {
-              await onConfirm();
-              onClose();
-            } catch (e) {
-              setError((e as Error).message);
-            } finally {
-              lock.current = false;
-              setBusy(false);
-            }
-          }}
-        >
-          {busy ? (
-            "Enregistrement…"
-          ) : (
-            <>
-              <FiCheck />
-              Confirmer
-            </>
-          )}
-        </button>
-      </div>
-    </Modal>
   );
 }
 function safeCell(value: unknown) {
@@ -329,7 +246,7 @@ export function ExportMenu({
     <div>
       <details className="export-menu">
         <summary className="button secondary">
-          <FiDownload />
+          <Download />
           Exporter
         </summary>
         <div>
@@ -440,7 +357,7 @@ export function DataTable<T extends { id: string }>({
     <section className="panel data-panel">
       <div className="table-toolbar">
         <label className="search-input">
-          <FiSearch />
+          <Search />
           <input
             aria-label={`Rechercher dans ${name}`}
             placeholder="Rechercher…"
@@ -576,7 +493,7 @@ export function DataTable<T extends { id: string }>({
                         onClick={() => onRow(r)}
                         aria-label={`Ouvrir le détail ${r.id}`}
                       >
-                        Voir <FiChevronRight />
+                        Voir <ChevronRight />
                       </button>
                     </td>
                   )}
@@ -599,7 +516,7 @@ export function DataTable<T extends { id: string }>({
             disabled={current === 1}
             onClick={() => setPage(current - 1)}
           >
-            <FiChevronLeft />
+            <ChevronLeft />
           </button>
           <button
             type="button"
@@ -608,7 +525,7 @@ export function DataTable<T extends { id: string }>({
             disabled={current === pages}
             onClick={() => setPage(current + 1)}
           >
-            <FiChevronRight />
+            <ChevronRight />
           </button>
         </div>
       </div>

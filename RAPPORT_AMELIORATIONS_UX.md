@@ -85,7 +85,7 @@ Preuves : [recette générale](output/frontend-qa/browser-results.json), [recett
 - `tests/accounting.test.cjs`, `tests/browser-ux.cjs` : couverture supplémentaire.
 - [Contrat API actualisé](docs/frontend-api.md).
 
-Sauvegarde antérieure aux changements : `docs/archives/frontend-avant-ameliorations-ux.tar.gz`. Le dossier ne possède pas de dépôt Git ; aucun commit n’a été créé.
+Une sauvegarde antérieure aux changements existait initialement dans `docs/archives/`, puis a été retirée du dépôt pendant le nettoyage de la Phase 0. Le dossier ne possédait pas de dépôt Git au moment de ce rapport ; aucun commit n’avait été créé.
 
 ## Limites de production
 

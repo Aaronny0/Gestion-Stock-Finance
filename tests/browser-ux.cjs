@@ -18,21 +18,21 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3000";
   await page.goto(base + "/demo/pos");
   await page.getByRole("heading", { name: "Une nouvelle vente." }).waitFor();
   await page
-    .locator(".product-card")
+    .locator('[data-qa="product-card"]')
     .filter({ hasText: "iPhone 15" })
     .first()
     .click();
   page.once("dialog", (d) => d.dismiss());
   await page.getByRole("link", { name: /Stock & catalogue/ }).click();
   assert.ok(page.url().endsWith("/demo/pos"));
-  assert.equal(await page.locator(".cart-item").count(), 1);
+  assert.equal(await page.locator('[data-qa="cart-item"]').count(), 1);
   checks.push("Navigation annulée : panier conservé");
   await page.getByLabel("Espèces remises (XOF)").fill("500000");
   await page.getByRole("button", { name: /Encaisser/ }).click();
-  assert.ok((await page.locator("dialog").innerText()).includes("75"));
-  await page.getByRole("button", { name: "Confirmer", exact: true }).click();
+  assert.ok((await page.getByRole("alertdialog").innerText()).includes("75"));
+  await page.getByRole("button", { name: "Confirmer la vente", exact: true }).click();
   await page.getByRole("heading", { name: /Reçu OP/ }).waitFor();
-  assert.ok((await page.locator(".receipt").innerText()).includes("75"));
+  assert.ok((await page.locator("[data-receipt]").innerText()).includes("75"));
   await page.screenshot({
     path: "output/frontend-qa/ux-receipt.png",
     fullPage: true,
@@ -44,17 +44,17 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3000";
   checks.push("Encaissement et monnaie rendue sur le reçu");
   await page.getByRole("link", { name: "Ventes", exact: true }).click();
   await page
-    .getByRole("button", { name: /Ouvrir le détail/ })
+    .getByLabel(/^Ouvrir le détail /)
     .first()
     .click();
   await page.getByRole("button", { name: "Retourner / rembourser" }).click();
-  await page.getByLabel("Quantité retournée Apple iPhone 15").fill("1");
+  await page.getByLabel("Quantité à retourner").first().fill("1");
   await page.getByLabel("Motif du retour").fill("Retour de contrôle QA");
   await page.getByRole("button", { name: "Vérifier le retour" }).click();
   await page.getByRole("button", { name: "Confirmer le retour" }).click();
-  await page.locator(".return-history").waitFor();
+  await page.locator('[data-qa="return-history"]').waitFor();
   assert.ok(
-    (await page.locator(".return-history").innerText()).includes(
+    (await page.locator('[data-qa="return-history"]').innerText()).includes(
       "remis en stock",
     ),
   );
@@ -77,15 +77,12 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3000";
   await page
     .getByRole("link", { name: "Caisse / Vendre", exact: true })
     .click();
-  await page.locator(".product-card").first().click();
+  await page.locator('[data-qa="product-card"]').first().click();
+  const storeSwitcher = page.getByRole("combobox", { name: "Boutique active" });
+  await storeSwitcher.click();
   page.once("dialog", (d) => d.dismiss());
-  await page
-    .getByRole("combobox", { name: "Boutique active" })
-    .selectOption("s2");
-  assert.equal(
-    await page.getByRole("combobox", { name: "Boutique active" }).inputValue(),
-    "s1",
-  );
+  await page.getByRole("option", { name: "Porto-Novo", exact: true }).click();
+  assert.ok((await storeSwitcher.innerText()).includes("Cotonou"));
   checks.push("Changement de boutique protégé");
   page.once("dialog", (d) => d.accept());
   await page.getByRole("link", { name: /Stock & catalogue/ }).click();

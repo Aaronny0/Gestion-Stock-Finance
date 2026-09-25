@@ -1,10 +1,10 @@
 "use client";
+import { ArrowUpRight } from "lucide-react";
 import { salePosition, netLineValue } from "./operations";
 import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { FiArrowUpRight } from "react-icons/fi";
 import { useWorkspace } from "./provider";
 import { indicators } from "./accounting";
 import { DataTable, DateRangePicker, Money, PageHeading, Alert } from "./ui";
@@ -364,7 +364,7 @@ export default function Analytics({ path }: { path: string }) {
             className="button primary"
             href={href("/accounting/statements")}
           >
-            Ouvrir les états financiers <FiArrowUpRight />
+            Ouvrir les états financiers <ArrowUpRight />
           </Link>
         </>
       )}

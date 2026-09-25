@@ -4,7 +4,7 @@
 
 Le dépôt initial contient un schéma historique mono-boutique, des appels Supabase directs et une authentification personnalisée. Il ne contient pas les API multi-entreprises, de permissions et de comptabilité décrites dans le cahier frontend.
 
-Le nouveau frontend n’utilise pas ces anciennes écritures directes. **Aucune migration ni écriture n’a été exécutée dans Supabase.** L’ancien code est conservé dans `docs/archives/frontend-avant-cahier.tar.gz`.
+Le nouveau frontend n’utilise pas ces anciennes écritures directes. **Aucune migration ni écriture n’a été exécutée dans Supabase.** Les anciennes archives de code locales ont été retirées du dépôt pendant le nettoyage de la Phase 0.
 
 - `/demo` : données fictives en mémoire, commandes atomiques simulées, réinitialisation au rechargement. Aucune transmission de transaction ni de justificatif.
 - Routes normales : requêtes à `/api/v1/*`, relayées vers `FRONTEND_API_URL` par Next.js. Sans service configuré : HTTP 503 et écran explicite avec lien vers la démonstration.

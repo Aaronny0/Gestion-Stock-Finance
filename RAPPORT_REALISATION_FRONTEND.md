@@ -25,7 +25,7 @@ L’application initiale était un projet Next.js existant avec des écrans stoc
 
 Une sauvegarde du code source initial a été créée :
 
-`docs/archives/frontend-avant-cahier.tar.gz`
+`docs/archives/frontend-avant-cahier.tar.gz` *(archive historique retirée du dépôt pendant le nettoyage de la Phase 0)*
 
 Le dossier de travail ne contenait pas de dépôt Git ; aucun commit n’a été créé.
 

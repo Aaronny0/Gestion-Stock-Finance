@@ -1,19 +1,12 @@
 "use client";
+import { ArrowRight, Check, Plus, Trash2 } from "lucide-react";
 import { salePosition } from "./operations";
 import { useRef, useState, type ReactNode } from "react";
-import { FiArrowRight, FiCheck, FiPlus, FiTrash2 } from "react-icons/fi";
 import { useWorkspace, useUnsavedChanges } from "./provider";
 import { Alert, Field, Modal, Money } from "./ui";
 import { decimals, minor } from "./accounting";
 import { request } from "./api";
-import {
-  paymentMethods,
-  roleLabels,
-  permissions,
-  rolePermissions,
-  type Permission,
-  type Role,
-} from "./types";
+import { paymentMethods } from "./types";
 type Spec = {
   key: string;
   label: string;
@@ -189,7 +182,6 @@ export function ActionForm({
       method,
       date,
     ],
-    "sale.refund": [reason],
     "expense.reverse": [reason],
     "entry.reverse": [date, reason],
     "cash.open": [f("amount", `Solde initial compté (${currency})`, "money")],
@@ -205,35 +197,6 @@ export function ActionForm({
       f("amount", `Montant (${currency})`, "money"),
       method,
       reason,
-    ],
-    "team.invite": [
-      f("label", "Nom du membre"),
-      f("email", "Email", "email"),
-      f(
-        "role",
-        "Rôle proposé",
-        "select",
-        true,
-        Object.entries(roleLabels).filter(([v]) => v !== "owner"),
-      ),
-    ],
-    "team.update": [
-      f(
-        "role",
-        "Rôle",
-        "select",
-        true,
-        Object.entries(roleLabels).filter(([v]) => v !== "owner"),
-      ),
-      f("status", "Statut", "select", true, [
-        ["Actif", "Actif"],
-        ["Suspendu", "Suspendu"],
-        ["Invitation en attente", "Renvoyer l’invitation"],
-      ]),
-    ],
-    "store.save": [
-      f("label", "Nom du point de vente"),
-      f("city", "Ville / adresse", undefined, false),
     ],
     "account.save": [
       f("number", "Numéro de compte"),
@@ -276,19 +239,6 @@ export function ActionForm({
       ]),
     ),
   );
-  const [stores, setStores] = useState<string[]>(
-    (initial.stores as string[]) ?? [storeId],
-  );
-  const [extras, setExtras] = useState<
-    { productId: string; quantity: number; cost: string }[]
-  >([]);
-  const [customPermissions, setCustomPermissions] = useState<
-    Permission[] | null
-  >((initial.permissions as Permission[]) ?? null);
-  const effectivePermissions =
-    customPermissions ??
-    rolePermissions[(values.role || "cashier") as Role] ??
-    [];
   const [file, setFile] = useState<File | null>(null),
     [review, setReview] = useState(false),
     [busy, setBusy] = useState(false),
@@ -316,9 +266,7 @@ export function ActionForm({
   ];
   const signature = JSON.stringify({
     values,
-    stores,
     extras,
-    customPermissions,
     reconciledMethods,
   });
   const original = useRef(signature);
@@ -344,9 +292,6 @@ export function ActionForm({
             : values[s.key],
       ]),
     ),
-    ...(type.startsWith("team.")
-      ? { stores, permissions: effectivePermissions }
-      : {}),
     ...(type === "purchase.create"
       ? {
           lines: [
@@ -547,8 +492,6 @@ export function ActionForm({
               );
             if (type === "purchase.create" && paid > total)
               throw new Error("Le paiement dépasse le montant de l’achat.");
-            if (type.startsWith("team.") && !stores.length)
-              throw new Error("Attribuez au moins une boutique.");
             if (
               type === "stock.entry" &&
               values.imei &&
@@ -654,19 +597,8 @@ export function ActionForm({
                   />
                 </p>
               ))}
-              {type.startsWith("team.") && (
-                <p>
-                  {stores.length} boutique(s) · {effectivePermissions.length}{" "}
-                  permission(s) attribuée(s).
-                </p>
-              )}
+              
               {file && <p>Justificatif : {file.name}</p>}
-              {type === "sale.refund" && (
-                <Alert>
-                  La vente sera remboursée, les articles réintégrés au stock et
-                  les écritures extournées.
-                </Alert>
-              )}
             </>
           ) : (
             <>
@@ -800,7 +732,7 @@ export function ActionForm({
                           setExtras(extras.filter((_, i) => i !== index))
                         }
                       >
-                        <FiTrash2 />
+                        <Trash2 />
                         Retirer
                       </button>
                     </fieldset>
@@ -815,7 +747,7 @@ export function ActionForm({
                       ])
                     }
                   >
-                    <FiPlus />
+                    <Plus />
                     Ajouter un article à l’achat
                   </button>
                   <p className="report-footnote">
@@ -842,63 +774,8 @@ export function ActionForm({
                   />
                 </Field>
               )}
-              {type.startsWith("team.") && (
-                <fieldset>
-                  <legend>Boutiques autorisées</legend>
-                  {snapshot!.session.stores.map((s) => (
-                    <label className="check-field" key={s.id}>
-                      <input
-                        type="checkbox"
-                        checked={stores.includes(s.id)}
-                        onChange={(e) =>
-                          setStores(
-                            e.target.checked
-                              ? [...stores, s.id]
-                              : stores.filter((id) => id !== s.id),
-                          )
-                        }
-                      />
-                      {s.name}
-                    </label>
-                  ))}
-                </fieldset>
-              )}
-              {type.startsWith("team.") && (
-                <details className="permission-editor">
-                  <summary>Personnaliser les permissions</summary>
-                  <p>
-                    Le rôle sert de modèle. Les exceptions ci-dessous seront
-                    revalidées par le serveur.
-                  </p>
-                  <button
-                    type="button"
-                    className="text-button"
-                    onClick={() => setCustomPermissions(null)}
-                  >
-                    Réinitialiser selon le rôle
-                  </button>
-                  <div className="permission-grid">
-                    {permissions.map((permission) => (
-                      <label className="check-field" key={permission}>
-                        <input
-                          type="checkbox"
-                          checked={effectivePermissions.includes(permission)}
-                          onChange={(e) =>
-                            setCustomPermissions(
-                              e.target.checked
-                                ? [...effectivePermissions, permission]
-                                : effectivePermissions.filter(
-                                    (p) => p !== permission,
-                                  ),
-                            )
-                          }
-                        />
-                        {permission}
-                      </label>
-                    ))}
-                  </div>
-                </details>
-              )}
+              
+              
               {["purchase.create", "expense.create"].includes(type) && (
                 <Field
                   label="Justificatif · facultatif"
@@ -944,12 +821,12 @@ export function ActionForm({
               "Enregistrement…"
             ) : review ? (
               <>
-                <FiCheck />
+                <Check />
                 Confirmer
               </>
             ) : (
               <>
-                Vérifier <FiArrowRight />
+                Vérifier <ArrowRight />
               </>
             )}
           </button>

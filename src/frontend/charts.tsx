@@ -2,15 +2,17 @@
 import {
   Area,
   AreaChart,
+  Bar,
+  BarChart,
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
-  BarChart,
-  Bar,
 } from "recharts";
+import { chartColors } from "@/lib/chart-colors";
 import { money } from "./accounting";
+
 export function RevenueChart({
   rows,
   currency,
@@ -24,7 +26,7 @@ export function RevenueChart({
 }) {
   return (
     <div
-      className="chart-area"
+      className="h-72 w-full min-w-0"
       role="img"
       aria-label="Évolution du chiffre d’affaires et de la marge sur la période"
     >
@@ -38,30 +40,25 @@ export function RevenueChart({
         >
           <defs>
             <linearGradient id="revenue-fill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#4F46E5" stopOpacity={0.2} />
-              <stop offset="100%" stopColor="#4F46E5" stopOpacity={0} />
+              <stop offset="0%" stopColor={chartColors.primary} stopOpacity={0.2} />
+              <stop offset="100%" stopColor={chartColors.primary} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid
-            stroke="#ececf3"
-            vertical={false}
-            strokeDasharray="4 4"
-          />
+          <CartesianGrid stroke="var(--border)" vertical={false} strokeDasharray="4 4" />
           <XAxis
             dataKey="date"
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 12, fill: "#475569" }}
-            tickFormatter={(v) =>
-              String(v).slice(8) + "/" + String(v).slice(5, 7)
-            }
+            tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+            tickFormatter={(value) => String(value).slice(8) + "/" + String(value).slice(5, 7)}
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 12, fill: "#475569" }}
-            tickFormatter={(v) =>
-              v >= 1000000 ? `${v / 1000000} M` : `${v / 1000} k`
+            width={44}
+            tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+            tickFormatter={(value) =>
+              value >= 1000000 ? `${value / 1000000} M` : `${value / 1000} k`
             }
           />
           <Tooltip formatter={(value) => money(Number(value), currency)} />
@@ -70,26 +67,27 @@ export function RevenueChart({
             type="monotone"
             dataKey="revenue"
             name="Chiffre d’affaires"
-            stroke="#4F46E5"
+            stroke={chartColors.primary}
             strokeWidth={3}
             fill="url(#revenue-fill)"
           />
-          {margin && (
+          {margin ? (
             <Area
               isAnimationActive={false}
               type="monotone"
               dataKey="margin"
               name="Marge brute"
-              stroke="#39b7a2"
+              stroke={chartColors.success}
               strokeWidth={2}
               fill="transparent"
             />
-          )}
+          ) : null}
         </AreaChart>
       </ResponsiveContainer>
     </div>
   );
 }
+
 export function RankingChart({
   rows,
   currency,
@@ -100,13 +98,9 @@ export function RankingChart({
   onSelect: (label: string) => void;
 }) {
   return (
-    <div className="chart-area">
+    <div className="h-72 w-full min-w-0">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={rows}
-          layout="vertical"
-          margin={{ left: 20, right: 20 }}
-        >
+        <BarChart data={rows} layout="vertical" margin={{ left: 20, right: 20 }}>
           <XAxis type="number" hide />
           <YAxis
             type="category"
@@ -114,13 +108,14 @@ export function RankingChart({
             width={90}
             axisLine={false}
             tickLine={false}
+            tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
           />
-          <Tooltip formatter={(v) => money(Number(v), currency)} />
+          <Tooltip formatter={(value) => money(Number(value), currency)} />
           <Bar
             isAnimationActive={false}
             dataKey="value"
             name="Chiffre d’affaires"
-            fill="#7868e7"
+            fill={chartColors.primary}
             radius={[0, 5, 5, 0]}
             onClick={(_entry, index) => {
               const row = rows[index];

@@ -1,519 +1,407 @@
 "use client";
-import { salePosition, netLineValue, returnedQuantity } from "./operations";
+
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  FiArrowUpRight,
-  FiArrowRight,
-  FiPlus,
-  FiShoppingBag,
-  FiDollarSign,
-  FiTrendingUp,
-  FiActivity,
-  FiPackage,
-  FiInfo,
-} from "react-icons/fi";
-import { useWorkspace } from "./provider";
-import { indicators } from "./accounting";
+  ArrowUpRight,
+  CircleDollarSign,
+  Info,
+  Plus,
+  ShoppingBag,
+  TrendingUp,
+  WalletCards,
+} from "lucide-react";
+import { DashboardAttention } from "@/features/dashboard/dashboard-attention";
+import { DashboardPaymentBreakdown } from "@/features/dashboard/dashboard-payment-breakdown";
+import { DashboardPeriodFilter } from "@/features/dashboard/dashboard-period-filter";
+import { DashboardRecentSales } from "@/features/dashboard/dashboard-recent-sales";
+import { DashboardSetupChecklist } from "@/features/dashboard/dashboard-setup-checklist";
+import { DashboardTopProducts } from "@/features/dashboard/dashboard-top-products";
+import { MetricCard } from "@/components/data-display/metric-card";
+import { Money } from "@/components/data-display/money";
+import { PageHeader } from "@/components/layout/page-header";
+import { Button } from "@/components/ui/button";
 import {
-  Alert,
-  Badge,
-  DateRangePicker,
-  Money,
-  PageHeading,
-  DataTable,
-} from "./ui";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { indicators } from "./accounting";
+import { netLineValue, returnedQuantity } from "./operations";
+import { useWorkspace } from "./provider";
+
 const RevenueChart = dynamic(
-  () => import("./charts").then((m) => m.RevenueChart),
-  { ssr: false, loading: () => <div className="chart-area skeleton" /> },
+  () => import("./charts").then((module) => module.RevenueChart),
+  {
+    ssr: false,
+    loading: () => <div className="h-72 animate-pulse rounded-md bg-muted" />,
+  },
 );
+
 export default function Dashboard() {
-  const { snapshot, storeId, start, end, href, can, setDates } = useWorkspace(),
-    router = useRouter();
+  const { snapshot, storeId, start, end, href, can, setDates } = useWorkspace();
+  const router = useRouter();
   const db = snapshot!.data;
-  if (db.sales.length > 2000 && !snapshot!.reporting)
+  const currency = snapshot!.session.organization.currency;
+  const firstName = snapshot!.session.user.name.split(" ")[0];
+  const activeStore =
+    storeId === "all"
+      ? "Toutes les boutiques"
+      : snapshot!.session.stores.find((store) => store.id === storeId)?.name ?? "Boutique";
+
+  if (db.sales.length > 2000 && !snapshot!.reporting) {
     return (
-      <Alert>
-        Ce rapport couvre trop d’opérations. Réduisez la période pour le
-        consulter.
-      </Alert>
+      <Card className="border-warning/30 bg-warning-background">
+        <CardContent className="flex gap-3 p-5 text-warning">
+          <Info className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+          <div>
+            <strong className="block text-sm font-semibold">Période trop volumineuse</strong>
+            <p className="mb-0 mt-1 text-sm text-inherit">
+              Ce rapport couvre trop d’opérations. Réduisez la période pour le consulter.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     );
-  const scope = (v: { storeId?: string; date: string }) =>
-    (storeId === "all" || v.storeId === storeId) &&
-    v.date.slice(0, 10) >= start &&
-    v.date.slice(0, 10) <= end;
-  const sales = db.sales.filter(scope),
-    payments = db.payments.filter(scope),
-    entries = db.entries.filter(scope),
-    kpi = snapshot!.reporting?.kpis ?? indicators(sales, payments, entries);
-  const products = db.products.filter(
-    (p) => p.active && (storeId === "all" || p.storeId === storeId),
-  );
-  const low = products.filter((p) => p.quantity <= p.threshold);
-  const days = [];
-  const d = new Date(start + "T12:00:00Z");
-  for (
-    let i = 0;
-    !snapshot!.reporting && d.toISOString().slice(0, 10) <= end && i < 366;
-    i++, d.setUTCDate(d.getUTCDate() + 1)
-  ) {
-    const date = d.toISOString().slice(0, 10);
-    const k = indicators(
-      sales.filter((s) => s.date.slice(0, 10) === date),
-      [],
-      [],
-    );
-    days.push({ date, revenue: k.revenue, margin: k.margin });
   }
-  const cards = [
+
+  const scope = (value: { storeId?: string; date: string }) =>
+    (storeId === "all" || value.storeId === storeId) &&
+    value.date.slice(0, 10) >= start &&
+    value.date.slice(0, 10) <= end;
+
+  const sales = db.sales.filter(scope);
+  const payments = db.payments.filter(scope);
+  const entries = db.entries.filter(scope);
+  const kpi = snapshot!.reporting?.kpis ?? indicators(sales, payments, entries);
+
+  const products = db.products.filter(
+    (product) => product.active && (storeId === "all" || product.storeId === storeId),
+  );
+  const lowStock = products.filter((product) => product.quantity <= product.threshold);
+  const openCashCount = db.cash.filter(
+    (cash) => cash.status === "open" && (storeId === "all" || cash.storeId === storeId),
+  ).length;
+  const pendingInvitations = db.team.filter(
+    (member) => member.status === "Invitation en attente",
+  ).length;
+
+  const days: { date: string; revenue: number; margin: number }[] = [];
+  const cursor = new Date(start + "T12:00:00Z");
+  for (
+    let index = 0;
+    !snapshot!.reporting && cursor.toISOString().slice(0, 10) <= end && index < 366;
+    index++, cursor.setUTCDate(cursor.getUTCDate() + 1)
+  ) {
+    const date = cursor.toISOString().slice(0, 10);
+    const daily = indicators(
+      sales.filter((sale) => sale.date.slice(0, 10) === date),
+      [],
+      [],
+    );
+    days.push({ date, revenue: daily.revenue, margin: daily.margin });
+  }
+
+  const paymentBreakdown =
+    snapshot!.reporting?.paymentBreakdown ??
+    Object.entries(
+      payments
+        .filter((payment) => payment.direction === "in")
+        .reduce<Record<string, number>>(
+          (accumulator, payment) => ({
+            ...accumulator,
+            [payment.method]: (accumulator[payment.method] ?? 0) + payment.amount,
+          }),
+          {},
+        ),
+    );
+
+  const topProducts =
+    snapshot!.reporting?.topProducts ??
+    Object.values(
+      sales
+        .filter((sale) => sale.status !== "refunded")
+        .flatMap((sale) =>
+          sale.lines.map((line, index) => ({
+            ...line,
+            quantity: line.quantity - returnedQuantity(sale, index),
+            net: netLineValue(sale, index),
+          })),
+        )
+        .reduce<Record<string, { label: string; quantity: number; amount: number }>>(
+          (accumulator, line) => {
+            accumulator[line.productId] ??= {
+              label: line.label,
+              quantity: 0,
+              amount: 0,
+            };
+            accumulator[line.productId].quantity += line.quantity;
+            accumulator[line.productId].amount += line.net;
+            return accumulator;
+          },
+          {},
+        ),
+    )
+      .sort((left, right) => right.amount - left.amount)
+      .slice(0, 4);
+
+  const setupSteps = [
+    {
+      label: "Organisation et boutiques",
+      path: "/settings",
+      done:
+        !!snapshot!.session.organization.name &&
+        snapshot!.session.stores.some((store) => store.active),
+    },
+    {
+      label: "Catalogue et stock",
+      path: "/stock",
+      done: db.products.some(
+        (product) =>
+          product.active &&
+          product.quantity > 0 &&
+          (storeId === "all" || product.storeId === storeId),
+      ),
+    },
+    {
+      label: "Équipe et accès",
+      path: "/team",
+      done: db.team.length > 1,
+    },
+    {
+      label: "Ouvrir la caisse",
+      path: "/cash",
+      done: openCashCount > 0,
+    },
+  ];
+
+  const attentionItems = [
+    ...(lowStock.length
+      ? [
+          {
+            label: `${lowStock.length} référence${lowStock.length > 1 ? "s" : ""} à réapprovisionner`,
+            description: "Le stock atteint ou approche le seuil d’alerte.",
+            href: href("/stock") + "?low=1",
+            tone: "warning" as const,
+            icon: "stock" as const,
+          },
+        ]
+      : []),
+    ...(openCashCount
+      ? [
+          {
+            label: `${openCashCount} caisse${openCashCount > 1 ? "s" : ""} ouverte${openCashCount > 1 ? "s" : ""}`,
+            description: "Pensez à la clôture de fin de journée.",
+            href: href("/cash"),
+            tone: "info" as const,
+            icon: "cash" as const,
+          },
+        ]
+      : []),
+    ...(can("team.manage") && pendingInvitations
+      ? [
+          {
+            label: `${pendingInvitations} invitation${pendingInvitations > 1 ? "s" : ""} en attente`,
+            description: "Des membres n’ont pas encore activé leur accès.",
+            href: href("/team"),
+            tone: "primary" as const,
+            icon: "team" as const,
+          },
+        ]
+      : []),
+  ];
+
+  const metrics = [
     {
       label: "Chiffre d’affaires",
       value: kpi.revenue,
-      definition:
-        "Ventes reconnues sur la période, distinctes des sommes encaissées.",
-      icon: FiShoppingBag,
-      color: "violet",
-      link: "/sales",
-      sub: `${kpi.count} ventes · ${kpi.units} unités`,
+      definition: "Ventes reconnues sur la période, distinctes des sommes encaissées.",
+      icon: ShoppingBag,
+      href: "/sales",
+      comparison: `${kpi.count} ventes · ${kpi.units} unités`,
+      sensitive: false,
     },
     {
       label: "Encaissements",
       value: kpi.incoming,
       definition: "Paiements effectivement reçus sur la période.",
-      icon: FiDollarSign,
-      color: "blue",
-      link: "/payments",
-      sub: "Tous modes de paiement",
+      icon: CircleDollarSign,
+      href: "/payments",
+      comparison: "Tous modes de paiement",
+      sensitive: false,
     },
     {
       label: "Marge brute",
       value: kpi.margin,
       definition: "Chiffre d’affaires moins coût des marchandises vendues.",
-      icon: FiTrendingUp,
-      color: "green",
-      link: "/analytics/margin",
-      sub: "Avant les charges d’exploitation",
+      icon: TrendingUp,
+      href: "/analytics/margin",
+      comparison: "Avant charges d’exploitation",
       sensitive: true,
     },
     {
       label: "Cashflow net",
       value: kpi.cashflow,
       definition: "Encaissements moins décaissements sur la période.",
-      icon: FiActivity,
-      color: "amber",
-      link: "/cash",
-      sub: "Flux nets de trésorerie",
+      icon: WalletCards,
+      href: "/cash",
+      comparison: "Flux nets de trésorerie",
+      sensitive: false,
     },
   ];
-  const modes =
-    snapshot!.reporting?.paymentBreakdown ??
-    Object.entries(
-      payments
-        .filter((p) => p.direction === "in")
-        .reduce<
-          Record<string, number>
-        >((a, p) => ({ ...a, [p.method]: (a[p.method] ?? 0) + p.amount }), {}),
-    );
-  const top =
-    snapshot!.reporting?.topProducts ??
-    Object.values(
-      sales
-        .filter((s) => s.status !== "refunded")
-        .flatMap((s) =>
-          s.lines.map((l, i) => ({
-            ...l,
-            quantity: l.quantity - returnedQuantity(s, i),
-            net: netLineValue(s, i),
-          })),
-        )
-        .reduce<
-          Record<string, { label: string; quantity: number; amount: number }>
-        >((a, l) => {
-          a[l.productId] ??= { label: l.label, quantity: 0, amount: 0 };
-          a[l.productId].quantity += l.quantity;
-          a[l.productId].amount += l.net;
-          return a;
-        }, {}),
-    )
-      .sort((a, b) => b.amount - a.amount)
-      .slice(0, 4);
+
   return (
-    <>
-      <PageHeading
-        eyebrow="VOTRE ACTIVITÉ EN UN COUP D’ŒIL"
-        title="Gardez une longueur d’avance."
-        description={`Bienvenue, ${snapshot!.session.user.name.split(" ")[0]}. Voici où en est votre activité.`}
-        action={
-          can("sales.create") && (
-            <Link className="button primary" href={href("/pos")}>
-              <FiPlus />
-              Nouvelle vente
-            </Link>
-          )
+    <div className="space-y-6">
+      <PageHeader
+        eyebrow="Vue d’ensemble"
+        title={`Bonjour ${firstName},`}
+        description="voici les indicateurs et points d’attention de votre activité."
+        actions={
+          can("sales.create") ? (
+            <Button asChild>
+              <Link href={href("/pos")}>
+                <Plus className="size-4" aria-hidden="true" />
+                Nouvelle vente
+              </Link>
+            </Button>
+          ) : undefined
         }
       />
-      {can("settings.manage") && (
-        <details className="panel">
-          <summary>Vérifier la mise en route de la boutique</summary>
-          <div className="checklist">
-            {[
-              {
-                label: "Organisation et boutiques",
-                path: "/settings",
-                done:
-                  !!snapshot!.session.organization.name &&
-                  snapshot!.session.stores.some((s) => s.active),
-              },
-              {
-                label: "Catalogue et stock",
-                path: "/stock",
-                done: db.products.some(
-                  (p) =>
-                    p.active &&
-                    p.quantity > 0 &&
-                    (storeId === "all" || p.storeId === storeId),
-                ),
-              },
-              {
-                label: "Équipe et accès",
-                path: "/team",
-                done: db.team.length > 1,
-              },
-              {
-                label: "Ouvrir la caisse",
-                path: "/cash",
-                done: db.cash.some(
-                  (c) =>
-                    c.status === "open" &&
-                    (storeId === "all" || c.storeId === storeId),
-                ),
-              },
-            ].map((step) => (
-              <Link key={step.path} href={href(step.path)}>
-                <Badge value={step.done ? "Validée" : "À vérifier"} />{" "}
-                {step.label}
-              </Link>
-            ))}
+
+      {can("settings.manage") ? <DashboardSetupChecklist steps={setupSteps} href={href} /> : null}
+
+      <div className="flex flex-col gap-4 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+            <span className="size-2 rounded-full bg-success" aria-hidden="true" />
+            Activité · {activeStore}
           </div>
-        </details>
-      )}
-      <div className="overview-toolbar">
-        <div className="section-title">
-          <span className="status-dot" />
-          Vue d’ensemble{" "}
-          <span className="muted">
-            {storeId === "all"
-              ? "Toutes les boutiques"
-              : snapshot!.session.stores.find((s) => s.id === storeId)?.name}
-          </span>
+          <p className="mb-0 mt-1 text-xs text-muted-foreground">
+            Les données ci-dessous suivent la période sélectionnée.
+          </p>
         </div>
-        <DateRangePicker />
+        <DashboardPeriodFilter />
       </div>
-      <div className="kpi-grid">
-        {cards
-          .filter((c) => !c.sensitive || can("analytics.cost_margin_read"))
-          .map((c) => (
-            <Link
-              className="kpi-card"
-              key={c.label}
-              href={href(c.link) + `?start=${start}&end=${end}`}
-            >
-              <div className="kpi-top">
-                <span className={`kpi-icon ${c.color}`}>
-                  <c.icon />
-                </span>
-                <span
-                  title={c.definition}
-                  aria-label={c.definition}
-                  tabIndex={0}
-                >
-                  <FiInfo />
-                </span>
-              </div>
-              <div className="kpi-label">{c.label}</div>
-              <div className="kpi-value">
-                <Money value={c.value} />
-              </div>
-              <div className="kpi-bottom">
-                <span>{c.sub}</span>
-                <FiArrowUpRight />
-              </div>
-            </Link>
-          ))}
-      </div>
-      <div className="dashboard-middle">
-        <section className="panel">
-          <div className="panel-heading">
+
+      <section aria-label="Indicateurs clés" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {metrics
+          .filter((metric) => !metric.sensitive || can("analytics.cost_margin_read"))
+          .map((metric) => {
+            const Icon = metric.icon;
+            return (
+              <MetricCard
+                key={metric.label}
+                label={metric.label}
+                value={<Money value={metric.value} currency={currency} />}
+                comparison={metric.comparison}
+                definition={metric.definition}
+                className="h-full"
+                icon={<Icon className="size-4" aria-hidden="true" />}
+                action={
+                  <Button asChild variant="ghost" size="icon" className="size-11 min-h-11 sm:size-8 sm:min-h-8">
+                    <Link
+                      href={href(metric.href) + `?start=${start}&end=${end}`}
+                      aria-label={`Ouvrir ${metric.label}`}
+                    >
+                      <ArrowUpRight className="size-4" aria-hidden="true" />
+                    </Link>
+                  </Button>
+                }
+              />
+            );
+          })}
+      </section>
+
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(20rem,0.8fr)]">
+        <Card>
+          <CardHeader className="flex-row items-start justify-between gap-4">
             <div>
-              <h2>Une activité qui se dessine</h2>
-              <p>
-                Chiffre d’affaires
-                {can("analytics.cost_margin_read")
-                  ? " & marge brute"
-                  : ""} · {snapshot!.session.organization.currency}
-              </p>
+              <CardTitle>Activité</CardTitle>
+              <CardDescription>
+                Chiffre d’affaires{can("analytics.cost_margin_read") ? " et marge brute" : ""} · {currency}
+              </CardDescription>
             </div>
-            <div className="segmented">
-              {[7, 30].map((n) => (
-                <button
-                  key={n}
+            <div className="flex items-center gap-1 rounded-md bg-muted p-1">
+              {[7, 30].map((daysCount) => (
+                <Button
+                  key={daysCount}
+                  variant="ghost"
+                  size="sm"
+                  className="bg-transparent"
                   onClick={() => {
-                    const d = new Date();
-                    d.setDate(d.getDate() - n + 1);
+                    const first = new Date();
+                    first.setDate(first.getDate() - daysCount + 1);
                     setDates(
-                      d.toISOString().slice(0, 10),
+                      first.toISOString().slice(0, 10),
                       new Date().toISOString().slice(0, 10),
                     );
                   }}
                 >
-                  {n} jours
-                </button>
+                  {daysCount} j
+                </Button>
               ))}
             </div>
-          </div>
-          <div className="chart-legend">
-            <span>
-              <i />
-              Chiffre d’affaires
-            </span>
-            {can("analytics.cost_margin_read") && (
-              <span>
-                <i className="teal" />
-                Marge brute
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-2">
+                <span className="size-2.5 rounded-full bg-primary" aria-hidden="true" />
+                Chiffre d’affaires
               </span>
-            )}
-          </div>
-          <RevenueChart
-            rows={snapshot!.reporting?.daily ?? days}
-            currency={snapshot!.session.organization.currency}
-            margin={can("analytics.cost_margin_read")}
-            onSelect={(date) =>
-              router.push(href("/sales") + `?start=${date}&end=${date}`)
-            }
-          />
-        </section>
-        <section className="panel attention-panel">
-          <div className="panel-heading">
-            <div>
-              <h2>À garder à l’œil</h2>
-              <p>Les points qui méritent votre attention</p>
-            </div>
-            <span className="alert-count">
-              {low.length +
-                (db.cash.some(
-                  (c) =>
-                    c.status === "open" &&
-                    (storeId === "all" || c.storeId === storeId),
-                )
-                  ? 1
-                  : 0)}
-            </span>
-          </div>
-          <Link className="attention-item" href={href("/stock") + "?low=1"}>
-            <span className="attention-icon amber">
-              <FiPackage />
-            </span>
-            <div>
-              <strong>{low.length} références à réapprovisionner</strong>
-              <small>Le stock approche du seuil d’alerte.</small>
-            </div>
-            <FiArrowRight />
-          </Link>
-          <Link className="attention-item" href={href("/cash")}>
-            <span className="attention-icon blue">
-              <FiDollarSign />
-            </span>
-            <div>
-              <strong>
-                {
-                  db.cash.filter(
-                    (c) =>
-                      c.status === "open" &&
-                      (storeId === "all" || c.storeId === storeId),
-                  ).length
-                }{" "}
-                caisse(s) ouverte(s)
-              </strong>
-              <small>Pensez à la clôture de fin de journée.</small>
-            </div>
-            <FiArrowRight />
-          </Link>
-          {can("team.manage") && (
-            <Link className="attention-item" href={href("/team")}>
-              <span className="attention-icon violet">
-                <FiShoppingBag />
-              </span>
-              <div>
-                <strong>
-                  {
-                    db.team.filter((m) => m.status === "Invitation en attente")
-                      .length
-                  }{" "}
-                  invitation(s) en attente
-                </strong>
-                <small>Votre équipe se met en place.</small>
-              </div>
-              <FiArrowRight />
-            </Link>
-          )}
-          <div className="insight-note">
-            <FiInfo />
-            <p>
-              Le chiffre d’affaires n’est pas le bénéfice. Vos charges sont
-              disponibles dans la comptabilité.
-            </p>
-          </div>
-        </section>
-      </div>
-      <div className="dashboard-lower">
-        <section className="panel">
-          <div className="panel-heading">
-            <div>
-              <h2>Vos meilleures ventes</h2>
-              <p>Les produits qui font la différence</p>
-            </div>
-            <Link className="text-button" href={href("/analytics/sales")}>
-              Tout voir <FiArrowUpRight />
-            </Link>
-          </div>
-          <div className="top-products">
-            {(snapshot!.reporting?.topProducts ?? top).map((p, i) => (
-              <Link
-                href={
-                  href("/sales") + `?product=${encodeURIComponent(p.label)}`
-                }
-                key={p.label}
-              >
-                <span className="rank">0{i + 1}</span>
-                <span className="mini-product">
-                  <FiPackage />
+              {can("analytics.cost_margin_read") ? (
+                <span className="inline-flex items-center gap-2">
+                  <span className="size-2.5 rounded-full bg-success" aria-hidden="true" />
+                  Marge brute
                 </span>
-                <span>
-                  <strong>{p.label}</strong>
-                  <small>{p.quantity} unités vendues</small>
-                </span>
-                <Money value={p.amount} />
-              </Link>
-            ))}
-          </div>
-        </section>
-        <section className="panel">
-          <div className="panel-heading">
-            <div>
-              <h2>Comment vos clients paient</h2>
-              <p>Répartition des encaissements</p>
+              ) : null}
             </div>
-          </div>
-          <div className="payment-total">
-            <Money value={kpi.incoming} />
-            <small>encaissés sur la période</small>
-          </div>
-          <div className="payment-bar">
-            {(snapshot!.reporting?.paymentBreakdown ?? modes).map(
-              ([method, value], i) => (
-                <span
-                  key={method}
-                  style={{
-                    width: `${kpi.incoming ? (value / kpi.incoming) * 100 : 0}%`,
-                    background: ["#7968e6", "#42b6a1", "#86a5e7", "#e8b764"][
-                      i % 4
-                    ],
-                  }}
-                />
-              ),
-            )}
-          </div>
-          <div className="payment-modes">
-            {(snapshot!.reporting?.paymentBreakdown ?? modes).map(
-              ([method, value], i) => (
-                <Link
-                  href={
-                    href("/payments") + `?method=${encodeURIComponent(method)}`
-                  }
-                  key={method}
-                >
-                  <i
-                    style={{
-                      background: ["#7968e6", "#42b6a1", "#86a5e7", "#e8b764"][
-                        i % 4
-                      ],
-                    }}
-                  />
-                  <span>{method}</span>
-                  <strong>
-                    {kpi.incoming
-                      ? Math.round((value / kpi.incoming) * 100)
-                      : 0}{" "}
-                    %
-                  </strong>
-                  <Money value={value} />
-                </Link>
-              ),
-            )}
-          </div>
-        </section>
+            <RevenueChart
+              rows={snapshot!.reporting?.daily ?? days}
+              currency={currency}
+              margin={can("analytics.cost_margin_read")}
+              onSelect={(date) => router.push(href("/sales") + `?start=${date}&end=${date}`)}
+            />
+          </CardContent>
+        </Card>
+
+        <DashboardAttention items={attentionItems} />
       </div>
-      <div className="panel-heading recent-title">
-        <div>
-          <h2>Les dernières ventes</h2>
-          <p>Chaque transaction, à portée de main</p>
-        </div>
-        <Link className="text-button" href={href("/sales")}>
-          Voir l’historique <FiArrowRight />
-        </Link>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <DashboardTopProducts rows={topProducts} currency={currency} href={href} />
+        <DashboardPaymentBreakdown
+          rows={paymentBreakdown}
+          total={kpi.incoming}
+          currency={currency}
+          href={href}
+        />
       </div>
-      <DataTable
-        name="ventes-récentes"
-        rows={sales.slice(0, 5)}
-        columns={[
-          {
-            key: "reference",
-            label: "Référence",
-            render: (s) => <strong>{s.reference}</strong>,
-          },
-          {
-            key: "date",
-            label: "Date",
-            render: (s) => new Date(s.date).toLocaleDateString("fr-FR"),
-          },
-          { key: "seller", label: "Vendeur" },
-          {
-            key: "total",
-            label: "Montant",
-            render: (s) => <Money value={salePosition(s).netTotal} />,
-          },
-          {
-            key: "status",
-            label: "Statut",
-            render: (s) => <Badge value={s.status} />,
-          },
-        ]}
-        onRow={(s) => router.push(href("/sales/" + s.id))}
-      />
-      <div className="compact-metrics">
-        <span>
-          Décaissements{" "}
-          <strong>
-            <Money value={kpi.outgoing} />
-          </strong>
-        </span>
-        {can("accounting.read") && (
-          <span>
-            Résultat comptable de la période{" "}
-            <strong>
-              <Money value={kpi.result} />
+
+      <DashboardRecentSales sales={sales.slice(0, 5)} currency={currency} href={href} />
+
+      <Card>
+        <CardContent className="grid gap-4 p-4 text-sm sm:grid-cols-3">
+          <div className="flex items-center justify-between gap-3 sm:block">
+            <span className="text-muted-foreground">Décaissements</span>
+            <Money value={kpi.outgoing} currency={currency} className="font-semibold text-foreground sm:mt-1 sm:block" />
+          </div>
+          {can("accounting.read") ? (
+            <div className="flex items-center justify-between gap-3 border-border sm:block sm:border-l sm:pl-4">
+              <span className="text-muted-foreground">Résultat comptable</span>
+              <Money value={kpi.result} currency={currency} className="font-semibold text-foreground sm:mt-1 sm:block" />
+            </div>
+          ) : null}
+          <div className="flex items-center justify-between gap-3 border-border sm:block sm:border-l sm:pl-4">
+            <span className="text-muted-foreground">Troc / rachat</span>
+            <strong className="font-semibold tabular-nums text-foreground sm:mt-1 sm:block">
+              {db.trades.filter(scope).length} / {db.buybacks.filter(scope).length}
             </strong>
-          </span>
-        )}
-        <span>
-          Troc / rachat{" "}
-          <strong>
-            {db.trades.filter(scope).length} /{" "}
-            {db.buybacks.filter(scope).length}
-          </strong>
-        </span>
-      </div>
-    </>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

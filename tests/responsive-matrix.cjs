@@ -89,14 +89,14 @@ const sizes = [
       try {
         await page.goto(base + route);
         if (route.startsWith("/demo"))
-          await page.locator(".workspace-main h1").waitFor();
+          await page.locator('[data-qa="workspace-main"] h1').waitFor();
         else await page.locator(".auth-form h2").waitFor();
         await page.waitForTimeout(70);
         const issue = await page.evaluate(() => {
           const width = innerWidth;
           const bad = [
             ...document.querySelectorAll(
-              ".workspace-main *, .auth-main *, .workspace-header *,dialog[open] *",
+              '[data-qa="workspace-main"] *, .auth-main *, header *, dialog[open] *, [role="dialog"] *',
             ),
           ]
             .filter((el) => {

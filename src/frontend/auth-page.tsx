@@ -2,15 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  FiArrowRight,
-  FiCheck,
-  FiEye,
-  FiEyeOff,
-  FiBarChart2,
-  FiPackage,
-  FiShield,
-} from "react-icons/fi";
+import { ArrowRight, Check, Eye, EyeOff, BarChart2, Package, Shield } from "lucide-react";
 import { api } from "./api";
 import { Alert, Field } from "./ui";
 export default function AuthPage() {
@@ -123,15 +115,15 @@ export default function AuthPage() {
           </p>
           <div className="auth-features">
             <span>
-              <FiPackage />
+              <Package />
               Votre stock, maîtrisé.
             </span>
             <span>
-              <FiBarChart2 />
+              <BarChart2 />
               Vos chiffres, enfin clairs.
             </span>
             <span>
-              <FiShield />
+              <Shield />
               Votre équipe, bien entourée.
             </span>
           </div>
@@ -246,7 +238,7 @@ export default function AuthPage() {
               ) : (
                 <>
                   <div className="onboarding-review">
-                    <FiCheck />
+                    <Check />
                     <strong>{values.organizationName}</strong>
                     <span>
                       {values.storeName} · {values.country} · {values.currency}
@@ -288,7 +280,7 @@ export default function AuthPage() {
                       }
                       onClick={() => setVisible(!visible)}
                     >
-                      {visible ? <FiEyeOff /> : <FiEye />}
+                      {visible ? <EyeOff /> : <Eye />}
                     </button>
                   </div>
                 </Field>
@@ -325,7 +317,7 @@ export default function AuthPage() {
                       : invite
                         ? "Activer mon compte"
                         : "Se connecter"}
-                <FiArrowRight />
+                <ArrowRight />
               </button>
             </div>
           </form>
@@ -338,7 +330,7 @@ export default function AuthPage() {
               <div className="auth-demo">
                 <span>Découvrez Vortex avant de commencer</span>
                 <Link href="/demo">
-                  Explorer la démonstration <FiArrowRight />
+                  Explorer la démonstration <ArrowRight />
                 </Link>
               </div>
             </>

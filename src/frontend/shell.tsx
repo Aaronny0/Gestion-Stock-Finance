@@ -1,128 +1,51 @@
 "use client";
-import { useEffect, useState, useRef, type ReactNode } from "react";
+
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  FiHome,
-  FiArrowLeft,
-  FiBarChart2,
-  FiShoppingCart,
-  FiFileText,
-  FiPackage,
-  FiRepeat,
-  FiSmartphone,
-  FiShoppingBag,
-  FiTruck,
-  FiUsers,
-  FiCreditCard,
-  FiBookOpen,
-  FiClock,
-  FiSettings,
-  FiArrowUpRight,
-  FiMenu,
-  FiX,
-  FiLogOut,
-  FiChevronDown,
-  FiMapPin,
-  FiCheck,
-} from "react-icons/fi";
+import { ArrowLeft, ArrowUpRight, BookOpen, Check, X } from "lucide-react";
+import { AppSidebar } from "@/components/layout/app-sidebar";
+import { MobileNavigation } from "@/components/layout/mobile-navigation";
+import { PageContainer } from "@/components/layout/page-container";
+import { Topbar } from "@/components/layout/topbar";
+import type { ShellNotification } from "@/components/layout/notifications-menu";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { WorkspaceProvider, useWorkspace, publicRoutes } from "./provider";
-import { canonical, navigation, routePermission } from "./navigation";
+import { canonical, routePermission } from "./navigation";
 import { Alert, Skeleton } from "./ui";
 import { roleLabels, type Role } from "./types";
 import { api } from "./api";
-const icons: Record<string, typeof FiHome> = {
-  home: FiHome,
-  chart: FiBarChart2,
-  cart: FiShoppingCart,
-  receipt: FiFileText,
-  box: FiPackage,
-  repeat: FiRepeat,
-  phone: FiSmartphone,
-  bag: FiShoppingBag,
-  truck: FiTruck,
-  users: FiUsers,
-  wallet: FiCreditCard,
-  out: FiArrowUpRight,
-  card: FiCreditCard,
-  book: FiBookOpen,
-  clock: FiClock,
-  settings: FiSettings,
-};
+import { cn } from "@/lib/utils";
+
 function Shell({ children }: { children: ReactNode }) {
-  const router = useRouter(),
-    pathname = usePathname(),
-    path = canonical(pathname),
-    {
-      snapshot,
-      loading,
-      error,
-      demo,
-      can,
-      href,
-      storeId,
-      setStoreId,
-      reload,
-      setRole,
-      notice,
-      setNotice,
-      setOrganization,
-      confirmDiscard,
-      goBack,
-      locationKey,
-    } = useWorkspace();
-  const [open, setOpen] = useState(false),
-    [offline, setOffline] = useState(false);
-  const [drawer, setDrawer] = useState(false);
-  const sidebarRef = useRef<HTMLElement>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const path = canonical(pathname);
+  const {
+    snapshot,
+    loading,
+    error,
+    demo,
+    can,
+    href,
+    storeId,
+    setStoreId,
+    reload,
+    setRole,
+    notice,
+    setNotice,
+    setOrganization,
+    confirmDiscard,
+    goBack,
+    locationKey,
+  } = useWorkspace();
+
+  const [offline, setOffline] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const session = snapshot?.session;
-  useEffect(() => {
-    const media = matchMedia("(max-width: 1024px)");
-    const update = () => {
-      setDrawer(media.matches);
-      if (!media.matches) setOpen(false);
-    };
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
-  useEffect(() => {
-    if (!open || !drawer) return;
-    const previous = document.activeElement as HTMLElement | null;
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const focusable = () =>
-      Array.from(
-        sidebarRef.current?.querySelectorAll<HTMLElement>(
-          'a[href],button:not([disabled]),select:not([disabled]),[tabindex="0"]',
-        ) ?? [],
-      ).filter((el) => el.getClientRects().length);
-    sidebarRef.current?.querySelector<HTMLElement>(".mobile-close")?.focus();
-    const key = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        setOpen(false);
-      }
-      if (event.key === "Tab") {
-        const nodes = focusable(),
-          first = nodes[0],
-          last = nodes[nodes.length - 1];
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last?.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first?.focus();
-        }
-      }
-    };
-    document.addEventListener("keydown", key);
-    return () => {
-      document.body.style.overflow = overflow;
-      document.removeEventListener("keydown", key);
-      if (previous?.isConnected) previous.focus({ preventScroll: true });
-    };
-  }, [open, drawer]);
+
   useEffect(() => {
     const update = () => setOffline(!navigator.onLine);
     update();
@@ -133,15 +56,13 @@ function Shell({ children }: { children: ReactNode }) {
       window.removeEventListener("offline", update);
     };
   }, []);
+
   useEffect(() => {
-    if ("serviceWorker" in navigator)
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
-  }, []);
-  useEffect(() => {
-    setOpen(false);
+    setMobileOpen(false);
   }, [pathname]);
+
   useEffect(() => {
-    if (session && path === "/" && !can("dashboard.read"))
+    if (session && path === "/" && !can("dashboard.read")) {
       router.replace(
         href(
           session.user.role === "cashier"
@@ -151,392 +72,265 @@ function Shell({ children }: { children: ReactNode }) {
               : "/accounting",
         ),
       );
+    }
   }, [session, path, can, href, router]);
+
   if (publicRoutes.includes(pathname)) return children;
-  const required = routePermission(path),
-    allowed = path.startsWith("/cash")
-      ? can("cash.open_close") || can("finance.read")
-      : required
-        ? can(required)
-        : false;
+
+  const required = routePermission(path);
+  const allowed = path.startsWith("/cash")
+    ? can("cash.open_close") || can("finance.read")
+    : required
+      ? can(required)
+      : false;
   const allAllowed =
     session?.user.role === "owner" &&
     (path === "/" || path.startsWith("/analytics"));
+
+  const stockAlertCount = snapshot
+    ? snapshot.data.products.filter(
+        (product) =>
+          product.active &&
+          product.quantity <= product.threshold &&
+          (storeId === "all" || product.storeId === storeId),
+      ).length
+    : 0;
+
+  const notifications: ShellNotification[] = [];
+  if (offline) {
+    notifications.push({
+      id: "offline",
+      label: "Vous êtes hors connexion. Les opérations réelles nécessitent une connexion.",
+      tone: "warning",
+    });
+  }
+  if (demo) {
+    notifications.push({
+      id: "demo",
+      label: "Le mode démonstration utilise des données fictives réinitialisées au rechargement.",
+      tone: "info",
+    });
+  }
+  if (session && storeId !== session.defaultStoreId && storeId !== "all") {
+    const store = session.stores.find((item) => item.id === storeId);
+    notifications.push({
+      id: "store-context",
+      label: `Boutique active : ${store?.name ?? "boutique sélectionnée"}.`,
+      tone: "info",
+    });
+  }
+  if (storeId === "all" && !allAllowed) {
+    notifications.push({
+      id: "store-required",
+      label: "Sélectionnez une boutique précise pour travailler sur cet écran.",
+      tone: "warning",
+    });
+  }
+
+  async function logout() {
+    if (!confirmDiscard()) return;
+    if (demo) {
+      location.assign("/login");
+      return;
+    }
+    try {
+      await api.auth("logout", {});
+      location.assign("/login");
+    } catch (caught) {
+      setNotice((caught as Error).message);
+    }
+  }
+
+  const sidebarProps = {
+    path,
+    href,
+    can,
+    session,
+    storeId,
+    stockAlertCount,
+    onOrganizationChange: setOrganization,
+  };
+
   return (
-    <div className="workspace">
+    <div className="min-h-screen bg-background text-foreground">
       <a className="skip-link" href="#main">
         Aller au contenu
       </a>
-      {open && (
-        <button
-          className="sidebar-shade"
-          aria-label="Fermer la navigation"
-          onClick={() => setOpen(false)}
-        />
-      )}
-      <aside
-        ref={sidebarRef}
-        id="workspace-navigation"
-        className={`workspace-sidebar ${open ? "is-open" : ""}`}
-        inert={drawer && !open}
-        role={drawer && open ? "dialog" : undefined}
-        aria-modal={drawer && open ? true : undefined}
-        aria-label="Menu de navigation"
+
+      <AppSidebar
+        {...sidebarProps}
+        collapsed={sidebarCollapsed}
+        onCollapsedChange={setSidebarCollapsed}
+      />
+
+      <MobileNavigation
+        {...sidebarProps}
+        open={mobileOpen}
+        onOpenChange={setMobileOpen}
+      />
+
+      <div
+        className={cn(
+          "min-h-screen pb-16 transition-[padding] duration-200 lg:pb-0",
+          sidebarCollapsed ? "lg:pl-[72px]" : "lg:pl-64",
+        )}
       >
-        <Link className="brand" href={href("/")}>
-          <span className="brand-mark">
-            v<span>↗</span>
-          </span>
-          <span>
-            vortex<span className="brand-sub">STOCK & FINANCE</span>
-          </span>
-        </Link>
-        <button
-          className="mobile-close icon-button"
-          onClick={() => setOpen(false)}
-          aria-label="Fermer le menu"
-        >
-          <FiX />
-        </button>
-        <div className="organization-card">
-          <div className="org-avatar">
-            {session?.organization.name.slice(0, 1) ?? "V"}
-          </div>
-          <div>
-            <strong>{session?.organization.name ?? "Votre entreprise"}</strong>
-            <small>Espace professionnel</small>
-          </div>
-          {session && session.organizations.length > 1 ? (
-            <select
-              aria-label="Entreprise active"
-              value={session.organization.id}
-              onChange={(e) => setOrganization(e.target.value)}
-            >
-              {session.organizations.map((o) => (
-                <option key={o.id} value={o.id}>
-                  {o.name}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <FiChevronDown />
-          )}
-        </div>
-        <nav aria-label="Navigation principale">
-          {navigation.map((section) => {
-            const items = section.items.filter(
-              (item) =>
-                can(item.permission) ||
-                (item.path === "/cash" && can("finance.read")),
-            );
-            if (!items.length) return null;
-            return (
-              <div className="nav-section" key={section.section}>
-                <p>{section.section}</p>
-                {items.map((item) => {
-                  const Icon = icons[item.icon];
-                  const active =
-                    item.path === "/"
-                      ? path === "/"
-                      : path === item.path ||
-                        path.startsWith(item.path + "/") ||
-                        (item.path === "/stock" &&
-                          path.startsWith("/products/"));
-                  return (
-                    <Link
-                      key={item.path}
-                      onClick={() => setOpen(false)}
-                      href={href(item.path)}
-                      className={`nav-item ${active ? "active" : ""}`}
-                      aria-current={active ? "page" : undefined}
-                    >
-                      <Icon />
-                      <span>{item.label}</span>
-                      {item.path === "/stock" && snapshot && (
-                        <small>
-                          {
-                            snapshot.data.products.filter(
-                              (p) =>
-                                p.active &&
-                                p.quantity <= p.threshold &&
-                                (storeId === "all" || p.storeId === storeId),
-                            ).length
-                          }
-                        </small>
-                      )}
-                    </Link>
-                  );
-                })}
-              </div>
-            );
-          })}
-        </nav>
-        <div className="sidebar-bottom">
-          <span className="status-dot" />{" "}
-          {demo ? "Espace de démonstration" : "Connexion sécurisée"}
-          <small>VORTEX · Version 1.0</small>
-        </div>
-      </aside>
-      <div className="workspace-body" inert={drawer && open}>
-        <header className="workspace-header">
-          <div className="header-context">
-            <button
-              className="icon-button mobile-toggle"
-              aria-label="Ouvrir le menu"
-              aria-expanded={open}
-              aria-controls="workspace-navigation"
-              onClick={() => setOpen(true)}
-            >
-              <FiMenu />
-            </button>
-            <span className="breadcrumb">
-              Espace de travail <span>/</span>{" "}
-              <strong>
-                {navigation
-                  .flatMap((s) => s.items)
-                  .find((i) =>
-                    i.path === "/" ? path === "/" : path.startsWith(i.path),
-                  )?.label ?? "Détail"}
-              </strong>
-            </span>
-          </div>
-          <div className="header-tools">
-            {session && (
-              <label className="store-switcher">
-                <FiMapPin />
-                <span className="sr-only">Boutique active</span>
-                {session.stores.length > 1 ? (
-                  <select
-                    value={storeId}
-                    onChange={(e) => setStoreId(e.target.value)}
-                  >
-                    {allAllowed && (
-                      <option value="all">Toutes les boutiques</option>
-                    )}
-                    {!allAllowed && storeId === "all" && (
-                      <option value="all" disabled>
-                        Choisir une boutique
-                      </option>
-                    )}
-                    {session.stores
-                      .filter((s) => s.active)
-                      .map((s) => (
-                        <option value={s.id} key={s.id}>
-                          {s.name}
-                        </option>
-                      ))}
-                  </select>
-                ) : (
-                  session.stores[0]?.name
-                )}
-              </label>
-            )}
-            <div className="header-divider" />
-            <div className="user-avatar">
-              {session?.user.name
-                .split(" ")
-                .map((n) => n[0])
-                .slice(0, 2)
-                .join("") ?? "V"}
-            </div>
-            <div className="user-summary">
-              <strong>{session?.user.name ?? "Mon compte"}</strong>
-              <small>{session ? roleLabels[session.user.role] : ""}</small>
-            </div>
-            <button
-              className="icon-button"
-              title={demo ? "Quitter la démonstration" : "Se déconnecter"}
-              aria-label="Se déconnecter"
-              onClick={async () => {
-                if (!confirmDiscard()) return;
-                if (demo) location.assign("/login");
-                else
-                  try {
-                    await api.auth("logout", {});
-                    location.assign("/login");
-                  } catch (e) {
-                    setNotice((e as Error).message);
-                  }
-              }}
-            >
-              <FiLogOut />
-            </button>
-          </div>
-        </header>
+        <Topbar
+          path={path}
+          href={href}
+          session={session}
+          storeId={storeId}
+          allowAllStores={allAllowed}
+          notifications={notifications}
+          canOpenSettings={can("settings.manage")}
+          mobileOpen={mobileOpen}
+          onOpenMobile={() => setMobileOpen(true)}
+          onStoreChange={setStoreId}
+          onLogout={logout}
+        />
+
         {demo && (
-          <div className="demo-banner">
-            <span>
-              <strong>Démonstration</strong> · Données fictives, réinitialisées
-              au rechargement.
-            </span>
-            <label>
-              Tester le rôle{" "}
-              <select
-                aria-label="Rôle de démonstration"
-                value={session?.user.role ?? "owner"}
-                onChange={(e) => setRole(e.target.value as Role)}
-              >
-                {Object.entries(roleLabels).map(([v, l]) => (
-                  <option value={v} key={v}>
-                    {l}
-                  </option>
-                ))}
-              </select>
-            </label>
+          <div className="border-b border-border bg-accent/55">
+            <div className="mx-auto flex min-h-11 w-full max-w-[1680px] flex-col justify-between gap-2 px-4 py-2 text-xs text-accent-foreground sm:flex-row sm:items-center sm:px-6 xl:px-8">
+              <span>
+                <strong>Démonstration</strong> · Données fictives, réinitialisées au rechargement.
+              </span>
+              <label className="flex items-center gap-2 font-medium">
+                <span>Tester le rôle</span>
+                <select
+                  aria-label="Rôle de démonstration"
+                  value={session?.user.role ?? "owner"}
+                  onChange={(event) => setRole(event.target.value as Role)}
+                  className="h-9 min-h-9 rounded-md border-border bg-card px-2 py-1 text-xs text-foreground"
+                >
+                  {Object.entries(roleLabels).map(([value, label]) => (
+                    <option value={value} key={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
           </div>
         )}
-        <main id="main" className="workspace-main">
-          {offline && (
-            <Alert error>
-              Vous êtes hors connexion. Les opérations réelles nécessitent une
-              connexion.
-            </Alert>
-          )}
-          {session &&
-            storeId !== session.defaultStoreId &&
-            storeId !== "all" && (
-              <Alert>
-                Vous travaillez dans la boutique{" "}
-                {session.stores.find((s) => s.id === storeId)?.name}.
-              </Alert>
-            )}
-          {storeId === "all" && !allAllowed && (
-            <Alert error>
-              Sélectionnez une boutique précise pour travailler sur cet écran.
-            </Alert>
-          )}
-          {path !== "/" && (
-            <nav className="page-return" aria-label="Retour">
-              <button
-                className="button secondary"
-                onClick={goBack}
-                aria-label="Revenir à la page précédente"
-              >
-                <FiArrowLeft />
-                Retour
-              </button>
-            </nav>
-          )}
-          {loading ? (
-            <Skeleton />
-          ) : error ? (
-            <div className="connection-error">
-              <Alert error>{error}</Alert>
-              <button className="button secondary" onClick={reload}>
-                Réessayer
-              </button>
-              <Link className="button primary" href="/demo">
-                Explorer la démonstration <FiArrowUpRight />
-              </Link>
+
+        <main id="main" data-qa="workspace-main" className="min-h-[calc(100vh-120px)]">
+          <PageContainer>
+            <div className="space-y-4">
+              {offline && (
+                <Alert error>
+                  Vous êtes hors connexion. Les opérations réelles nécessitent une connexion.
+                </Alert>
+              )}
+
+              {session && storeId !== session.defaultStoreId && storeId !== "all" && (
+                <Alert>
+                  Vous travaillez dans la boutique {session.stores.find((store) => store.id === storeId)?.name}.
+                </Alert>
+              )}
+
+              {storeId === "all" && !allAllowed && (
+                <Alert error>Sélectionnez une boutique précise pour travailler sur cet écran.</Alert>
+              )}
+
+              {path !== "/" && (
+                <nav aria-label="Retour" className="flex">
+                  <Button variant="outline" size="sm" onClick={goBack} aria-label="Revenir à la page précédente">
+                    <ArrowLeft />
+                    Retour
+                  </Button>
+                </nav>
+              )}
+
+              {loading ? (
+                <Skeleton />
+              ) : error ? (
+                <Card className="mx-auto max-w-xl">
+                  <CardContent className="space-y-4 p-6">
+                    <Alert error>{error}</Alert>
+                    <div className="flex flex-wrap gap-2">
+                      <Button variant="outline" onClick={reload}>
+                        Réessayer
+                      </Button>
+                      <Button asChild>
+                        <Link href="/demo">
+                          Explorer la démonstration <ArrowUpRight />
+                        </Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : !allowed ? (
+                <Card className="mx-auto max-w-lg">
+                  <CardContent className="flex flex-col items-center px-6 py-12 text-center">
+                    <span className="mb-4 flex size-12 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+                      <BookOpen className="size-5" />
+                    </span>
+                    <h1 className="mb-2 text-2xl font-bold">Accès réservé</h1>
+                    <p className="mb-6 max-w-sm text-sm text-muted-foreground">
+                      Votre rôle ne permet pas de consulter cet écran.
+                    </p>
+                    <Button asChild>
+                      <Link
+                        href={href(
+                          session?.user.role === "cashier"
+                            ? "/pos"
+                            : session?.user.role === "stock"
+                              ? "/stock"
+                              : "/accounting",
+                        )}
+                      >
+                        Retour à mon espace
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <div
+                  key={`${pathname}-${locationKey}-${storeId}-${session?.organization.id}-${session?.user.role}`}
+                >
+                  {children}
+                </div>
+              )}
             </div>
-          ) : !allowed ? (
-            <div className="access-denied">
-              <FiBookOpen />
-              <h1>Accès réservé</h1>
-              <p>Votre rôle ne permet pas de consulter cet écran.</p>
-              <Link
-                className="button primary"
-                href={href(
-                  session?.user.role === "cashier"
-                    ? "/pos"
-                    : session?.user.role === "stock"
-                      ? "/stock"
-                      : "/accounting",
-                )}
-              >
-                Retour à mon espace
-              </Link>
-            </div>
-          ) : (
-            <div
-              key={`${pathname}-${locationKey}-${storeId}-${session?.organization.id}-${session?.user.role}`}
-            >
-              {children}
-            </div>
-          )}
+          </PageContainer>
         </main>
-        <footer className="workspace-footer">
-          <span>Vortex · Votre activité, en toute clarté.</span>
-          <span>
-            {session?.organization.currency ?? "FCFA"} ·{" "}
-            {session?.organization.timezone ?? "Gestion Stock & Finance"}
-          </span>
+
+        <footer className="border-t border-border px-4 py-5 text-xs text-muted-foreground sm:px-6 xl:px-8">
+          <div className="mx-auto flex w-full max-w-[1680px] flex-col justify-between gap-1 sm:flex-row">
+            <span>VORTEX · Votre activité, en toute clarté.</span>
+            <span>
+              {session?.organization.currency ?? "FCFA"} · {session?.organization.timezone ?? "Gestion Stock & Finance"}
+            </span>
+          </div>
         </footer>
-        <nav className="mobile-bottom" aria-label="Raccourcis">
-          {[
-            {
-              path: "/pos",
-              label: "Vendre",
-              permission: "sales.create",
-              icon: FiShoppingCart,
-            },
-            {
-              path: "/stock",
-              label: "Stock",
-              permission: "stock.read",
-              icon: FiPackage,
-            },
-            {
-              path: "/trade",
-              label: "Troc",
-              permission: "trade.create",
-              icon: FiRepeat,
-            },
-            {
-              path: "/accounting",
-              label: "Comptabilité",
-              permission: "accounting.read",
-              icon: FiBookOpen,
-            },
-          ]
-            .filter((n) => can(n.permission as never))
-            .slice(0, 3)
-            .map((n) => (
-              <Link
-                key={n.path}
-                href={href(n.path)}
-                aria-current={
-                  path === n.path ||
-                  path.startsWith(n.path + "/") ||
-                  (n.path === "/stock" && path.startsWith("/products/"))
-                    ? "page"
-                    : undefined
-                }
-              >
-                <n.icon />
-                {n.label}
-              </Link>
-            ))}
-          <button
-            aria-label="Ouvrir tous les menus"
-            aria-controls="workspace-navigation"
-            aria-expanded={open}
-            onClick={() => setOpen(true)}
-          >
-            <FiMenu />
-            Menu
-          </button>
-        </nav>
       </div>
+
       {notice && (
-        <div className="notice" role="status">
-          <FiCheck />
-          {notice}
+        <div
+          className="fixed bottom-20 right-4 z-50 flex max-w-[calc(100vw-2rem)] items-center gap-3 rounded-lg border border-border bg-card px-4 py-3 text-sm shadow-[var(--shadow-dialog)] lg:bottom-6"
+          role="status"
+        >
+          <Check className="size-4 text-success" aria-hidden="true" />
+          <span className="min-w-0 flex-1">{notice}</span>
           <button
-            className="icon-button"
+            type="button"
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Fermer la notification"
             onClick={() => setNotice("")}
           >
-            <FiX />
+            <X className="size-4" />
           </button>
         </div>
       )}
     </div>
   );
 }
+
 export default function App() {
   return null;
 }
+
 export function FrontendShell({ children }: { children: ReactNode }) {
   return (
     <WorkspaceProvider>
