@@ -98,7 +98,7 @@ function NavigationLink({
       className={cn(
         "group relative flex min-h-10 items-center gap-3 rounded-md px-3 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
         active
-          ? "bg-accent text-accent-foreground"
+          ? "bg-accent text-accent-foreground shadow-[inset_3px_0_0_var(--primary)]"
           : "text-muted-foreground hover:bg-muted hover:text-foreground",
         compact && "justify-center px-2",
       )}
@@ -191,7 +191,7 @@ export function SidebarNavigation({
         </div>
       </nav>
 
-      <div className={cn("border-t border-border px-4 py-4", compact && "px-2")}>
+      <div className={cn("border-t border-border/80 px-4 py-4", compact && "px-2")}>
         <div className={cn("flex items-center gap-2 text-xs text-muted-foreground", compact && "justify-center") }>
           <span className="size-2 rounded-full bg-success" aria-hidden="true" />
           {!compact && <span>{storeId === "all" ? "Vue consolidée" : "Espace sécurisé"}</span>}
@@ -212,7 +212,7 @@ export function AppSidebar({ collapsed, onCollapsedChange, ...props }: AppSideba
     <aside
       data-qa="workspace-sidebar"
       className={cn(
-        "fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-border bg-card transition-[width] duration-200 lg:flex",
+        "fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-border/80 bg-card/95 shadow-[8px_0_24px_rgb(32_42_46_/_0.03)] transition-[width] duration-200 lg:flex",
         collapsed ? "w-[72px]" : "w-64",
       )}
     >

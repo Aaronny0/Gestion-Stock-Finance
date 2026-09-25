@@ -8,7 +8,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   type ColumnDef,
-  type ColumnVisibilityState,
+  type VisibilityState,
   type Row,
   type RowSelectionState,
   type SortingState,
@@ -93,7 +93,7 @@ function DataTable<TData, TValue>({
   const [sorting, setSorting] = useViewState<SortingState>(`datatable:${name}:sorting`, []);
   const [globalFilter, setGlobalFilter] = useViewState(`datatable:${name}:search`, "");
   const [rowSelection, setRowSelection] = useViewState<RowSelectionState>(`datatable:${name}:selection`, {});
-  const [columnVisibility, setColumnVisibility] = useViewState<ColumnVisibilityState>(`datatable:${name}:columns`, {});
+  const [columnVisibility, setColumnVisibility] = useViewState<VisibilityState>(`datatable:${name}:columns`, {});
   const [exportError, setExportError] = React.useState("");
 
   const selectionColumn = React.useMemo<ColumnDef<TData, TValue> | null>(() => {

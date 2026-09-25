@@ -2,13 +2,7 @@
 import { salePosition } from "./operations";
 import { useState, useRef } from "react";
 import Link from "next/link";
-import {
-  FiPlus,
-  FiTrash2,
-  FiCheckCircle,
-  FiArrowRight,
-  FiLock,
-} from "react-icons/fi";
+import { Plus, Trash2, CheckCircle, ArrowRight, Lock } from "lucide-react";
 import {
   balance,
   decimals,
@@ -83,9 +77,8 @@ export function EntryDetail({
               "/" +
               entry.sourceId
             }
-            onClick={onClose}
           >
-            Voir la transaction source <FiArrowRight />
+            Voir la transaction source <ArrowRight />
           </Link>
         )}
         {postingError && <Alert error>{postingError}</Alert>}
@@ -315,7 +308,7 @@ function EntryEditor({
                   disabled={lines.length <= 2}
                   onClick={() => setLines(lines.filter((_, j) => i !== j))}
                 >
-                  <FiTrash2 />
+                  <Trash2 />
                   Retirer cette ligne
                 </button>
               </fieldset>
@@ -336,7 +329,7 @@ function EntryEditor({
               ])
             }
           >
-            <FiPlus />
+            <Plus />
             Ajouter une ligne
           </button>
           <div className="impact-summary">
@@ -441,7 +434,7 @@ export default function AccountingPage({ path }: { path: string }) {
         action={
           can("accounting.post") && (
             <button className="button primary" onClick={() => setEditor(true)}>
-              <FiPlus />
+              <Plus />
               Nouvelle écriture
             </button>
           )
@@ -460,7 +453,7 @@ export default function AccountingPage({ path }: { path: string }) {
       </div>
       <div className="overview-toolbar">
         <div className="section-title">
-          <FiCheckCircle />
+          <CheckCircle />
           Contrôle des écritures
         </div>
         <DateRangePicker />
@@ -521,7 +514,7 @@ export default function AccountingPage({ path }: { path: string }) {
                 className="button secondary"
                 onClick={() => setAction("account.save")}
               >
-                <FiPlus />
+                <Plus />
                 Ajouter un sous-compte
               </button>
             )}
@@ -867,7 +860,7 @@ export default function AccountingPage({ path }: { path: string }) {
                               setConfirm({ type: "period.lock", id: p.id })
                             }
                           >
-                            <FiLock />
+                            <Lock />
                             Verrouiller
                           </button>
                         ) : null,

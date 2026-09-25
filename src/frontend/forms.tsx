@@ -16,6 +16,7 @@ type Spec = {
   min?: number;
   hint?: string;
 };
+type PurchaseExtra = { productId: string; quantity: number; cost: string };
 export function ActionForm({
   type,
   title,
@@ -239,6 +240,7 @@ export function ActionForm({
       ]),
     ),
   );
+  const [extras, setExtras] = useState<PurchaseExtra[]>([]);
   const [file, setFile] = useState<File | null>(null),
     [review, setReview] = useState(false),
     [busy, setBusy] = useState(false),

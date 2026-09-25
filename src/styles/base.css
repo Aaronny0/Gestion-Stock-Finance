@@ -12,7 +12,7 @@ html {
 
 body {
   margin: 0;
-  background: var(--background);
+  background: linear-gradient(135deg, var(--background) 0%, #eef1ec 100%);
   color: var(--foreground);
 }
 

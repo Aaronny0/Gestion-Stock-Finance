@@ -35,7 +35,7 @@ export function Topbar({
   onLogout,
 }: TopbarProps) {
   return (
-    <header className="sticky top-0 z-30 flex h-[72px] items-center border-b border-border bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/85 sm:px-5 xl:px-7">
+    <header className="sticky top-0 z-30 flex h-[72px] items-center border-b border-border/80 bg-background/90 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/75 sm:px-5 xl:px-7">
       <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
         <MobileMenuButton onClick={onOpenMobile} expanded={mobileOpen} />
         <AppBreadcrumb path={path} href={href} />

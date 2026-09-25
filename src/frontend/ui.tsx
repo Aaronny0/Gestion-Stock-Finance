@@ -210,6 +210,33 @@ export function Modal({
     </dialog>
   );
 }
+export function ConfirmDialog({
+  title,
+  children,
+  onClose,
+  onConfirm,
+}: {
+  title: string;
+  children: ReactNode;
+  onClose: () => void;
+  onConfirm: () => unknown;
+}) {
+  return (
+    <Modal title={title} onClose={onClose}>
+      <div className="modal-body">
+        {children}
+        <div className="modal-actions">
+          <button className="button secondary" onClick={onClose}>
+            Annuler
+          </button>
+          <button className="button primary" onClick={onConfirm}>
+            Confirmer
+          </button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
 function safeCell(value: unknown) {
   const s = String(value ?? "");
   return /^[=+@\-\t\r]/.test(s) ? `'${s}` : s;

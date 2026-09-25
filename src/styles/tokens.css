@@ -1,45 +1,45 @@
 :root {
-  --background: #f7f8fc;
-  --foreground: #172033;
+  --background: #f4f5f0;
+  --foreground: #202a2e;
 
   --card: #ffffff;
-  --card-foreground: #172033;
+  --card-foreground: #202a2e;
 
   --popover: #ffffff;
-  --popover-foreground: #172033;
+  --popover-foreground: #202a2e;
 
-  --primary: #4f46e5;
+  --primary: #d86145;
   --primary-foreground: #ffffff;
-  --primary-hover: #4338ca;
+  --primary-hover: #b94d35;
 
-  --secondary: #f1f5f9;
-  --secondary-foreground: #334155;
+  --secondary: #e8efec;
+  --secondary-foreground: #29413a;
 
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
+  --muted: #e9ece7;
+  --muted-foreground: #64706d;
 
-  --accent: #eef2ff;
-  --accent-foreground: #4338ca;
+  --accent: #fbe4dd;
+  --accent-foreground: #9d402d;
 
-  --border: #e2e8f0;
-  --input: #cbd5e1;
-  --ring: #6366f1;
+  --border: #d9dfda;
+  --input: #bec9c3;
+  --ring: #d86145;
 
-  --success: #166534;
-  --success-background: #ecfdf3;
-  --warning: #92400e;
-  --warning-background: #fffbeb;
-  --destructive: #b42318;
+  --success: #28735e;
+  --success-background: #e5f2ec;
+  --warning: #a45f17;
+  --warning-background: #fff1d6;
+  --destructive: #b42335;
   --destructive-foreground: #ffffff;
-  --destructive-background: #fef3f2;
-  --info: #1d4ed8;
-  --info-background: #eff6ff;
+  --destructive-background: #fce7e8;
+  --info: #356b82;
+  --info-background: #e7f1f4;
 
-  --chart-1: #4f46e5;
-  --chart-2: #166534;
-  --chart-3: #92400e;
-  --chart-4: #64748b;
-  --chart-5: #1d4ed8;
+  --chart-1: #d86145;
+  --chart-2: #28735e;
+  --chart-3: #a45f17;
+  --chart-4: #64706d;
+  --chart-5: #356b82;
 
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -49,7 +49,7 @@
   --shadow-card: 0 1px 2px rgb(15 23 42 / 0.03), 0 1px 3px rgb(15 23 42 / 0.04);
   --shadow-dialog: 0 24px 60px rgb(15 23 42 / 0.16);
 
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: "DM Sans", "Avenir Next", ui-sans-serif, system-ui, sans-serif;
 
   /* Compatibilité temporaire avec le frontend V1 pendant la migration. */
   --bg: var(--background);

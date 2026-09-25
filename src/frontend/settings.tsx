@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { FiPlus, FiSave, FiShield, FiCheckCircle } from "react-icons/fi";
+import { Plus, Save, Shield, CheckCircle } from "lucide-react";
 import { useWorkspace, useUnsavedChanges } from "./provider";
 import { Alert, DataTable, Field, PageHeading } from "./ui";
 import { ActionForm } from "./forms";
@@ -134,7 +134,7 @@ export default function Settings({ path }: { path: string }) {
                 className="button secondary"
                 onClick={() => setAction("store.save")}
               >
-                <FiPlus />
+                <Plus />
                 Ajouter une boutique
               </button>
             </div>
@@ -248,7 +248,7 @@ export default function Settings({ path }: { path: string }) {
                     }
                   }}
                 >
-                  <FiCheckCircle />
+                  <CheckCircle />
                   Tester la connexion
                 </button>
                 {status && <Alert>{status}</Alert>}
@@ -259,7 +259,7 @@ export default function Settings({ path }: { path: string }) {
         {tab === "security" && (
           <>
             <h2>
-              <FiShield />
+              <Shield />
               Sécurité de l’espace
             </h2>
             <p>
@@ -275,7 +275,7 @@ export default function Settings({ path }: { path: string }) {
         {error && <Alert error>{error}</Alert>}
         {["organization", "sales", "fiscal"].includes(tab) && (
           <button className="button primary" disabled={busy}>
-            <FiSave />
+            <Save />
             {busy ? "Enregistrement…" : "Enregistrer les paramètres"}
           </button>
         )}
