@@ -3,22 +3,12 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  ArrowUpRight,
-  CircleDollarSign,
-  Info,
-  Plus,
-  ShoppingBag,
-  TrendingUp,
-  WalletCards,
-} from "lucide-react";
+import type { ReactNode } from "react";
+import { ArrowUpRight, Info, Plus } from "lucide-react";
 import { DashboardAttention } from "@/features/dashboard/dashboard-attention";
-import { DashboardPaymentBreakdown } from "@/features/dashboard/dashboard-payment-breakdown";
 import { DashboardPeriodFilter } from "@/features/dashboard/dashboard-period-filter";
 import { DashboardRecentSales } from "@/features/dashboard/dashboard-recent-sales";
 import { DashboardSetupChecklist } from "@/features/dashboard/dashboard-setup-checklist";
-import { DashboardTopProducts } from "@/features/dashboard/dashboard-top-products";
-import { MetricCard } from "@/components/data-display/metric-card";
 import { Money } from "@/components/data-display/money";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -30,16 +20,33 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { indicators } from "./accounting";
-import { netLineValue, returnedQuantity } from "./operations";
 import { useWorkspace } from "./provider";
 
 const RevenueChart = dynamic(
   () => import("./charts").then((module) => module.RevenueChart),
   {
     ssr: false,
-    loading: () => <div className="h-72 animate-pulse rounded-md bg-muted" />,
+    loading: () => <div className="h-72 animate-pulse rounded-xl bg-muted" />,
   },
 );
+
+function StatRow({ label, value, href }: { label: string; value: ReactNode; href: string }) {
+  return (
+    <Link
+      href={href}
+      className="group flex items-center justify-between gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="flex items-center gap-1 text-sm font-semibold tabular-nums text-foreground">
+        {value}
+        <ArrowUpRight
+          className="size-3.5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
+          aria-hidden="true"
+        />
+      </span>
+    </Link>
+  );
+}
 
 export default function Dashboard() {
   const { snapshot, storeId, start, end, href, can, setDates } = useWorkspace();
@@ -104,49 +111,6 @@ export default function Dashboard() {
     );
     days.push({ date, revenue: daily.revenue, margin: daily.margin });
   }
-
-  const paymentBreakdown =
-    snapshot!.reporting?.paymentBreakdown ??
-    Object.entries(
-      payments
-        .filter((payment) => payment.direction === "in")
-        .reduce<Record<string, number>>(
-          (accumulator, payment) => ({
-            ...accumulator,
-            [payment.method]: (accumulator[payment.method] ?? 0) + payment.amount,
-          }),
-          {},
-        ),
-    );
-
-  const topProducts =
-    snapshot!.reporting?.topProducts ??
-    Object.values(
-      sales
-        .filter((sale) => sale.status !== "refunded")
-        .flatMap((sale) =>
-          sale.lines.map((line, index) => ({
-            ...line,
-            quantity: line.quantity - returnedQuantity(sale, index),
-            net: netLineValue(sale, index),
-          })),
-        )
-        .reduce<Record<string, { label: string; quantity: number; amount: number }>>(
-          (accumulator, line) => {
-            accumulator[line.productId] ??= {
-              label: line.label,
-              quantity: 0,
-              amount: 0,
-            };
-            accumulator[line.productId].quantity += line.quantity;
-            accumulator[line.productId].amount += line.net;
-            return accumulator;
-          },
-          {},
-        ),
-    )
-      .sort((left, right) => right.amount - left.amount)
-      .slice(0, 4);
 
   const setupSteps = [
     {
@@ -214,51 +178,11 @@ export default function Dashboard() {
       : []),
   ];
 
-  const metrics = [
-    {
-      label: "Chiffre d’affaires",
-      value: kpi.revenue,
-      definition: "Ventes reconnues sur la période, distinctes des sommes encaissées.",
-      icon: ShoppingBag,
-      href: "/sales",
-      comparison: `${kpi.count} ventes · ${kpi.units} unités`,
-      sensitive: false,
-    },
-    {
-      label: "Encaissements",
-      value: kpi.incoming,
-      definition: "Paiements effectivement reçus sur la période.",
-      icon: CircleDollarSign,
-      href: "/payments",
-      comparison: "Tous modes de paiement",
-      sensitive: false,
-    },
-    {
-      label: "Marge brute",
-      value: kpi.margin,
-      definition: "Chiffre d’affaires moins coût des marchandises vendues.",
-      icon: TrendingUp,
-      href: "/analytics/margin",
-      comparison: "Avant charges d’exploitation",
-      sensitive: true,
-    },
-    {
-      label: "Cashflow net",
-      value: kpi.cashflow,
-      definition: "Encaissements moins décaissements sur la période.",
-      icon: WalletCards,
-      href: "/cash",
-      comparison: "Flux nets de trésorerie",
-      sensitive: false,
-    },
-  ];
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
-        eyebrow="Vue d’ensemble"
         title={`Bonjour ${firstName},`}
-        description="voici les indicateurs et points d’attention de votre activité."
+        description="Voici l’essentiel de votre activité sur la période sélectionnée."
         actions={
           can("sales.create") ? (
             <Button asChild>
@@ -273,47 +197,60 @@ export default function Dashboard() {
 
       {can("settings.manage") ? <DashboardSetupChecklist steps={setupSteps} href={href} /> : null}
 
-      <div className="flex flex-col gap-4 rounded-lg border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-            <span className="size-2 rounded-full bg-success" aria-hidden="true" />
-            Activité · {activeStore}
+      <Card>
+        <CardHeader className="flex-row flex-wrap items-start justify-between gap-4">
+          <div>
+            <CardTitle>Performance</CardTitle>
+            <CardDescription>
+              {activeStore} · {currency}
+            </CardDescription>
           </div>
-          <p className="mb-0 mt-1 text-xs text-muted-foreground">
-            Les données ci-dessous suivent la période sélectionnée.
-          </p>
-        </div>
-        <DashboardPeriodFilter />
-      </div>
-
-      <section aria-label="Indicateurs clés" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {metrics
-          .filter((metric) => !metric.sensitive || can("analytics.cost_margin_read"))
-          .map((metric) => {
-            const Icon = metric.icon;
-            return (
-              <MetricCard
-                key={metric.label}
-                label={metric.label}
-                value={<Money value={metric.value} currency={currency} />}
-                comparison={metric.comparison}
-                definition={metric.definition}
-                className="h-full"
-                icon={<Icon className="size-4" aria-hidden="true" />}
-                action={
-                  <Button asChild variant="ghost" size="icon" className="size-11 min-h-11 sm:size-8 sm:min-h-8">
-                    <Link
-                      href={href(metric.href) + `?start=${start}&end=${end}`}
-                      aria-label={`Ouvrir ${metric.label}`}
-                    >
-                      <ArrowUpRight className="size-4" aria-hidden="true" />
-                    </Link>
-                  </Button>
-                }
+          <DashboardPeriodFilter />
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="m-0 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+                Chiffre d’affaires
+              </p>
+              <Money
+                value={kpi.revenue}
+                currency={currency}
+                className="block text-3xl font-bold tracking-tight text-foreground [font-variant-numeric:tabular-nums]"
               />
-            );
-          })}
-      </section>
+              <p className="mb-0 mt-1 text-xs text-muted-foreground">
+                {kpi.count} ventes · {kpi.units} unités
+              </p>
+            </div>
+            <Button asChild variant="outline" size="sm">
+              <Link href={href("/sales") + `?start=${start}&end=${end}`}>
+                Détail des ventes
+                <ArrowUpRight className="size-4" aria-hidden="true" />
+              </Link>
+            </Button>
+          </div>
+
+          <div className="grid gap-1 border-t border-border pt-4 sm:grid-cols-3">
+            <StatRow
+              label="Encaissements"
+              value={<Money value={kpi.incoming} currency={currency} />}
+              href={href("/payments")}
+            />
+            <StatRow
+              label="Cashflow net"
+              value={<Money value={kpi.cashflow} currency={currency} />}
+              href={href("/cash")}
+            />
+            {can("analytics.cost_margin_read") ? (
+              <StatRow
+                label="Marge brute"
+                value={<Money value={kpi.margin} currency={currency} />}
+                href={href("/analytics/margin")}
+              />
+            ) : null}
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(20rem,0.8fr)]">
         <Card>
@@ -370,38 +307,7 @@ export default function Dashboard() {
         <DashboardAttention items={attentionItems} />
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
-        <DashboardTopProducts rows={topProducts} currency={currency} href={href} />
-        <DashboardPaymentBreakdown
-          rows={paymentBreakdown}
-          total={kpi.incoming}
-          currency={currency}
-          href={href}
-        />
-      </div>
-
       <DashboardRecentSales sales={sales.slice(0, 5)} currency={currency} href={href} />
-
-      <Card>
-        <CardContent className="grid gap-4 p-4 text-sm sm:grid-cols-3">
-          <div className="flex items-center justify-between gap-3 sm:block">
-            <span className="text-muted-foreground">Décaissements</span>
-            <Money value={kpi.outgoing} currency={currency} className="font-semibold text-foreground sm:mt-1 sm:block" />
-          </div>
-          {can("accounting.read") ? (
-            <div className="flex items-center justify-between gap-3 border-border sm:block sm:border-l sm:pl-4">
-              <span className="text-muted-foreground">Résultat comptable</span>
-              <Money value={kpi.result} currency={currency} className="font-semibold text-foreground sm:mt-1 sm:block" />
-            </div>
-          ) : null}
-          <div className="flex items-center justify-between gap-3 border-border sm:block sm:border-l sm:pl-4">
-            <span className="text-muted-foreground">Troc / rachat</span>
-            <strong className="font-semibold tabular-nums text-foreground sm:mt-1 sm:block">
-              {db.trades.filter(scope).length} / {db.buybacks.filter(scope).length}
-            </strong>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
