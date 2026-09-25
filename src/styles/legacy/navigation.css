@@ -1,25 +1,4 @@
-/* Existing navigation rules, preserved in cascade order until the owning screen is migrated. */
-/* Mobile/tablet navigation, safe areas and comfortable touch controls. */
-.page-return {
-  margin-bottom: 20px;
-}
-.workspace-sidebar {
-  height: 100dvh;
-  padding-top: max(29px, env(safe-area-inset-top));
-  padding-bottom: max(16px, env(safe-area-inset-bottom));
-}
-.workspace-sidebar nav {
-  min-height: 0;
-  overscroll-behavior: contain;
-}
-.workspace-sidebar > .brand,
-.workspace-sidebar > .organization-card,
-.workspace-sidebar > .sidebar-bottom {
-  flex-shrink: 0;
-}
-.workspace-main {
-  min-width: 0;
-}
+/* Compatibility for screens not yet migrated. Preserve order until their migration. */
 .modal {
   overscroll-behavior: contain;
   scroll-padding-block: 80px;
@@ -32,134 +11,28 @@
 .modal-head > .icon-button {
   flex-shrink: 0;
 }
-@media (max-width: 1024px) {
-  .workspace-sidebar {
-    width: min(300px, calc(100vw - 44px));
-    transform: translateX(-105%);
-    transition: transform 0.2s;
-    z-index: 50;
-  }
-  .workspace-sidebar.is-open {
-    transform: translateX(0);
-  }
-  .sidebar-shade {
-    position: fixed;
-    inset: 0;
-    border: 0;
-    background: #17203380;
-    z-index: 45;
-  }
-  .workspace-body {
-    margin-left: 0;
-  }
-  .mobile-toggle {
-    display: inline-flex;
-  }
-  .mobile-close {
-    display: flex;
-    position: absolute;
-    top: max(8px, env(safe-area-inset-top));
-    right: 8px;
-  }
-  .workspace-sidebar > .brand {
-    padding-right: 30px;
-  }
-  .breadcrumb {
-    display: none;
-  }
-  .workspace-header {
-    padding: env(safe-area-inset-top) max(12px, env(safe-area-inset-right)) 0
-      max(12px, env(safe-area-inset-left));
-    height: auto;
-    min-height: 64px;
-    gap: 8px;
-  }
-  .header-context {
-    flex-shrink: 0;
-  }
-  .header-tools {
-    width: auto;
-    min-width: 0;
-    gap: 6px;
-  }
-  .store-switcher {
-    min-width: 0;
-  }
-  .store-switcher select {
-    max-width: clamp(120px, 38vw, 240px);
-    min-width: 0;
-    padding-inline: 4px;
-  }
-  .workspace-main {
-    padding-bottom: calc(104px + env(safe-area-inset-bottom));
-    padding-left: max(16px, env(safe-area-inset-left));
-    padding-right: max(16px, env(safe-area-inset-right));
-  }
-  .mobile-bottom {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 30;
-    background: #fffffff5;
-    border-top: 1px solid var(--border);
-    min-height: 72px;
-    padding: 6px max(6px, env(safe-area-inset-right))
-      calc(6px + env(safe-area-inset-bottom))
-      max(6px, env(safe-area-inset-left));
-    backdrop-filter: blur(12px);
-  }
-  .mobile-bottom a,
-  .mobile-bottom button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    min-height: 52px;
-    min-width: 60px;
-    border: 0;
-    background: none;
-    font-size: 12px;
-    color: var(--muted-foreground);
-  }
-  .mobile-bottom [aria-current="page"] {
-    color: var(--primary);
-    background: var(--accent);
-    border-radius: 8px;
-  }
-  .mobile-bottom svg {
-    font-size: 20px;
-  }
-  .button,
-  .icon-button,
-  .text-button,
-  .nav-item,
-  .tabs a,
-  .tabs button,
-  .table-footer button,
-  .quantity-control button {
+@media (max-width: 1024px)  {
+.button,
+.icon-button,
+.text-button,
+.tabs a,
+.tabs button,
+.table-footer button {
     min-height: 44px;
   }
   .icon-button,
-  .quantity-control button,
-  .table-footer button {
+.table-footer button {
     min-width: 44px;
   }
-  .nav-item {
-    padding-block: 12px;
-  }
+
   input:not([type="checkbox"]):not([type="radio"]),
-  select,
-  textarea {
+select,
+textarea {
     font-size: 16px !important;
     min-height: 44px;
   }
   input[type="checkbox"],
-  input[type="radio"] {
+input[type="radio"] {
     width: 20px;
     height: 20px;
     min-height: 20px;
@@ -168,14 +41,12 @@
     min-height: 44px;
   }
   .table-toolbar,
-  .overview-toolbar,
-  .heading-actions,
-  .action-toolbar {
+.overview-toolbar,
+.heading-actions {
     flex-wrap: wrap;
     min-width: 0;
   }
-  .heading-actions .button,
-  .action-toolbar .button {
+  .heading-actions .button {
     white-space: normal;
   }
   .date-range {
@@ -184,39 +55,7 @@
   .date-range input {
     min-width: 0;
   }
-  .cart-panel {
-    scroll-margin-top: 16px;
-  }
-  .pos-layout {
-    grid-template-columns: minmax(0, 1fr);
-    padding-bottom: 60px;
-  }
-  .cart-checkout {
-    position: static;
-  }
-  .mobile-cart-jump {
-    position: fixed;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    left: max(16px, env(safe-area-inset-left));
-    right: max(16px, env(safe-area-inset-right));
-    bottom: calc(84px + env(safe-area-inset-bottom));
-    z-index: 29;
-    border: 0;
-    border-radius: 10px;
-    min-height: 48px;
-    padding: 12px;
-    color: white;
-    background: var(--primary);
-  }
-  .notice {
-    bottom: calc(88px + env(safe-area-inset-bottom));
-    right: 16px;
-    left: 16px;
-    max-width: none;
-  }
+
   .modal {
     max-height: calc(
       100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)
@@ -232,15 +71,9 @@
     white-space: normal;
     min-width: 100px;
   }
-  .workspace-footer {
-    display: none;
-  }
 }
-@media (max-width: 480px) {
-  .header-tools > .user-avatar {
-    display: none;
-  }
-  .date-range {
+@media (max-width: 480px)  {
+.date-range {
     display: flex;
     flex-wrap: wrap;
   }
@@ -251,9 +84,7 @@
     flex: 1 1 40%;
     width: 0;
   }
-  .cart-options .form-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
+
   .table-footer {
     flex-wrap: wrap;
     gap: 8px;
@@ -268,28 +99,14 @@
   .form-grid {
     grid-template-columns: minmax(0, 1fr);
   }
-  .kpi-grid {
-    gap: 10px;
-  }
-  .kpi-card {
-    padding: 12px;
-  }
+
   .page-tabs {
     margin-inline: 0;
     max-width: 100%;
   }
 }
-@media (max-height: 500px) and (max-width: 1024px) {
-  .workspace-sidebar {
-    padding-top: 12px;
-  }
-  .workspace-sidebar > .brand {
-    margin-bottom: 12px;
-  }
-  .sidebar-bottom {
-    display: none;
-  }
-  .modal-head {
+@media (max-height: 500px) and (max-width: 1024px)  {
+.modal-head {
     padding-block: 8px;
   }
   .modal-foot {
@@ -299,8 +116,8 @@
 .mobile-table-sort {
   display: none;
 }
-@media (max-width: 760px) {
-  .mobile-table-sort {
+@media (max-width: 760px)  {
+.mobile-table-sort {
     display: flex;
     align-items: flex-end;
     gap: 8px;

@@ -2,7 +2,6 @@
 
 import { Plus, Smartphone } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Money } from "@/components/data-display/money";
 import type { Product } from "@/frontend/types";
 

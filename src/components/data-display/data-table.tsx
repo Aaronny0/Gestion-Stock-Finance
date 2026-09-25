@@ -12,6 +12,7 @@ import {
   type Row,
   type RowSelectionState,
   type SortingState,
+  type PaginationState,
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronLeft, ChevronRight, Columns3, Download, FileSpreadsheet } from "lucide-react";
@@ -94,6 +95,7 @@ function DataTable<TData, TValue>({
   const [globalFilter, setGlobalFilter] = useViewState(`datatable:${name}:search`, "");
   const [rowSelection, setRowSelection] = useViewState<RowSelectionState>(`datatable:${name}:selection`, {});
   const [columnVisibility, setColumnVisibility] = useViewState<VisibilityState>(`datatable:${name}:columns`, {});
+  const [pagination, setPagination] = useViewState<PaginationState>(`datatable:${name}:pagination`, { pageIndex: 0, pageSize });
   const [exportError, setExportError] = React.useState("");
 
   const selectionColumn = React.useMemo<ColumnDef<TData, TValue> | null>(() => {
@@ -128,7 +130,7 @@ function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns: tableColumns,
-    state: { sorting, globalFilter, rowSelection, columnVisibility },
+    state: { sorting, globalFilter, rowSelection, columnVisibility, pagination },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
     onRowSelectionChange: setRowSelection,
@@ -137,12 +139,12 @@ function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: { pagination: { pageSize } },
+    onPaginationChange: setPagination,
     getRowId,
   });
 
   const cellPadding = density === "dense" ? "p-2" : density === "comfortable" ? "p-4" : "p-3";
-  const selectedRows = table.getSelectedRowModel().rows;
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
   const rowsForExport = selectedRows.length ? selectedRows : table.getFilteredRowModel().rows;
   const exportRows = exportRow ? rowsForExport.map((row) => exportRow(row.original)) : [];
   const pageRows = table.getRowModel().rows;
@@ -269,7 +271,7 @@ function DataTable<TData, TValue>({
                   aria-label={onRow ? `Ouvrir le détail ${row.id}` : undefined}
                   onClick={(event) => handleRowClick(event, row)}
                   onKeyDown={(event) => {
-                    if (!onRow || (event.key !== "Enter" && event.key !== " ")) return;
+                    if (event.target !== event.currentTarget || !onRow || (event.key !== "Enter" && event.key !== " ")) return;
                     event.preventDefault();
                     onRow(row.original);
                   }}
@@ -288,7 +290,7 @@ function DataTable<TData, TValue>({
                   {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow key={headerGroup.id}>
                       {headerGroup.headers.map((header) => (
-                        <TableHead key={header.id} className={cellPadding}>
+                        <TableHead key={header.id} className={cellPadding} aria-sort={header.column.getIsSorted() === "asc" ? "ascending" : header.column.getIsSorted() === "desc" ? "descending" : "none"}>
                           {header.isPlaceholder ? null : header.column.getCanSort() ? (
                             <button
                               type="button"
@@ -317,7 +319,7 @@ function DataTable<TData, TValue>({
                       className={cn(onRow && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring")}
                       onClick={(event) => handleRowClick(event, row)}
                       onKeyDown={(event) => {
-                        if (!onRow || (event.key !== "Enter" && event.key !== " ")) return;
+                        if (event.target !== event.currentTarget || !onRow || (event.key !== "Enter" && event.key !== " ")) return;
                         event.preventDefault();
                         onRow(row.original);
                       }}
@@ -340,8 +342,8 @@ function DataTable<TData, TValue>({
         <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
           <span>Page {table.getState().pagination.pageIndex + 1} sur {table.getPageCount()}</span>
           <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" className="size-9 min-h-9" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} aria-label="Page précédente"><ChevronLeft className="size-4" /></Button>
-            <Button variant="outline" size="icon" className="size-9 min-h-9" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} aria-label="Page suivante"><ChevronRight className="size-4" /></Button>
+            <Button variant="outline" size="icon" className="min-h-[44px] min-w-[44px]" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()} aria-label="Page précédente"><ChevronLeft className="size-4" /></Button>
+            <Button variant="outline" size="icon" className="min-h-[44px] min-w-[44px]" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()} aria-label="Page suivante"><ChevronRight className="size-4" /></Button>
           </div>
         </div>
       ) : null}

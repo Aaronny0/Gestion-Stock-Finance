@@ -1,4 +1,4 @@
-/* Existing auth rules, preserved in cascade order until the owning screen is migrated. */
+/* Compatibility for screens not yet migrated. Preserve order until their migration. */
 .auth-layout {
   display: grid;
   grid-template-columns: 46% 54%;
@@ -218,9 +218,4 @@
 .onboarding-review p {
   font-size: 12px;
   margin: 12px 0 0;
-}
-.mobile-toggle,
-.mobile-close,
-.mobile-bottom {
-  display: none;
 }

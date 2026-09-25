@@ -8,7 +8,9 @@ Ce socle est introduit progressivement afin de préserver le comportement métie
 - Les couleurs sont exprimées par rôle : `primary`, `success`, `warning`, `destructive`, `info`, `muted`, etc.
 - `src/styles/tokens.css` est la source de vérité des tokens visuels.
 - `src/styles/base.css` contient uniquement le socle global et la compatibilité temporaire avec la V1.
-- `src/app/globals.css` conserve temporairement les styles legacy qui seront retirés progressivement, fonctionnalité par fonctionnalité.
+- `src/app/globals.css` contient uniquement les imports et l’ordre des couches CSS. Les règles de compatibilité encore actives sont dans `src/styles/legacy/`, sous les utilitaires Tailwind dans la cascade. Elles seront retirées lors de la migration de chaque écran.
+- `--muted` désigne une surface ; `--muted-foreground` désigne un texte secondaire. Ne jamais redéfinir ces tokens dans les styles métier.
+- Le composant `Money` utilise par défaut la devise de l’organisation courante ; une devise explicite reste possible. Les valeurs sont en unités mineures.
 - Les variantes de composants utilisent CVA lorsque cela apporte une vraie valeur.
 - `cn()` combine `clsx` et `tailwind-merge`.
 - Les montants et cellules numériques utilisent des chiffres tabulaires.

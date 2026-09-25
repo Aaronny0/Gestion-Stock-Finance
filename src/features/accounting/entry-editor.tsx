@@ -65,7 +65,7 @@ function EntryEditor({ onClose, initial }: { onClose: () => void; initial?: Acco
           }
         }}>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2"><Label>Journal</Label><Select value={journal} onValueChange={setJournal}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{journals.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}</SelectContent></Select></div>
+            <div className="space-y-2"><Label>Journal</Label><Select value={journal} onValueChange={setJournal}><SelectTrigger aria-label="Journal"><SelectValue /></SelectTrigger><SelectContent>{journals.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}</SelectContent></Select></div>
             <div className="space-y-2"><Label htmlFor="entry-date">Date</Label><Input id="entry-date" type="date" required value={date} onChange={(event) => setDate(event.target.value)} /></div>
           </div>
           <div className="space-y-2"><Label htmlFor="entry-label">Libellé de l’écriture</Label><Input id="entry-label" required value={label} onChange={(event) => setLabel(event.target.value)} /></div>
@@ -77,8 +77,8 @@ function EntryEditor({ onClose, initial }: { onClose: () => void; initial?: Acco
                 <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                   <div className="space-y-2"><Label>Compte</Label><Select value={line.account} onValueChange={(value) => change(index, "account", value)}><SelectTrigger aria-label={`Compte ligne ${index + 1}`}><SelectValue /></SelectTrigger><SelectContent>{activeAccounts.map((account) => <SelectItem key={account.id} value={account.number}>{account.number} · {account.name}</SelectItem>)}</SelectContent></Select></div>
                   <div className="space-y-2"><Label htmlFor={`entry-line-label-${index}`}>Libellé</Label><Input id={`entry-line-label-${index}`} value={line.label} onChange={(event) => change(index, "label", event.target.value)} /></div>
-                  <div className="space-y-2"><Label htmlFor={`entry-debit-${index}`}>Débit ({currency})</Label><Input id={`entry-debit-${index}`} type="number" min="0" step={1 / scale} value={line.debit / scale} onChange={(event) => change(index, "debit", minor(event.target.value, currency))} /></div>
-                  <div className="space-y-2"><Label htmlFor={`entry-credit-${index}`}>Crédit ({currency})</Label><Input id={`entry-credit-${index}`} type="number" min="0" step={1 / scale} value={line.credit / scale} onChange={(event) => change(index, "credit", minor(event.target.value, currency))} /></div>
+                  <div className="space-y-2"><Label htmlFor={`entry-debit-${index}`}>Débit ({currency})</Label><Input aria-label={`Débit ligne ${index + 1} (${currency})`} id={`entry-debit-${index}`} type="number" min="0" step={1 / scale} value={line.debit / scale} onChange={(event) => change(index, "debit", minor(event.target.value, currency))} /></div>
+                  <div className="space-y-2"><Label htmlFor={`entry-credit-${index}`}>Crédit ({currency})</Label><Input aria-label={`Crédit ligne ${index + 1} (${currency})`} id={`entry-credit-${index}`} type="number" min="0" step={1 / scale} value={line.credit / scale} onChange={(event) => change(index, "credit", minor(event.target.value, currency))} /></div>
                 </div>
               </Card>
             ))}

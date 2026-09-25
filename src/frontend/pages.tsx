@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Plus, ArrowRight, ArrowDownLeft, ArrowUpRight, Repeat2, ShoppingBag } from "lucide-react";

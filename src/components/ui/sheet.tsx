@@ -15,7 +15,7 @@ const SheetOverlay = React.forwardRef<React.ElementRef<typeof DialogPrimitive.Ov
 );
 SheetOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
-const sheetVariants = cva("fixed z-50 bg-card p-6 shadow-[var(--shadow-dialog)] outline-none transition ease-in-out", {
+const sheetVariants = cva("fixed z-50 overflow-y-auto bg-card p-6 shadow-[var(--shadow-dialog)] outline-none transition ease-in-out", {
   variants: {
     side: {
       top: "inset-x-0 top-0 border-b border-border",
@@ -34,7 +34,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof DialogPrimitive.Co
       <SheetOverlay />
       <DialogPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
         {children}
-        <DialogPrimitive.Close className="absolute right-4 top-4 inline-flex size-10 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
+        <DialogPrimitive.Close aria-label="Fermer" className="absolute right-4 top-4 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring">
           <X className="size-4" /><span className="sr-only">Fermer</span>
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>

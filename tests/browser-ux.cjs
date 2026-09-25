@@ -16,14 +16,14 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3000";
     errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(base + "/demo/pos");
-  await page.getByRole("heading", { name: "Une nouvelle vente." }).waitFor();
+  await page.getByRole("heading", { name: "Nouvelle vente" }).waitFor();
   await page
     .locator('[data-qa="product-card"]')
     .filter({ hasText: "iPhone 15" })
     .first()
     .click();
   page.once("dialog", (d) => d.dismiss());
-  await page.getByRole("link", { name: /Stock & catalogue/ }).click();
+  await page.locator('[data-qa="workspace-sidebar"]').getByRole("link", { name: /Stock & catalogue/ }).click();
   assert.ok(page.url().endsWith("/demo/pos"));
   assert.equal(await page.locator('[data-qa="cart-item"]').count(), 1);
   checks.push("Navigation annulée : panier conservé");
@@ -44,7 +44,7 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3000";
   checks.push("Encaissement et monnaie rendue sur le reçu");
   await page.getByRole("link", { name: "Ventes", exact: true }).click();
   await page
-    .getByLabel(/^Ouvrir le détail /)
+    .getByLabel(/^Ouvrir le détail /).filter({ visible: true })
     .first()
     .click();
   await page.getByRole("button", { name: "Retourner / rembourser" }).click();
@@ -66,9 +66,9 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3000";
     fullPage: true,
   });
   checks.push("Vue des crédits hors filtre de période");
-  await page.getByRole("link", { name: /Stock & catalogue/ }).click();
+  await page.locator('[data-qa="workspace-sidebar"]').getByRole("link", { name: /Stock & catalogue/ }).click();
   await page
-    .getByRole("link", { name: "Préparer le réapprovisionnement" })
+    .getByRole("link", { name: "Réapprovisionnement", exact: true })
     .click();
   await page
     .getByRole("heading", { name: "Anticipez les ruptures." })
@@ -85,7 +85,7 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3000";
   assert.ok((await storeSwitcher.innerText()).includes("Cotonou"));
   checks.push("Changement de boutique protégé");
   page.once("dialog", (d) => d.accept());
-  await page.getByRole("link", { name: /Stock & catalogue/ }).click();
+  await page.locator('[data-qa="workspace-sidebar"]').getByRole("link", { name: /Stock & catalogue/ }).click();
   await page
     .getByRole("heading", { name: "Le bon stock, au bon endroit." })
     .waitFor();
@@ -119,14 +119,14 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3000";
     const css = getComputedStyle(document.documentElement);
     return Object.fromEntries(
       [
-        "--ink",
-        "--muted",
-        "--purple",
-        "--green",
-        "--amber",
-        "--red",
+        "--foreground",
+        "--muted-foreground",
+        "--primary",
+        "--success",
+        "--warning",
+        "--destructive",
         "--info",
-        "--bg",
+        "--background",
       ].map((k) => [k, css.getPropertyValue(k).trim()]),
     );
   });
@@ -144,12 +144,12 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3000";
     return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
   }
   const pairs = [
-    ["Texte principal", contrast["--ink"], "#FFFFFF"],
-    ["Texte secondaire", contrast["--muted"], contrast["--bg"]],
-    ["Action principale", "#FFFFFF", contrast["--purple"]],
-    ["Succès", contrast["--green"], "#ECFDF3"],
-    ["Attention", contrast["--amber"], "#FFFBEB"],
-    ["Erreur", contrast["--red"], "#FEF3F2"],
+    ["Texte principal", contrast["--foreground"], "#FFFFFF"],
+    ["Texte secondaire", contrast["--muted-foreground"], contrast["--background"]],
+    ["Action principale", "#FFFFFF", contrast["--primary"]],
+    ["Succès", contrast["--success"], "#ECFDF3"],
+    ["Attention", contrast["--warning"], "#FFFBEB"],
+    ["Erreur", contrast["--destructive"], "#FEF3F2"],
     ["Information", contrast["--info"], "#EFF6FF"],
   ].map(([label, fg, bg]) => ({
     label,

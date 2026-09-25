@@ -1,4 +1,4 @@
-/* Existing forms rules, preserved in cascade order until the owning screen is migrated. */
+/* Compatibility for screens not yet migrated. Preserve order until their migration. */
 .field {
   display: flex;
   flex-direction: column;
@@ -179,20 +179,59 @@ legend {
   border-color: #9872bf;
   color: var(--primary);
 }
-.product-cell,
-.member-cell {
-  display: flex;
-  gap: 10px;
-  align-items: center;
+.search-input.large {
+  padding: 6px 15px;
+  margin-bottom: 17px;
 }
-.product-cell strong,
-.member-cell strong {
-  display: block;
-}
-.product-cell small,
-.member-cell small {
-  display: block;
-  color: var(--muted-foreground);
+.search-input.large input {
+  flex: 1;
+  width: 100%;
   font-size: 12px;
-  margin-top: 4px;
+}
+.search-input.large > svg {
+  width: 16px;
+}
+.search-input kbd {
+  color: var(--muted-foreground);
+  background: #f9f3fd;
+  border: 1px solid #ebdff4;
+  padding: 3px 5px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+.trade-flow {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  background: white;
+  border: 1px solid #ece2f3;
+  border-radius: 13px;
+  padding: 30px;
+  margin-bottom: 32px;
+}
+.trade-flow > div {
+  flex: 1;
+}
+.trade-flow > svg {
+  color: var(--muted-foreground);
+}
+.trade-flow h3 {
+  font-size: 15px;
+  margin: 16px 0 8px;
+}
+.trade-flow p {
+  font-size: 12px;
+  margin-bottom: 0;
+}
+.flow-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  font-size: 20px;
+}
+.report-footnote {
+  font-size: 12px;
+  margin-top: 25px;
 }

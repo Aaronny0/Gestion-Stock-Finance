@@ -1,3 +1,41 @@
+@media print  {
+@page  {
+    size: A4;
+    margin: 15mm;
+  }
+  body {
+    background: white;
+  }
+
+  .modal {
+    position: static;
+    display: block !important;
+    max-height: none !important;
+    width: 100%;
+    max-width: none;
+    border: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+
+  .modal::backdrop {
+    display: none;
+  }
+  .modal-head,
+.modal-foot {
+    display: none !important;
+  }
+
+  .modal-body.receipt {
+    padding: 0;
+  }
+}
+@media print  {
+html,
+body {
+    background: #fff !important;
+  }
+}
 @media print {
   body:has([data-receipt-dialog]) * {
     visibility: hidden;
@@ -8,6 +46,10 @@
     visibility: visible;
   }
 
+  body:has([data-receipt-dialog]) > :not([data-receipt-dialog]):not(:has([data-receipt-dialog])) {
+    display: none !important;
+  }
+
   [data-receipt-dialog] {
     position: absolute !important;
     inset: 0 !important;
@@ -15,6 +57,12 @@
     max-width: none !important;
     max-height: none !important;
     transform: none !important;
+    --tw-translate-x: 0 !important;
+    --tw-translate-y: 0 !important;
+    translate: none !important;
+    scale: none !important;
+    animation: none !important;
+    margin: 0 !important;
     overflow: visible !important;
     border: 0 !important;
     box-shadow: none !important;

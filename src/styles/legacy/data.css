@@ -1,4 +1,4 @@
-/* Existing data rules, preserved in cascade order until the owning screen is migrated. */
+/* Compatibility for screens not yet migrated. Preserve order until their migration. */
 .data-panel {
   margin-bottom: 20px;
 }
@@ -196,27 +196,7 @@ td .money {
   background: #fff2f3;
   border-color: #f6dfe3;
 }
-.notice {
-  position: fixed;
-  bottom: 26px;
-  right: 26px;
-  z-index: 100;
-  background: #fff;
-  border: 1px solid #e7e0ef;
-  box-shadow: 0 8px 50px #38204420;
-  border-radius: 11px;
-  padding: 12px 14px;
-  display: flex;
-  gap: 9px;
-  align-items: center;
-  font-size: 12px;
-  max-width: calc(100vw - 32px);
-}
-.notice > svg {
-  color: var(--success);
-}
-.connection-error,
-.access-denied {
+.connection-error {
   padding: 60px 20px;
   text-align: center;
   max-width: 700px;
@@ -224,11 +204,6 @@ td .money {
 }
 .connection-error .button {
   margin: 12px 5px;
-}
-.access-denied > svg {
-  font-size: 35px;
-  color: var(--muted-foreground);
-  margin-bottom: 20px;
 }
 .skeleton-grid {
   display: grid;
@@ -250,7 +225,7 @@ td .money {
   background: #efebf5;
   animation: shimmer 1.8s infinite;
 }
-@keyframes shimmer {
+@keyframes shimmer  {
   to {
     background-position: -200% 0;
   }
@@ -315,13 +290,4 @@ td .money {
   border-bottom: 1px solid #e9e2f0;
   margin-bottom: 25px;
   padding-bottom: 12px;
-}
-.action-toolbar {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 17px;
-  flex-wrap: wrap;
-}
-.overview-toolbar .action-toolbar {
-  margin: 0;
 }

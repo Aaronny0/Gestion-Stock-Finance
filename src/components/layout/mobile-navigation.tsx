@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRef } from "react";
 import { BookOpen, Menu, Package, Repeat2, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -26,12 +27,21 @@ function shortcutActive(path: string, itemPath: string) {
 }
 
 export function MobileNavigation({ open, onOpenChange, ...props }: MobileNavigationProps) {
+  const triggerRef = useRef<HTMLElement | null>(null);
   const visible = shortcuts.filter((item) => props.can(item.permission)).slice(0, 3);
 
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent side="left" className="flex w-[88%] max-w-[340px] flex-col p-0 sm:max-w-[340px]">
+        <SheetContent
+          onOpenAutoFocus={() => {
+            triggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+          }}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            triggerRef.current?.focus();
+          }}
+          side="left" className="flex w-[88%] max-w-[340px] flex-col p-0 sm:max-w-[340px]">
           <SheetTitle className="sr-only">Navigation VORTEX</SheetTitle>
           <div className="flex h-[72px] items-center border-b border-border px-5">
             <AppLogo href={props.href("/")} />

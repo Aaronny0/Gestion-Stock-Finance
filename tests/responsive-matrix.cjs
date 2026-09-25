@@ -110,6 +110,13 @@ const sizes = [
                 el.closest(".table-scroll,.tabs,.recharts-wrapper,.cart-lines")
               )
                 return false;
+              // Ignore content intentionally clipped by a horizontal scroll region,
+              // but still check that region and the document themselves fit.
+              for (let parent = el.parentElement; parent; parent = parent.parentElement) {
+                const style = getComputedStyle(parent), bounds = parent.getBoundingClientRect();
+                if (["auto", "scroll"].includes(style.overflowX) && bounds.left >= -2 && bounds.right <= width + 2)
+                  return false;
+              }
               return r.right > width + 2 || r.left < -2;
             })
             .slice(0, 8)

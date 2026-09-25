@@ -72,7 +72,6 @@ function isActive(path: string, itemPath: string) {
 
 function NavigationLink({
   label,
-  itemPath,
   icon: Icon,
   active,
   href,

@@ -1,79 +1,13 @@
-/* Existing responsive rules, preserved in cascade order until the owning screen is migrated. */
-@media (min-width: 1600px) {
-  .workspace-main {
-    padding-inline: 50px;
-  }
-  .workspace-header {
-    padding-inline: 50px;
-  }
-  .product-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-@media (max-width: 1200px) {
-  .workspace-sidebar {
-    width: 209px;
-    padding-inline: 13px;
-  }
-  .workspace-body {
-    margin-left: 209px;
-  }
-  .workspace-main {
-    padding: 25px;
-  }
-  .workspace-header {
-    padding: 0 25px;
-  }
-  .demo-banner {
-    padding-inline: 25px;
-  }
-  .breadcrumb {
-    font-size: 12px;
-  }
-  .kpi-grid {
-    gap: 12px;
-  }
-  .kpi-card {
-    padding: 15px;
-  }
-  .kpi-value {
-    font-size: 20px;
-  }
-  .dashboard-middle {
-    grid-template-columns: 1.4fr 1fr;
-    gap: 16px;
-  }
-  .dashboard-lower {
-    gap: 16px;
-  }
-  .panel-heading {
+/* Compatibility for screens not yet migrated. Preserve order until their migration. */
+@media (max-width: 1200px)  {
+.panel-heading {
     padding: 18px 18px 12px;
   }
-  .attention-item {
-    margin-inline: 15px;
-  }
-  .attention-item strong {
-    font-size: 12px;
-  }
-  .insight-note {
-    margin: 12px 15px;
-  }
-  .user-summary {
-    display: none;
-  }
-  .pos-layout {
-    grid-template-columns: 1fr 310px;
-    gap: 18px;
-  }
-  .product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+
   .page-heading h1 {
     font-size: 27px;
   }
-  .section-title > .muted {
-    display: none;
-  }
+
   .auth-story {
     padding: 40px;
   }
@@ -84,72 +18,21 @@
     letter-spacing: -2px;
   }
 }
-@media (max-width: 1000px) {
-  .workspace-sidebar {
-    width: 190px;
-  }
-  .workspace-body {
-    margin-left: 190px;
-  }
-  .nav-item {
-    font-size: 12px;
-    padding: 9px;
-  }
-  .brand {
+@media (max-width: 1000px)  {
+.brand {
     font-size: 26px;
     margin-left: 8px;
   }
-  .workspace-main {
-    padding: 22px;
-  }
-  .kpi-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .kpi-value {
-    font-size: 25px;
-  }
-  .dashboard-middle,
-  .dashboard-lower {
-    grid-template-columns: 1fr;
-  }
+
   .chart-area {
     height: 260px;
   }
-  .breadcrumb {
-    display: none;
-  }
-  .workspace-header {
-    height: 65px;
-  }
-  .header-tools {
-    width: 100%;
-    justify-content: flex-end;
-  }
+
   .trade-flow {
     gap: 15px;
     padding: 25px;
   }
-  .pos-layout {
-    grid-template-columns: 1fr;
-  }
-  .cart-panel {
-    position: static;
-  }
-  .cart-lines {
-    max-height: 400px;
-  }
-  .product-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  .cart-options .form-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  .role-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  .statement-grid {
-    grid-template-columns: 1fr;
-  }
+
   .auth-story h1 {
     font-size: 42px;
   }
@@ -172,78 +55,8 @@
     align-items: flex-start;
   }
 }
-@media (max-width: 760px) {
-  .workspace-sidebar {
-    transform: translateX(-100%);
-    width: 240px;
-    transition: transform 0.2s;
-  }
-  .workspace-sidebar.is-open {
-    transform: translateX(0);
-  }
-  .sidebar-shade {
-    position: fixed;
-    inset: 0;
-    background: #2a1d3c66;
-    border: 0;
-    z-index: 35;
-  }
-  .workspace-body {
-    margin-left: 0;
-  }
-  .mobile-toggle {
-    display: inline-flex;
-  }
-  .mobile-close {
-    display: flex;
-    position: absolute;
-    right: 12px;
-    top: 12px;
-  }
-  .workspace-header {
-    padding: 0 16px;
-    height: 60px;
-  }
-  .header-tools {
-    width: auto;
-    gap: 9px;
-  }
-  .user-avatar {
-    width: 28px;
-    height: 28px;
-    font-size: 12px;
-  }
-  .store-switcher select {
-    max-width: 155px;
-    font-size: 12px;
-  }
-  .header-divider {
-    display: none;
-  }
-  .workspace-main {
-    padding: 24px 17px 90px;
-  }
-  .workspace-footer {
-    display: none;
-  }
-  .demo-banner {
-    padding: 7px 17px;
-    align-items: flex-start;
-    font-size: 12px;
-    gap: 10px;
-  }
-  .demo-banner > span {
-    max-width: 55%;
-    line-height: 1.6;
-  }
-  .demo-banner label {
-    font-size: 0;
-  }
-  .demo-banner select {
-    font-size: 12px;
-    max-width: 120px;
-  }
-  .page-heading {
+@media (max-width: 760px)  {
+.page-heading {
     align-items: flex-start;
     gap: 12px;
     margin-bottom: 25px;
@@ -263,36 +76,7 @@
     font-size: 12px;
     min-height: 40px;
   }
-  .kpi-grid {
-    gap: 11px;
-    margin-bottom: 18px;
-  }
-  .kpi-card {
-    padding: 15px;
-  }
-  .kpi-value {
-    font-size: 21px;
-    letter-spacing: -0.7px;
-  }
-  .kpi-top {
-    margin-bottom: 14px;
-  }
-  .kpi-label {
-    font-size: 12px;
-  }
-  .kpi-bottom {
-    font-size: 12px;
-    line-height: 1.5;
-    gap: 8px;
-  }
-  .kpi-icon {
-    width: 29px;
-    height: 29px;
-    font-size: 14px;
-  }
-  .section-title {
-    font-size: 12px;
-  }
+
   .overview-toolbar {
     gap: 13px;
   }
@@ -305,11 +89,7 @@
     max-width: 84px;
     font-size: 12px;
   }
-  .dashboard-middle,
-  .dashboard-lower {
-    gap: 17px;
-    margin-bottom: 17px;
-  }
+
   .panel-heading h2 {
     font-size: 13px;
   }
@@ -317,65 +97,7 @@
     height: 225px;
     padding-right: 12px;
   }
-  .attention-item strong {
-    font-size: 12px;
-  }
-  .attention-item small {
-    font-size: 12px;
-  }
-  .attention-item {
-    padding: 16px 0;
-  }
-  .insight-note p {
-    font-size: 12px;
-  }
-  .payment-total > .money {
-    font-size: 29px;
-  }
-  .top-products strong {
-    font-size: 12px;
-  }
-  .top-products .money {
-    font-size: 12px;
-  }
-  .top-products > a {
-    gap: 9px;
-  }
-  .mobile-bottom {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    z-index: 30;
-    background: #fffffff5;
-    border-top: 1px solid #e9dff1;
-    min-height: 64px;
-    padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
-    backdrop-filter: blur(12px);
-  }
-  .mobile-bottom a,
-  .mobile-bottom button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    border: 0;
-    background: none;
-    font-size: 12px;
-    color: var(--muted-foreground);
-    min-width: 60px;
-  }
-  .mobile-bottom svg {
-    font-size: 20px;
-  }
-  .notice {
-    bottom: 80px;
-    right: 16px;
-    font-size: 12px;
-  }
+
   .table-toolbar {
     gap: 10px;
     padding: 13px;
@@ -427,30 +149,7 @@
   .compact-metrics strong {
     font-size: 19px;
   }
-  .pos-layout {
-    grid-template-columns: 1fr;
-  }
-  .product-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-  .product-art {
-    height: 125px;
-  }
-  .cart-checkout {
-    position: sticky;
-    bottom: 64px;
-    z-index: 3;
-  }
-  .cart-panel {
-    overflow: visible;
-  }
-  .product-card > strong {
-    font-size: 12px;
-  }
-  .product-bottom > .money {
-    font-size: 12px;
-  }
+
   .trade-flow {
     flex-direction: column;
     align-items: flex-start;
@@ -502,12 +201,7 @@
   .review-list > div {
     font-size: 12px;
   }
-  .settings-form {
-    padding: 20px;
-  }
-  .role-grid {
-    grid-template-columns: 1fr;
-  }
+
   .auth-layout {
     display: block;
   }
@@ -546,14 +240,8 @@
     padding: 30px 0;
   }
   .tabs a,
-  .tabs button {
+.tabs button {
     font-size: 12px;
     padding: 9px 12px;
-  }
-  .statement {
-    padding: 20px;
-  }
-  .statement > div {
-    font-size: 12px;
   }
 }

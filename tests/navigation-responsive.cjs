@@ -22,10 +22,7 @@ async function navLinks(page, mobile) {
     );
     await page.keyboard.press("Escape");
     await menu.waitFor({ state: "hidden" });
-    assert.equal(
-      await page.getByRole("button", { name: "Ouvrir le menu", exact: true }).evaluate((el) => el === document.activeElement),
-      true,
-    );
+    await page.waitForFunction(() => document.activeElement?.getAttribute("aria-label") === "Ouvrir le menu");
     return links;
   }
   return page.locator('[data-qa="workspace-sidebar"] [data-qa="nav-item"]').evaluateAll((els) =>
@@ -86,26 +83,27 @@ async function navigateByMenu(page, mobile, url) {
     await page.goto(base + "/demo/products/p0");
     await page.getByRole("button", { name: "Revenir à la page précédente" }).click();
     await page.waitForURL("**/demo/stock");
-    const search = page.getByRole("textbox", { name: "Rechercher dans stock" });
+    const search = page.getByRole("searchbox", { name: "Rechercher dans stock" });
     await search.fill("iPhone");
-    await page.getByLabel("Ouvrir le détail p0").click();
+    await page.getByLabel("Ouvrir le détail p0").filter({ visible: true }).click();
     await page.waitForURL("**/demo/products/p0");
     await page.getByRole("button", { name: "Revenir à la page précédente" }).click();
     await page.waitForURL("**/demo/stock");
     assert.equal(await search.inputValue(), "iPhone");
 
-    if (mobile) {
+    if (width < 768) {
       const sort = page.getByRole("combobox", { name: "Trier stock", exact: true });
       await sort.click();
       await page.getByRole("option", { name: "Produit", exact: true }).click();
       await page.getByRole("button", { name: "Inverser le tri stock" }).click();
-      await page.getByLabel("Ouvrir le détail p0").click();
+      await page.getByLabel("Ouvrir le détail p0").filter({ visible: true }).click();
+      await page.waitForURL("**/demo/products/p0");
       await page.getByRole("button", { name: "Revenir à la page précédente" }).click();
       await page.waitForURL("**/demo/stock");
       assert.ok((await sort.innerText()).includes("Produit"));
       assert.ok((await page.getByRole("button", { name: "Inverser le tri stock" }).innerText()).includes("Décroissant"));
     }
-    checks.push(`${width}px: retour, recherche${mobile ? " et tri mobile" : ""} restaurés`);
+    checks.push(`${width}px: retour, recherche${width < 768 ? " et tri mobile" : ""} restaurés`);
 
     await navigateByMenu(page, mobile, "/demo/pos");
     await page.locator('[data-qa="product-card"]').first().click();
@@ -117,7 +115,7 @@ async function navigateByMenu(page, mobile, url) {
     page.once("dialog", (d) => d.accept());
     await page.evaluate(() => history.back());
     await page.waitForURL("**/demo/stock");
-    assert.equal(await page.getByRole("textbox", { name: "Rechercher dans stock" }).inputValue(), "iPhone");
+    assert.equal(await page.getByRole("searchbox", { name: "Rechercher dans stock" }).inputValue(), "iPhone");
     await page.evaluate(() => history.forward());
     await page.waitForURL("**/demo/pos");
     assert.equal(await page.locator('[data-qa="cart-item"]').count(), 0);

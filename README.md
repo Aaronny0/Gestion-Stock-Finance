@@ -5,7 +5,7 @@ Frontend Next.js / React / TypeScript pour le cahier de réalisation frontend.
 ## Démarrer
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 pnpm dev
 ```
 
@@ -29,10 +29,10 @@ Couverture, scénarios et limites : [docs/frontend-recette.md](docs/frontend-rec
 
 ## Vérifier
 
-Après cette refonte, exécuter d’abord `pnpm install` afin de régénérer `pnpm-lock.yaml` à partir du `package.json` actuel. Une fois le lockfile synchronisé et versionné, les installations CI peuvent revenir à `pnpm install --frozen-lockfile`.
+Le lockfile est synchronisé et l’installation figée a été vérifiée. Utiliser `pnpm install --frozen-lockfile` en local et en CI.
 
 ```bash
-pnpm install
+pnpm install --frozen-lockfile
 pnpm typecheck
 pnpm lint
 pnpm test
@@ -52,3 +52,5 @@ Les anciens chemins français restent accessibles comme alias des écrans refond
 ## Améliorations UX
 
 Le bilan du 17 septembre 2026, les choix de palette, les nouveaux parcours et les limites de raccordement sont détaillés dans [RAPPORT_AMELIORATIONS_UX.md](RAPPORT_AMELIORATIONS_UX.md).
+
+Le bilan de stabilisation, les corrections et les résultats de validation sont détaillés dans [docs/FINAL_STABILIZATION.md](docs/FINAL_STABILIZATION.md).
