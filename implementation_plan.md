@@ -1,3 +1,5 @@
+> Document historique ES STORE, remplacé par le frontend VORTEX et Supabase Auth. Ne pas suivre ses anciennes opérations SQL/authentification. État actuel : [audit final](docs/final-project-audit.md).
+
 # ES STORE — 11 Corrections & Améliorations
 
 Ce plan couvre les 11 points d'amélioration demandés, organisés par fichier/composant.

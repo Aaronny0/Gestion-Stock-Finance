@@ -846,6 +846,12 @@ export function executeDemo(
       )
         throw new Error("Mode de remboursement invalide.");
       const quote = quoteReturn(sale, selections);
+      if (quote.tradeReduction) {
+        const trade=db.trades.find(t=>t.id===sale.id);
+        const received=db.products.find(p=>p.id===trade?.productId&&p.storeId===storeId);
+        if(!received||received.quantity<1)throw new Error("L’appareil repris n’est plus disponible.");
+        received.quantity--;
+      }
       const refund = {
         ...quote,
         id: id(),
@@ -919,6 +925,7 @@ export function executeDemo(
           credit: restored,
         },
       ];
+      if(quote.tradeReduction)lines.push({account:"31",label:"Reprise annulée",debit:0,credit:quote.tradeReduction});
       if (quote.amount || restored)
         post(sale.id, `Retour ${sale.reference}`, lines, "Ventes", "sales");
       break;

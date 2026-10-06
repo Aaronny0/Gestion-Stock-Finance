@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 const allowed = new Set([
+  "onboarding",
   "session",
   "workspace",
   "commands",
   "sales/quote",
   "documents/upload-url",
+  "documents/complete",
+  "documents/download-url",
   "fiscal/test",
   "telemetry",
-  "auth/login",
-  "auth/signup",
-  "auth/logout",
-  "auth/forgot-password",
   "auth/invitation",
   "auth/activate",
+  "auth/accept-invitation",
 ]);
 async function forward(
   req: NextRequest,
@@ -36,12 +36,17 @@ async function forward(
       "Content-Type": "application/json",
       Accept: "application/json",
     });
+    const origin = req.headers.get("Origin");
+    if (origin) headers.set("Origin", origin);
+    const authorization = req.headers.get("Authorization");
+    if (authorization) headers.set("Authorization", authorization);
+    headers.set("Content-Type", req.headers.get("Content-Type") ?? "application/json");
     const cookie = req.headers.get("cookie");
     if (cookie) headers.set("Cookie", cookie);
     const key = req.headers.get("Idempotency-Key");
     if (key) headers.set("Idempotency-Key", key);
     const body = req.method === "GET" ? undefined : await req.text();
-    if (body && body.length > 2_000_000)
+    if (body && new TextEncoder().encode(body).byteLength > 2_000_000)
       return NextResponse.json(
         { error: "Requête trop volumineuse." },
         { status: 413 },
@@ -74,6 +79,8 @@ async function forward(
         ? data
         : {
             error: "L’opération ne peut pas être exécutée.",
+            ...(typeof data === "object" && data !== null && "code" in data &&
+              ["ONBOARDING_REQUIRED", "NO_MEMBERSHIP", "FORBIDDEN"].includes(String(data.code)) ? { code: data.code } : {}),
             ...(upstream.status === 422 &&
             typeof data === "object" &&
             data !== null &&

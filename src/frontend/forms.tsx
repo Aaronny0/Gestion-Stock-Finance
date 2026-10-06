@@ -1,7 +1,7 @@
 "use client";
 import { ArrowRight, Check, Plus, Trash2 } from "lucide-react";
 import { salePosition } from "./operations";
-import { useRef, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useWorkspace, useUnsavedChanges } from "./provider";
 import { Alert, Field, Modal, Money } from "./ui";
 import { decimals, minor } from "./accounting";
@@ -110,10 +110,11 @@ export function ActionForm({
       product,
       f("destination", "Boutique de destination", "select", true, opts.stores),
       quantity,
+      f("imeis", "IMEI des unités transférées · séparés par des virgules", "textarea", false),
       reason,
     ],
     "product.archive": [product, reason],
-    "trade.create": [...device, product, client, method],
+    "trade.create": [...device, product, f("outgoingImei", "IMEI de l’appareil vendu · facultatif", undefined, false), client, method],
     "buyback.create": [...device, client, method],
     "purchase.create": [
       f("supplierId", "Fournisseur", "select", true, opts.suppliers),
@@ -185,7 +186,7 @@ export function ActionForm({
     ],
     "expense.reverse": [reason],
     "entry.reverse": [date, reason],
-    "cash.open": [f("amount", `Solde initial compté (${currency})`, "money")],
+    "cash.open": [f("amount", `Solde initial compté (${currency})`, "money"), {...reason, required:false}],
     "cash.close": [
       f("amount", `Espèces comptées (${currency})`, "money"),
       { ...reason, required: false },
@@ -197,6 +198,7 @@ export function ActionForm({
       ]),
       f("amount", `Montant (${currency})`, "money"),
       method,
+      f("account", "Compte de contrepartie", "select", true, db.accounts.filter(a => a.active).map(a => [a.number, `${a.number} · ${a.name}`])),
       reason,
     ],
     "account.save": [
@@ -271,21 +273,21 @@ export function ActionForm({
     extras,
     reconciledMethods,
   });
-  const original = useRef(signature);
+  const [original] = useState(signature);
   const discard = useUnsavedChanges(
-    signature !== original.current || !!file,
+    signature !== original || !!file,
     title,
   );
   const close = () => {
     if (!busy && discard()) onClose();
   };
   const data = () => ({
-    ...initial,
+    ...(initial.id ? { id: initial.id } : {}),
     ...(type === "cash.close" ? { reconciledMethods } : {}),
     ...Object.fromEntries(
-      fields.map((s) => [
+      fields.filter(s => type !== "purchase.create" || !["productId", "quantity", "cost"].includes(s.key)).map((s) => [
         s.key,
-        s.kind === "money"
+        s.key === "imeis" ? values[s.key].split(/[\s,;]+/).filter(Boolean) : s.kind === "money"
           ? minor(values[s.key] || 0, currency)
           : s.kind === "number"
             ? s.key === "reorderTarget" && !values[s.key]
@@ -351,6 +353,7 @@ export function ActionForm({
               size: file.size,
               mime: file.type,
               storeId,
+              organizationId: snapshot!.session.organization.id,
             }),
           });
           const result = await fetch(upload.uploadUrl, {
@@ -360,6 +363,7 @@ export function ActionForm({
           });
           if (!result.ok)
             throw new Error("Échec du transfert du justificatif.");
+          await request("documents/complete", { method: "POST", body: JSON.stringify({ documentId: upload.documentId, organizationId: snapshot!.session.organization.id, storeId }) });
           payload.documentId = upload.documentId;
         }
       }

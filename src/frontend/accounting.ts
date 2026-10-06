@@ -1,4 +1,4 @@
-import { salePosition } from "./operations";
+import { salePosition, saleActivity } from "./operations";
 import type {
   AccountingEntry,
   AccountingLine,
@@ -177,10 +177,11 @@ export function indicators(
   sales: Sale[],
   payments: Payment[],
   entries: AccountingEntry[],
+  period?: {start: string; end: string},
 ) {
-  const valid = sales.filter((s) => s.status !== "refunded");
-  const revenue = sales.reduce((s, v) => s + salePosition(v).netTotal, 0);
-  const cost = sales.reduce((sum, sale) => sum + salePosition(sale).netCost, 0);
+  const activity = sales.map(sale => period ? saleActivity(sale,period.start,period.end) : {...salePosition(sale),count:sale.status === "refunded" ? 0 : 1});
+  const revenue = activity.reduce((s, v) => s + v.netIncome, 0);
+  const cost = activity.reduce((sum, sale) => sum + sale.netCost, 0);
   const incoming = payments
     .filter((p) => p.direction === "in")
     .reduce((s, p) => s + p.amount, 0);
@@ -192,6 +193,7 @@ export function indicators(
     for (const l of e.lines)
       if (l.account.startsWith("7") || l.account.startsWith("6"))
         result += l.credit - l.debit;
+  const count = activity.reduce((n,s)=>n+s.count,0);
   return {
     revenue,
     incoming,
@@ -199,8 +201,8 @@ export function indicators(
     cashflow: incoming - outgoing,
     margin: revenue - cost,
     result,
-    count: valid.length,
-    units: valid.reduce((s, v) => s + salePosition(v).units, 0),
-    average: valid.length ? Math.round(revenue / valid.length) : 0,
+    count,
+    units: activity.reduce((s, v) => s + v.units, 0),
+    average: count ? Math.round(revenue / count) : 0,
   };
 }

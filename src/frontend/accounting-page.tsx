@@ -1,6 +1,6 @@
 "use client";
 import { salePosition } from "./operations";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Plus, Trash2, CheckCircle, ArrowRight, Lock } from "lucide-react";
 import {
@@ -156,9 +156,9 @@ function EntryEditor({
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
   const signature = JSON.stringify({ date, journal, label, lines });
-  const original = useRef(signature);
+  const [original] = useState(signature);
   const discard = useUnsavedChanges(
-    signature !== original.current,
+    signature !== original,
     "Écriture comptable",
   );
   const close = () => {

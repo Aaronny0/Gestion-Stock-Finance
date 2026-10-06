@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useId,
   useState,
@@ -13,6 +14,7 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { installHistoryGuard } from "./history";
 import { canonical, parentRoute } from "./navigation";
+import { useAuth } from "./auth-provider";
 import { api, request } from "./api";
 import { createDemo, executeDemo } from "./demo";
 import {
@@ -60,7 +62,7 @@ export function useWorkspace() {
 export function useUnsavedChanges(dirty: boolean, label: string) {
   const { registerDraft } = useWorkspace();
   const id = useId();
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (dirty) return registerDraft(id, label);
   }, [dirty, id, label, registerDraft]);
   return () =>
@@ -92,8 +94,13 @@ export const publicRoutes = [
   "/signup",
   "/forgot-password",
   "/invite/activate",
+  "/onboarding",
+  "/reset-password",
+  "/auth/callback",
+  "/auth/confirm",
 ];
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
+  const auth = useAuth();
   const pathname = usePathname(),
     router = useRouter(),
     demo = pathname === "/demo" || pathname.startsWith("/demo/"),
@@ -101,7 +108,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
-    [storeId, setStore] = useState("s1"),
+    [storeId, setStore] = useState(demo ? "s1" : ""),
     [organizationId, setOrganizationId] = useState(""),
     [version, setVersion] = useState(0),
     [notice, setNotice] = useState("");
@@ -135,7 +142,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       ),
     [],
   );
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // Run before the router's passive popstate listener: once that listener has
+    // rendered the destination, the departing form has already lost its draft.
     const control = installHistoryGuard(confirmDiscard, setLocationKey);
     historyControl.current = control;
     return () => {
@@ -196,6 +205,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const today = new Date().toISOString().slice(0, 10);
   const [start, setStart] = useState(today.slice(0, 7) + "-01"),
     [end, setEnd] = useState(today);
+  const commandRefresh = useRef<string | null>(null);
   const demoData = useRef<Snapshot | null>(null),
     pending = useRef(false),
     key = useRef<{ signature: string; value: string } | null>(null);
@@ -211,7 +221,17 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setSnapshot(null);
       return;
     }
-    setLoading(true);
+    if (!demo && auth.loading) { setLoading(true); return; }
+    if (!demo && !auth.user) {
+      setSnapshot(null); setLoading(false); setError(auth.error);
+      if (!auth.error) router.replace("/login");
+      return;
+    }
+    const sameCommandScope = commandRefresh.current === JSON.stringify({ storeId, start, end, organizationId, userId: auth.user?.id });
+    commandRefresh.current = null;
+    // A successful command refreshes data without unmounting its receipt/form.
+    // Identity, permissions and scope changes still discard the previous snapshot.
+    setLoading(!sameCommandScope);
     setError("");
     const abort = new AbortController();
     if (demo) {
@@ -219,10 +239,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       setSnapshot(demoData.current);
       setLoading(false);
     } else {
-      setSnapshot(null);
+      if (!sameCommandScope) setSnapshot(null);
       api
         .snapshot(storeId, start, end, abort.signal, organizationId)
         .then((data) => {
+          if (abort.signal.aborted) return;
+          if (!data.session.stores.length) { router.replace("/onboarding?state=no_membership"); return; }
           setSnapshot(data);
           if (
             !data.session.stores.some((s) => s.id === storeId) &&
@@ -231,32 +253,55 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
             setStore(data.session.defaultStoreId);
         })
         .catch((e) => {
-          if (e.name !== "AbortError") setError(e.message);
+          if (abort.signal.aborted) return;
+          setSnapshot(null);
+          if (e.code === "ONBOARDING_REQUIRED") router.replace("/onboarding");
+          else if (e.code === "NO_MEMBERSHIP") router.replace("/onboarding?state=no_membership");
+          else if (e.status === 401) router.replace("/login?expired=1");
+          else if (e.name !== "AbortError") setError(e.message);
         })
         .finally(() => {
           if (!abort.signal.aborted) setLoading(false);
         });
     }
     return () => abort.abort();
-  }, [demo, isPublic, storeId, start, end, version, organizationId]);
+  }, [demo, isPublic, storeId, start, end, version, organizationId, auth.loading, auth.user, auth.error, router]);
   useEffect(() => {
-    if (demo || isPublic) return;
+    if (demo || isPublic || auth.loading || !auth.user) return;
     let active = true;
+    let checking = false;
     const check = () => {
-      if (document.visibilityState !== "visible") return;
-      request<UserSession>("session")
+      if (document.visibilityState !== "visible" || checking) return;
+      checking = true;
+      const selectedOrganization = organizationId || snapshot?.session.organization.id;
+      request<UserSession>(`session${selectedOrganization ? `?organizationId=${encodeURIComponent(selectedOrganization)}` : ""}`)
         .then((session) => {
           if (!active) return;
-          setSnapshot((previous) =>
-            previous ? { ...previous, session } : previous,
-          );
+          // Never attach a new set of rights to data loaded with old rights.
+          // A reload removes costs and data from stores whose access was revoked.
+          if (snapshot && JSON.stringify(snapshot.session) !== JSON.stringify(session)) {
+            setSnapshot(null);
+            viewCache.current.clear();
+            key.current = null;
+            if (storeId !== "all" && !session.stores.some((s) => s.id === storeId))
+              setStore(session.defaultStoreId);
+            setVersion((v) => v + 1);
+          }
         })
         .catch((error) => {
-          if (error.status === 403) {
+          if (!active) return;
+          if (error.code === "ONBOARDING_REQUIRED" || error.code === "NO_MEMBERSHIP") {
+            setSnapshot(null);
+            router.replace(error.code === "NO_MEMBERSHIP" ? "/onboarding?state=no_membership" : "/onboarding");
+            return;
+          }
+          if (error.status === 401 || error.status === 403) {
             setSnapshot(null);
             setError(error.message);
+            if (error.status === 401) router.replace("/login?expired=1");
           }
-        });
+        })
+        .finally(() => { checking = false; });
     };
     const timer = setInterval(check, 60000);
     window.addEventListener("focus", check);
@@ -265,7 +310,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       clearInterval(timer);
       window.removeEventListener("focus", check);
     };
-  }, [demo, isPublic]);
+  }, [demo, isPublic, auth.loading, auth.user, router, organizationId, storeId, snapshot]);
   const setStoreId = (id: string) => {
     if (id === storeId || !confirmDiscard()) return;
     if (!demo) setSnapshot(null);
@@ -325,6 +370,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           });
           reference = result.reference ?? "";
           sale = result.sale;
+          commandRefresh.current = JSON.stringify({ storeId, start, end, organizationId, userId: auth.user?.id });
           setVersion((v) => v + 1);
         }
         key.current = null;
@@ -336,7 +382,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         pending.current = false;
       }
     },
-    [demo, storeId, organizationId, snapshot?.session.organization.id],
+    [demo, storeId, start, end, organizationId, auth.user?.id, snapshot?.session.organization.id],
   );
   useEffect(() => {
     if (!notice) return;

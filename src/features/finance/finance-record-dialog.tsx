@@ -1,5 +1,6 @@
 "use client";
 
+import {DocumentLink} from "@/components/data-display/document-link";
 import type { ReactNode } from "react";
 import { Money } from "@/components/data-display/money";
 import { StatusBadge } from "@/components/data-display/status-badge";
@@ -51,7 +52,7 @@ function FinanceRecordDialog({
         </DialogHeader>
         <dl className="grid gap-3 sm:grid-cols-2">
           {Object.entries(row)
-            .filter(([key]) => !["id", "storeId"].includes(key))
+            .filter(([key]) => !["id", "storeId", "documentId"].includes(key))
             .map(([key, value]) => (
               <div key={key} className="rounded-md border border-border bg-muted/50 p-3">
                 <dt className="text-xs font-semibold text-muted-foreground">{labels[key] ?? key}</dt>
@@ -61,6 +62,7 @@ function FinanceRecordDialog({
               </div>
             ))}
         </dl>
+        <DocumentLink documentId={row.documentId} storeId={row.storeId} />
         <DialogFooter>
           {actions}
           <Button variant="outline" onClick={onClose}>Fermer</Button>

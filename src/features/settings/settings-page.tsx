@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
@@ -43,6 +43,13 @@ const baseTabs = [
 ];
 
 export default function SettingsPage({ path }: { path: string }) {
+  const { snapshot } = useWorkspace();
+  const org = snapshot!.session.organization;
+  const version = JSON.stringify([org.id, org.name, org.country, org.timezone, org.splitPayments, org.fiscalEnabled]);
+  return <SettingsContent key={version} path={path} />;
+}
+
+function SettingsContent({ path }: { path: string }) {
   const { snapshot, command, href, can, demo } = useWorkspace();
   const org = snapshot!.session.organization;
   const tab = path.split("/")[2] || "organization";
@@ -55,19 +62,9 @@ export default function SettingsPage({ path }: { path: string }) {
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const [storeDialog, setStoreDialog] = useState(false);
-  const original = useRef("");
-
-  useEffect(() => {
-    setName(org.name);
-    setCountry(org.country);
-    setTimezone(org.timezone);
-    setSplit(org.splitPayments);
-    setFiscal(org.fiscalEnabled);
-    original.current = JSON.stringify({ id: org.id, name: org.name, country: org.country, timezone: org.timezone, split: org.splitPayments, fiscal: org.fiscalEnabled });
-  }, [org.id, org.name, org.country, org.timezone, org.splitPayments, org.fiscalEnabled]);
-
   const signature = JSON.stringify({ id: org.id, name, country, timezone, split, fiscal });
-  useUnsavedChanges(Boolean(original.current) && signature !== original.current, "Paramètres");
+  const [original, setOriginal] = useState(signature);
+  useUnsavedChanges(signature !== original, "Paramètres");
 
   const tabs = baseTabs.filter((item) => item.key !== "fiscal" || can("fiscal.manage"));
   const timezoneOptions = [...new Set([org.timezone, "Africa/Porto-Novo", "Africa/Abidjan", "Africa/Douala", "Europe/Paris"])];
@@ -90,7 +87,7 @@ export default function SettingsPage({ path }: { path: string }) {
         splitPayments: split,
         ...(can("fiscal.manage") ? { fiscalEnabled: fiscal } : {}),
       });
-      original.current = signature;
+      setOriginal(signature);
       setStatus("Paramètres enregistrés.");
     } catch (caught) { setError((caught as Error).message); }
     finally { setBusy(false); }

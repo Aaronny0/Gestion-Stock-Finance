@@ -1,3 +1,4 @@
+import { AuthProvider } from "@/frontend/auth-provider";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { FrontendShell } from "@/frontend/shell";
@@ -5,6 +6,7 @@ import { DesignSystemProvider } from "@/providers/design-system-provider";
 export const metadata: Metadata = {
   title: "Vortex · Gestion Stock & Finance",
   description: "Pilotez votre commerce, votre stock et vos finances.",
+  manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, title: "Vortex", statusBarStyle: "default" },
 };
 export const viewport: Viewport = {
@@ -23,7 +25,7 @@ export default function RootLayout({
     <html lang="fr">
       <body>
         <DesignSystemProvider>
-          <FrontendShell>{children}</FrontendShell>
+          <AuthProvider><FrontendShell>{children}</FrontendShell></AuthProvider>
         </DesignSystemProvider>
       </body>
     </html>

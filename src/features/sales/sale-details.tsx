@@ -4,6 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
 import { BookOpenText, CreditCard, Printer, RotateCcw } from "lucide-react";
 import { DataTable } from "@/components/data-display/data-table";
+import { FiscalInvoice } from "@/components/data-display/fiscal-invoice";
 import { Money } from "@/components/data-display/money";
 import { StatusBadge } from "@/components/data-display/status-badge";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,7 @@ function SaleDetails({
         <CardContent><DataTable name="articles-vendus" data={lineRows} columns={columns} getRowId={(line) => line.id} enableColumnVisibility={false} pageSize={20} /></CardContent>
       </Card>
 
+      {sale.fiscalInvoices?.length ? <Card><CardHeader><CardTitle>Factures fiscales</CardTitle></CardHeader><CardContent className="space-y-3">{sale.fiscalInvoices.map(invoice => <FiscalInvoice key={invoice.id} invoice={invoice} />)}</CardContent></Card> : null}
       {sale.returns?.length ? (
         <Card data-qa="return-history">
           <CardHeader><CardTitle>Historique des retours</CardTitle></CardHeader>
@@ -74,7 +76,7 @@ function SaleDetails({
       <div className="flex flex-wrap gap-2">
         <Button onClick={onReceipt}><Printer /> Voir le reçu / Imprimer</Button>
         {position.due > 0 && canFinance ? <Button variant="outline" onClick={onPayment}><CreditCard /> Enregistrer un paiement</Button> : null}
-        {canRefund && sale.status !== "refunded" && !sale.tradeValue ? <Button variant="outline" onClick={onRefund}><RotateCcw /> Retourner / rembourser</Button> : null}
+        {canRefund && sale.status !== "refunded" ? <Button variant="outline" onClick={onRefund}><RotateCcw /> Retourner / rembourser</Button> : null}
         {canAccounting ? <Button variant="outline" asChild><Link href={href("/accounting")}><BookOpenText /> Écritures comptables</Link></Button> : null}
       </div>
     </div>

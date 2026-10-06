@@ -4,8 +4,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Check, Eye, EyeOff, BarChart2, Package, Shield } from "lucide-react";
 import { api } from "./api";
+import { useAuth } from "./auth-provider";
+import { getSupabase } from "@/lib/supabase/client";
+import { authError, businessDestination, saveOnboarding, readOnboarding } from "./auth-flow";
 import { Alert, Field } from "./ui";
 export default function AuthPage() {
+  const auth = useAuth();
   const path = usePathname(),
     signup = path === "/signup",
     forgot = path === "/forgot-password",
@@ -21,7 +25,7 @@ export default function AuthPage() {
     [error, setError] = useState(""),
     [success, setSuccess] = useState(""),
     [invitation, setInvitation] = useState<{
-      organization?: string;
+      organization?: { name: string };
       role?: string;
     } | null>(null);
   const change = (key: string, value: string) =>
@@ -45,6 +49,14 @@ export default function AuthPage() {
         );
     }
   }, [invite]);
+  useEffect(() => {
+    const q = new URLSearchParams(location.search);
+    if (q.has("error")) setError("Lien invalide ou expiré. Recommencez la connexion.");
+    if (signup) { const draft = readOnboarding(); if (draft) setValues(v => ({ ...v, ...draft.payload })); }
+    if (path === "/login" && !auth.loading && auth.user) {
+      void businessDestination().then(destination => location.replace(destination)).catch(e => setError(e.message));
+    }
+  }, [path, signup, auth.loading, auth.user]);
   const title = signup
     ? [
         "Créons votre compte.",
@@ -147,7 +159,7 @@ export default function AuthPage() {
               : forgot
                 ? "Un lien vous sera envoyé si un compte correspond à cet email."
                 : invite
-                  ? `${invitation?.organization ?? "Votre entreprise"} · ${invitation?.role ?? "Invitation sécurisée"}`
+                  ? `${invitation?.organization?.name ?? "Votre entreprise"} · ${invitation?.role ?? "Invitation sécurisée"}`
                   : "Connectez-vous pour retrouver votre activité."}
           </p>
           {signup && (
@@ -164,35 +176,40 @@ export default function AuthPage() {
               e.preventDefault();
               setError("");
               if (signup && step < 3) {
+                saveOnboarding(values);
                 setStep(step + 1);
                 return;
               }
               if (busy) return;
               setBusy(true);
               try {
+                const client = getSupabase();
                 if (forgot) {
-                  await api.auth("forgot-password", { email: values.email });
-                  setSuccess(
-                    "Si ce compte existe, un lien de réinitialisation a été envoyé.",
-                  );
+                  const { error } = await client.auth.resetPasswordForEmail(values.email, { redirectTo: `${location.origin}/auth/callback?next=/reset-password` });
+                  if (error) throw new Error(authError(error));
+                  setSuccess("Si ce compte existe, un lien de réinitialisation a été envoyé.");
                 } else if (signup) {
-                  const result = await api.auth("signup", values);
-                  setSuccess(
-                    result.message ??
-                      "Compte créé. Consultez votre email pour confirmer votre inscription.",
-                  );
+                  const draft = saveOnboarding(values);
+                  const { data, error } = await client.auth.signUp({ email: values.email, password: values.password, options: { data: { name: values.name, vortex_onboarding: draft }, emailRedirectTo: `${location.origin}/auth/callback?next=/onboarding` } });
+                  if (error) throw new Error(authError(error));
+                  if (data.session) location.assign("/onboarding");
+                  else setSuccess("Consultez votre email pour confirmer votre inscription, puis reprenez la création de votre espace.");
                 } else if (invite) {
-                  await api.auth("activate", {
-                    token: new URLSearchParams(location.search).get("token"),
-                    password: values.password,
-                  });
-                  location.assign("/");
+                  if (!auth.user) {
+                    const next = `/invite/activate?token=${encodeURIComponent(new URLSearchParams(location.search).get("token") ?? "")}`;
+                    const result = values.newAccount === "yes"
+                      ? await client.auth.signUp({ email: values.email, password: values.password, options: { emailRedirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}` } })
+                      : await client.auth.signInWithPassword({ email: values.email, password: values.password });
+                    if (result.error) throw new Error(authError(result.error));
+                    if (!result.data.session) { setSuccess("Confirmez votre adresse email pour reprendre cette invitation."); return; }
+                  }
+                  await api.auth("activate", { token: new URLSearchParams(location.search).get("token") });
+                  location.assign(await businessDestination());
                 } else {
-                  await api.auth("login", {
-                    email: values.email,
-                    password: values.password,
-                  });
-                  location.assign("/");
+                  const { data, error } = await client.auth.signInWithPassword({ email: values.email, password: values.password });
+                  if (error) throw new Error(authError(error));
+                  if (!data.session) throw new Error("Session indisponible. Réessayez.");
+                  location.assign(await businessDestination());
                 }
               } catch (e) {
                 setError((e as Error).message);
@@ -233,7 +250,7 @@ export default function AuthPage() {
               ) : step === 2 ? (
                 <>
                   {input("storeName", "Nom du point de vente")}
-                  {input("city", "Ville / adresse", "text", false)}
+                  {input("city", "Ville / adresse")}
                 </>
               ) : (
                 <>
@@ -254,11 +271,11 @@ export default function AuthPage() {
             ) : forgot ? (
               input("email", "Adresse email", "email")
             ) : invite ? (
-              input(
-                "password",
-                "Définir votre mot de passe (10 caractères minimum)",
-                "password",
-              )
+              auth.user ? <p>Connecté avec {auth.user.email}. Validez pour rejoindre cette équipe.</p> : <>
+                {input("email", "Adresse email", "email")}
+                {input("password", "Mot de passe", "password")}
+                <Field label="Votre compte"><select value={values.newAccount ?? "no"} onChange={e => change("newAccount", e.target.value)}><option value="no">J’ai déjà un compte</option><option value="yes">Créer un compte</option></select></Field>
+              </>
             ) : (
               <>
                 {input("email", "Adresse email", "email")}
@@ -304,7 +321,7 @@ export default function AuthPage() {
               )}
               <button
                 className="button primary full"
-                disabled={busy || (invite && !invitation)}
+                disabled={busy || auth.loading || (invite && !invitation)}
               >
                 {busy
                   ? "Veuillez patienter…"
@@ -321,6 +338,15 @@ export default function AuthPage() {
               </button>
             </div>
           </form>
+          {!forgot && (!invite || !auth.user) && <button type="button" className="button secondary full" disabled={busy || auth.loading} onClick={async () => {
+            setBusy(true); setError("");
+            try {
+              if (signup) saveOnboarding(values);
+              const next = invite ? `/invite/activate?token=${encodeURIComponent(new URLSearchParams(location.search).get("token") ?? "")}` : "/onboarding";
+              const { error } = await getSupabase().auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}` } });
+              if (error) throw new Error(authError(error));
+            } catch (e) { setError((e as Error).message); setBusy(false); }
+          }}>Continuer avec Google</button>}
           {path === "/login" ? (
             <>
               <p className="auth-signup">

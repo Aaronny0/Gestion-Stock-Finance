@@ -4,6 +4,7 @@ import { Printer } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FiscalInvoice } from "@/components/data-display/fiscal-invoice";
 import { Money } from "@/components/data-display/money";
 import { useWorkspace } from "@/frontend/provider";
 import { salePosition } from "@/frontend/operations";
@@ -14,6 +15,7 @@ export function Receipt({ sale, onClose }: { sale: Sale; onClose: () => void }) 
   const currency = snapshot!.session.organization.currency;
   const storeName = snapshot!.session.stores.find((store) => store.id === sale.storeId)?.name;
   const position = salePosition(sale);
+  const fiscalInvoice = sale.fiscalInvoices?.find(invoice => !invoice.returnId);
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -53,6 +55,7 @@ export function Receipt({ sale, onClose }: { sale: Sale; onClose: () => void }) 
 
           <div className="space-y-2 border-t border-dashed border-border pt-4">
             <div className="flex justify-between gap-4 text-muted-foreground"><span>Remise</span><Money value={sale.discount} currency={currency} /></div>
+            {(sale.taxTotal ?? 0) > 0 ? <><div className="flex justify-between gap-4 text-muted-foreground"><span>Total HT</span><Money value={sale.total - sale.taxTotal!} currency={currency} /></div><div className="flex justify-between gap-4 text-muted-foreground"><span>TVA incluse</span><Money value={sale.taxTotal!} currency={currency} /></div></> : null}
             <div className="flex items-baseline justify-between gap-4 py-2 text-lg font-bold"><span>Total</span><Money value={sale.total} currency={currency} /></div>
             <div className="flex justify-between gap-4 text-muted-foreground"><span>Payé{sale.tradeValue ? " (dont valeur de reprise)" : ""}</span><Money value={sale.paid} currency={currency} /></div>
             <div className="flex justify-between gap-4 text-muted-foreground"><span>Reste dû</span><Money value={position.due} currency={currency} /></div>
@@ -71,9 +74,7 @@ export function Receipt({ sale, onClose }: { sale: Sale; onClose: () => void }) 
           </div>
 
           <p className="mt-7 text-center text-xs text-muted-foreground">Merci de votre confiance.</p>
-          {snapshot!.session.organization.fiscalEnabled ? (
-            <div className="mt-4 rounded-md border border-info/20 bg-info-background p-3 text-center text-xs text-info">Statut fiscal : en attente de normalisation.</div>
-          ) : null}
+          {fiscalInvoice ? <div className="mt-4 rounded-md border border-border p-3 text-center"><FiscalInvoice invoice={fiscalInvoice} /></div> : null}
         </div>
 
         <DialogFooter className="print:hidden">

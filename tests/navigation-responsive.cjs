@@ -63,22 +63,25 @@ async function navigateByMenu(page, mobile, url) {
   const checks = [];
   const errors = [];
 
-  for (const [width, height] of [
+  for (const [width, height] of (process.env.QA_NAVIGATION_ONLY_ROLES === "1" ? [] : [
     [360, 800],
     [820, 1180],
     [1024, 768],
     [844, 390],
-  ]) {
+  ])) {
     const mobile = width < 1024;
     const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: width < 768 });
+    if (process.env.QA_DISABLE_NATIVE_NAVIGATION === "1") await page.addInitScript(() => Object.defineProperty(window, "navigation", { value: undefined, configurable: true }));
     page.setDefaultTimeout(20000);
     page.on("pageerror", (e) => errors.push(e.message));
 
     await page.goto(base + "/demo");
     await waitWorkspace(page);
     const links = await navLinks(page, mobile);
-    for (const link of links) await navigateByMenu(page, mobile, link.url);
-    checks.push(`${width}x${height}: ${links.length} menus accessibles et états actifs cohérents`);
+    if (process.env.QA_NAVIGATION_ONLY_DRAFTS !== "1") {
+      for (const link of links) await navigateByMenu(page, mobile, link.url);
+      checks.push(`${width}x${height}: ${links.length} menus accessibles et états actifs cohérents`);
+    }
 
     await page.goto(base + "/demo/products/p0");
     await page.getByRole("button", { name: "Revenir à la page précédente" }).click();
@@ -107,9 +110,10 @@ async function navigateByMenu(page, mobile, url) {
 
     await navigateByMenu(page, mobile, "/demo/pos");
     await page.locator('[data-qa="product-card"]').first().click();
-    page.once("dialog", (d) => d.dismiss());
+    const cancelledTraversal = page.waitForEvent("dialog").then((d) => d.dismiss());
     await page.evaluate(() => history.back());
-    await page.waitForTimeout(300);
+    await cancelledTraversal;
+    await page.waitForURL("**/demo/pos");
     assert.ok(page.url().endsWith("/demo/pos"));
     assert.equal(await page.locator('[data-qa="cart-item"]').count(), 1);
     page.once("dialog", (d) => d.accept());
@@ -134,6 +138,7 @@ async function navigateByMenu(page, mobile, url) {
     await page.close();
   }
 
+  if (process.env.QA_NAVIGATION_ONLY_DRAFTS !== "1") {
   const rolePage = await browser.newPage({ viewport: { width: 820, height: 1180 }, hasTouch: true });
   rolePage.setDefaultTimeout(15000);
   rolePage.on("pageerror", (e) => errors.push(e.message));
@@ -141,6 +146,8 @@ async function navigateByMenu(page, mobile, url) {
   await waitWorkspace(rolePage);
   for (const role of ["manager", "cashier", "stock", "accountant"]) {
     await rolePage.getByRole("combobox", { name: "Rôle de démonstration" }).selectOption(role);
+    const landing = { manager: "/demo", cashier: "/demo/pos", stock: "/demo/stock", accountant: "/demo/accounting" }[role];
+    await rolePage.waitForURL("**" + landing);
     await waitWorkspace(rolePage);
     const links = await navLinks(rolePage, true);
     for (const { url } of links) {
@@ -150,9 +157,11 @@ async function navigateByMenu(page, mobile, url) {
     checks.push(`${role}: ${links.length} menus autorisés ouverts sans accès refusé`);
   }
   await rolePage.close();
+  }
 
   assert.deepEqual(errors, []);
-  fs.writeFileSync("output/responsive-qa/navigation.json", JSON.stringify({ date: new Date().toISOString(), checks, errors }, null, 2));
+  const variant = process.env.QA_NAVIGATION_ONLY_ROLES === "1" ? "navigation-roles" : process.env.QA_NAVIGATION_ONLY_DRAFTS === "1" ? "navigation-drafts" : "navigation";
+  fs.writeFileSync(`output/responsive-qa/${variant}.json`, JSON.stringify({ date: new Date().toISOString(), nativeNavigationDisabled: process.env.QA_DISABLE_NATIVE_NAVIGATION === "1", checks, errors }, null, 2));
   console.log(JSON.stringify({ checks, errors }, null, 2));
   await browser.close();
 })().catch((e) => {

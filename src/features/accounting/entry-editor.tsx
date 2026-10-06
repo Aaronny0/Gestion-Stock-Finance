@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Money } from "@/components/data-display/money";
 import { Button } from "@/components/ui/button";
@@ -29,8 +29,8 @@ function EntryEditor({ onClose, initial }: { onClose: () => void; initial?: Acco
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const signature = JSON.stringify({ date, journal, label, lines });
-  const original = useRef(signature);
-  const discard = useUnsavedChanges(signature !== original.current, "Écriture comptable");
+  const [original] = useState(signature);
+  const discard = useUnsavedChanges(signature !== original, "Écriture comptable");
   const result = balance(lines);
   const scale = 10 ** decimals(currency);
 

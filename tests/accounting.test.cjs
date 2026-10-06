@@ -635,3 +635,18 @@ test("échéances et proposition de réapprovisionnement", () => {
     /quantité dépasse/,
   );
 });
+test('reliquats de coût officiels et retour intégral de troc',()=>{
+ const sale={...createDemo().data.sales[0],status:'paid',total:2999,paid:2999,tradeValue:500,returns:[],lines:[{productId:'x',label:'x',brand:'x',quantity:3,price:1000,cost:600,costTotal:1802}]};
+ assert.equal(salePosition(sale).netCost,1802);
+ assert.throws(()=>quoteReturn(sale,[{lineIndex:0,quantity:1,restock:true}]),/intégral/);
+ const quote=quoteReturn(sale,[{lineIndex:0,quantity:3,restock:true}]);assert.equal(quote.cashRefund,2499);assert.equal(quote.tradeReduction,500);assert.equal(quote.lines[0].cost,1802);
+ const returned={...sale,status:'refunded',returns:[{...quote,id:'r',date:'2026-10-06',reason:'Retour',method:'Espèces'}]};assert.equal(salePosition(returned).netPaid,0);assert.equal(salePosition(returned).netCost,0);
+});
+
+test("period reporting recognizes historical-sale returns on their actual date", () => {
+  const sale={id:'period',date:'2026-09-30',status:'partially_refunded',total:2360,taxTotal:360,paid:2360,lines:[{quantity:2,price:1180,costTotal:1200}],returns:[{date:'2026-10-06',amount:1180,taxTotal:180,lines:[{lineIndex:0,quantity:1,restock:true,cost:600,value:1180}]}]};
+  const before=indicators([sale],[],[],{start:'2026-09-01',end:'2026-09-30'});
+  assert.equal(before.revenue,2000);assert.equal(before.margin,800);assert.equal(before.units,2);
+  const current=indicators([sale],[],[],{start:'2026-10-01',end:'2026-10-31'});
+  assert.equal(current.revenue,-1000);assert.equal(current.margin,-400);assert.equal(current.units,-1);assert.equal(current.count,0);
+});

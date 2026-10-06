@@ -1,3 +1,6 @@
+-- HISTORIQUE ES STORE : ne pas utiliser pour déployer VORTEX.
+-- Architecture actuelle : ../vortex-backend/prisma/migrations et database/security/007,008.
+-- Voir supabase/README.md et docs/final-project-audit.md.
 -- Script SQL pour vider (nettoyer) toutes les données de la base.
 -- L'instruction TRUNCATE avec CASCADE permet de supprimer toutes les lignes
 -- des tables spécifiées et de toutes les tables qui y sont liées par des clés étrangères.

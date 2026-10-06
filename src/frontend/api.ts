@@ -1,9 +1,12 @@
-import type { Command, Snapshot, Sale } from "./types";
+import { getSupabase } from "@/lib/supabase/client";
+import { supabaseConfig } from "@/lib/supabase/config";
+import type { Command, Snapshot, Sale, Organization } from "./types";
 export class ApiError extends Error {
   constructor(
     public status: number,
     message: string,
     public fields: Record<string, string> = {},
+    public code?: string,
   ) {
     super(message);
   }
@@ -20,26 +23,29 @@ export async function request<T>(
   init: RequestInit = {},
 ): Promise<T> {
   try {
+    if (!/^[a-z][a-z0-9/-]*(?:\?.*)?$/.test(path) || path.includes("..")) throw new ApiError(400, "Route invalide.");
+    const headers = new Headers(init.headers);
+    headers.set("Content-Type", "application/json");
+    if (supabaseConfig()) {
+      const { data, error } = await getSupabase().auth.getSession();
+      if (error) throw new ApiError(401, messages[401]);
+      if (data.session) headers.set("Authorization", `Bearer ${data.session.access_token}`);
+      else headers.delete("Authorization");
+    }
     const response = await fetch(`/api/v1/${path}`, {
       ...init,
       cache: "no-store",
       credentials: "same-origin",
-      headers: { "Content-Type": "application/json", ...init.headers },
+      headers,
       signal: init.signal ?? AbortSignal.timeout(20000),
     });
     const body = await response.json().catch(() => ({}));
     if (!response.ok) {
-      if (
-        response.status === 401 &&
-        !path.startsWith("auth/") &&
-        typeof window !== "undefined" &&
-        location.pathname !== "/login"
-      )
-        location.assign("/login?expired=1");
       throw new ApiError(
         response.status,
-        messages[response.status] ?? "L’opération a échoué. Réessayez.",
+        response.status === 422 && typeof body.fields?._form === "string" ? body.fields._form : messages[response.status] ?? "L’opération a échoué. Réessayez.",
         body.fields ?? {},
+        body.code,
       );
     }
     return body as T;
@@ -56,17 +62,22 @@ export async function request<T>(
   }
 }
 export const api = {
-  snapshot: (
-    storeId: string,
-    start: string,
-    end: string,
-    signal?: AbortSignal,
-    organizationId?: string,
-  ) =>
-    request<Snapshot>(
-      `workspace?storeId=${encodeURIComponent(storeId)}&start=${start}&end=${end}${organizationId ? `&organizationId=${encodeURIComponent(organizationId)}` : ""}`,
-      { signal },
-    ),
+  snapshot: async (storeId:string,start:string,end:string,signal?:AbortSignal,organizationId?:string):Promise<Snapshot> => {
+    const base=`workspace?${storeId ? `storeId=${encodeURIComponent(storeId)}&` : ""}start=${start}&end=${end}${organizationId ? `&organizationId=${encodeURIComponent(organizationId)}` : ""}`;
+    for(let attempt=0;attempt<3;attempt++) {
+      try {
+        const snapshot=await request<Snapshot>(base,{signal});
+        while(snapshot.pagination?.hasMore) {
+          const page=await request<Snapshot>(`${base}&page=${snapshot.pagination.page+1}&snapshotVersion=${encodeURIComponent(snapshot.pagination.snapshotVersion)}`,{signal});
+          if(page.session.organization.id!==snapshot.session.organization.id) throw new ApiError(409,messages[409]);
+          for(const key of Object.keys(snapshot.data) as (keyof Snapshot["data"])[]) (snapshot.data[key] as unknown[]).push(...page.data[key]);
+          snapshot.pagination=page.pagination;
+        }
+        return snapshot;
+      }catch(e){if(!(e instanceof ApiError)||e.status!==409||attempt===2)throw e;}
+    }
+    throw new ApiError(409,messages[409]);
+  },
   command: (command: Command) =>
     request<{ reference?: string; sale?: Sale }>("commands", {
       method: "POST",
@@ -74,7 +85,7 @@ export const api = {
       body: JSON.stringify(command),
     }),
   auth: (action: string, payload: Record<string, unknown>) =>
-    request<{ message?: string; organization?: string; role?: string }>(
+    request<{ message?: string; organization?: Organization; role?: string }>(
       `auth/${action}`,
       { method: "POST", body: JSON.stringify(payload) },
     ),

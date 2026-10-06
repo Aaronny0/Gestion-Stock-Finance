@@ -1,3 +1,6 @@
+-- HISTORIQUE ES STORE : ne pas utiliser pour déployer VORTEX.
+-- Architecture actuelle : ../vortex-backend/prisma/migrations et database/security/007,008.
+-- Voir supabase/README.md et docs/final-project-audit.md.
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 

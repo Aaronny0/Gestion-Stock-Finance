@@ -1,3 +1,6 @@
+-- HISTORIQUE ES STORE : ne pas utiliser pour déployer VORTEX.
+-- Architecture actuelle : ../vortex-backend/prisma/migrations et database/security/007,008.
+-- Voir supabase/README.md et docs/final-project-audit.md.
 -- ============================================================
 -- ES STORE — Script de création de la base de données
 -- À exécuter dans la console SQL de Supabase

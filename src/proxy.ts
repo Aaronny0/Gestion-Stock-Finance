@@ -1,7 +1,8 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { refreshSession } from "@/lib/supabase/proxy";
+import { type NextRequest } from "next/server";
 // Authentication and permissions are checked by the session API before any business data is rendered.
-export default function proxy(request: NextRequest) {
-  const response = NextResponse.next();
+export default async function proxy(request: NextRequest) {
+  const response = await refreshSession(request);
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("X-Frame-Options", "DENY");

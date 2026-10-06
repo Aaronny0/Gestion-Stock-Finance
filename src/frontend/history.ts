@@ -9,6 +9,21 @@ export function installHistoryGuard(
   const scope = saved?.scope ?? crypto.randomUUID();
   let current = saved?.index ?? 0;
   let restoring: number | null = null;
+  let traversalApproved = false;
+  // Navigation API fires before popstate/router listeners can unmount a draft.
+  // Keep the indexed History fallback for browsers without this API.
+  const navigation = (window as Window & { navigation?: EventTarget }).navigation;
+  const navigate = (event: Event) => {
+    const traversal = event as Event & {
+      navigationType?: string;
+      destination?: { sameDocument?: boolean };
+    };
+    if (restoring !== null || traversal.navigationType !== "traverse" ||
+        !traversal.destination?.sameDocument || !traversal.cancelable) return;
+    if (!confirmLeave()) traversal.preventDefault();
+    else traversalApproved = true;
+  };
+  navigation?.addEventListener("navigate", navigate);
   const push = history.pushState.bind(history),
     replace = history.replaceState.bind(history);
   replace(
@@ -24,12 +39,14 @@ export function installHistoryGuard(
     });
   };
   const wrappedPush: History["pushState"] = (data, unused, url) => {
+    if (disposed) return push(data, unused, url);
     const index = current + 1;
     push({ ...data, [key]: { scope, index } }, unused, url);
     current = index;
     publish();
   };
   const wrappedReplace: History["replaceState"] = (data, unused, url) => {
+    if (disposed) return replace(data, unused, url);
     replace({ ...data, [key]: { scope, index: current } }, unused, url);
     publish();
   };
@@ -37,6 +54,8 @@ export function installHistoryGuard(
   history.replaceState = wrappedReplace;
   const pop = (event: PopStateEvent) => {
     const target = event.state?.[key] as Entry | undefined;
+    const approved = traversalApproved;
+    traversalApproved = false;
     if (!target || target.scope !== scope) {
       publish();
       return;
@@ -46,7 +65,7 @@ export function installHistoryGuard(
       if (target.index === restoring) restoring = null;
       return;
     }
-    if (target.index !== current && !confirmLeave()) {
+    if (target.index !== current && !approved && !confirmLeave()) {
       event.stopImmediatePropagation();
       restoring = current;
       history.go(current - target.index);
@@ -55,7 +74,11 @@ export function installHistoryGuard(
     current = target.index;
     publish();
   };
-  window.addEventListener("popstate", pop, true);
+  const earlyGuards = (window as Window & {
+    __vortexPopGuards?: Set<(event: PopStateEvent) => void>;
+  }).__vortexPopGuards;
+  if (earlyGuards) earlyGuards.add(pop);
+  else window.addEventListener("popstate", pop, true);
   publish();
   return {
     back(fallback: () => void) {
@@ -64,7 +87,9 @@ export function installHistoryGuard(
     },
     dispose() {
       disposed = true;
+      earlyGuards?.delete(pop);
       window.removeEventListener("popstate", pop, true);
+      navigation?.removeEventListener("navigate", navigate);
       if (history.pushState === wrappedPush) history.pushState = push;
       if (history.replaceState === wrappedReplace)
         history.replaceState = replace;

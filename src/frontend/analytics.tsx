@@ -1,6 +1,6 @@
 "use client";
 import { ArrowUpRight } from "lucide-react";
-import { salePosition, netLineValue } from "./operations";
+import { salePosition, saleActivity, netLineValue } from "./operations";
 import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -32,7 +32,7 @@ export default function Analytics({ path }: { path: string }) {
     else q.delete(key);
     router.replace(`${location.pathname}?${q}`, { scroll: false });
   };
-  if (db.sales.length > 2000)
+  if (db.sales.length > 2000 && !snapshot!.reporting)
     return (
       <Alert>
         Ce rapport couvre trop d’opérations. Réduisez la période pour le
@@ -45,24 +45,24 @@ export default function Analytics({ path }: { path: string }) {
     v.date.slice(0, 10) <= end;
   const sales = db.sales.filter(
     (s) =>
-      scoped(s) &&
+      (storeId === "all" || s.storeId === storeId) && (scoped(s) || s.returns?.some(r => scoped({...r,storeId:s.storeId}))) &&
       (!brand || s.lines.some((l) => l.brand === brand)) &&
       (!seller || s.seller === seller) &&
       (!method ||
         db.payments.some((p) => p.sourceId === s.id && p.method === method)),
   );
-  const kpi = indicators(
+  const kpi = !brand && !seller && !method && snapshot!.reporting ? snapshot!.reporting.kpis : indicators(
     sales,
     db.payments.filter(scoped),
     db.entries.filter(scoped),
+    {start,end},
   );
   const rank = Object.entries(
     sales
-      .filter((s) => s.status !== "refunded")
       .reduce<Record<string, number>>((a, s) => {
         for (const [index, l] of s.lines.entries()) {
           const key = tab === "team" ? s.seller : l.brand;
-          a[key] = (a[key] ?? 0) + netLineValue(s, index);
+          a[key] = (a[key] ?? 0) + netLineValue(s, index, {start,end});
         }
         return a;
       }, {}),
@@ -178,8 +178,8 @@ export default function Analytics({ path }: { path: string }) {
               <div>
                 <h2>
                   {tab === "team"
-                    ? "Chiffre d’affaires par vendeur"
-                    : "Chiffre d’affaires par marque"}
+                    ? "Ventes nettes TTC par vendeur"
+                    : "Ventes nettes TTC par marque"}
                 </h2>
                 <p>
                   {start} → {end} · {snapshot!.session.organization.currency} ·{" "}
@@ -216,11 +216,11 @@ export default function Analytics({ path }: { path: string }) {
                       key: "margin",
                       label: "Marge",
                       value: (s: (typeof sales)[number]) =>
-                        salePosition(s).netTotal - salePosition(s).netCost,
+                        saleActivity(s,start,end).netIncome - saleActivity(s,start,end).netCost,
                       render: (s: (typeof sales)[number]) => (
                         <Money
                           value={
-                            salePosition(s).netTotal - salePosition(s).netCost
+                            saleActivity(s,start,end).netIncome - saleActivity(s,start,end).netCost
                           }
                         />
                       ),

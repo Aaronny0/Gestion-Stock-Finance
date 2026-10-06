@@ -75,7 +75,8 @@ const sizes = [
     checks = [],
     errors = [];
   const queue=[...sizes];
-  await Promise.all(Array.from({length:3}, async()=>{
+  const concurrency = Math.max(1, Math.min(3, Number(process.env.QA_BROWSER_CONCURRENCY) || 1));
+  await Promise.all(Array.from({length:concurrency}, async()=>{
   while(queue.length) {
     const [width,height]=queue.shift();
     const page = await browser.newPage({
@@ -90,7 +91,7 @@ const sizes = [
         await page.goto(base + route);
         if (route.startsWith("/demo"))
           await page.locator('[data-qa="workspace-main"] h1').waitFor();
-        else await page.locator(".auth-form h2").waitFor();
+        else await page.locator(".auth-form h1, .auth-form h2").first().waitFor();
         await page.waitForTimeout(70);
         const issue = await page.evaluate(() => {
           const width = innerWidth;

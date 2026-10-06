@@ -56,6 +56,7 @@ function RefundDialog({ sale, onClose }: { sale: Sale; onClose: () => void }) {
           Les articles revendables retournent en stock. Les articles défectueux restent exclus du stock disponible.
         </div>
 
+        {sale.tradeValue ? <p className="text-sm text-warning">Le troc doit être annulé intégralement. L’appareil repris sera rendu au client et doit encore être disponible.</p> : null}
         <div className="space-y-3">
           {lines.map((line, index) => {
             const original = sale.lines[index];

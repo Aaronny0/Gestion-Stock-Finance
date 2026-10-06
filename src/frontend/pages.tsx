@@ -1,4 +1,5 @@
 "use client";
+import {DocumentLink} from "@/components/data-display/document-link";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -311,7 +312,7 @@ function BusinessPage({ path }: { path: string }) {
               {Object.entries(selected)
                 .filter(
                   ([k]) =>
-                    !["id", "storeId"].includes(k) &&
+                    !["id", "storeId", "documentId"].includes(k) &&
                     (!["cost", "margin"].includes(k) || can("stock.cost.read")),
                 )
                 .map(([k, v]) => (
@@ -359,6 +360,7 @@ function BusinessPage({ path }: { path: string }) {
                   </div>
                 ))}
             </dl>
+            <DocumentLink documentId={selected.documentId} storeId={selected.storeId} />
             {path.startsWith("/suppliers") && (
               <DataTable
                 name="achats-fournisseur"

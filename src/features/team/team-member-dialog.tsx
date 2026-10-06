@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -86,7 +86,9 @@ export function TeamMemberDialog({ open, member, onOpenChange }: TeamMemberDialo
   const [name, setName] = useState(String(member?.label ?? ""));
   const [email, setEmail] = useState(String(member?.email ?? ""));
   const [role, setRole] = useState<Role>(initialRole);
-  const [status, setStatus] = useState(String(member?.status ?? "Actif"));
+  const [status, setStatus] = useState(
+    ({ active: "Actif", invited: "Invitation en attente", suspended: "Suspendu" } as Record<string, string>)[String(member?.status)] ?? String(member?.status ?? "Actif"),
+  );
   const [stores, setStores] = useState<string[]>(
     (member?.stores as string[] | undefined) ?? (storeId && storeId !== "all" ? [storeId] : [snapshot!.session.defaultStoreId]),
   );
@@ -97,8 +99,8 @@ export function TeamMemberDialog({ open, member, onOpenChange }: TeamMemberDialo
   const [error, setError] = useState("");
   const effectivePermissions = customPermissions ?? rolePermissions[role];
   const signature = JSON.stringify({ name, email, role, status, stores, customPermissions });
-  const original = useRef(signature);
-  const confirmDiscard = useUnsavedChanges(signature !== original.current, editing ? "Accès du membre" : "Invitation");
+  const [original, setOriginal] = useState(signature);
+  const confirmDiscard = useUnsavedChanges(signature !== original, editing ? "Accès du membre" : "Invitation");
 
   const groupedPermissions = useMemo(
     () => permissionGroups.map((group) => ({
@@ -128,12 +130,14 @@ export function TeamMemberDialog({ open, member, onOpenChange }: TeamMemberDialo
     try {
       if (editing) {
         await command("team.update", {
-          ...member,
           id: member!.id,
+          label: name.trim(),
+          email: email.trim(),
           role,
           status,
           stores,
           permissions: effectivePermissions,
+          defaultStoreId: stores.includes(String(member?.defaultStoreId)) ? String(member?.defaultStoreId) : stores[0],
         });
       } else {
         await command("team.invite", {
@@ -144,7 +148,7 @@ export function TeamMemberDialog({ open, member, onOpenChange }: TeamMemberDialo
           permissions: effectivePermissions,
         });
       }
-      original.current = signature;
+      setOriginal(signature);
       onOpenChange(false);
     } catch (caught) {
       setError((caught as Error).message);

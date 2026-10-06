@@ -48,19 +48,20 @@ export function salePosition(sale: Sale) {
   const netPaid =
     sale.status === "refunded" && !returns.length
       ? 0
-      : sale.paid - cashRefunded;
+      : sale.paid - cashRefunded - returns.reduce((n, r) => n + (r.tradeReduction ?? 0), 0);
   const restoredCost = returns
     .flatMap((r) => r.lines)
     .filter((l) => l.restock)
-    .reduce((s, l) => s + l.cost, 0);
+    .reduce((s, l) => s + (l.cost ?? 0), 0);
   const originalCost = sale.lines.reduce(
-    (s, l) => s + (l.cost ?? 0) * l.quantity,
+    (s, l) => s + (l.costTotal ?? (l.cost ?? 0) * l.quantity),
     0,
   );
   return {
     refunded,
     cashRefunded,
     netTotal,
+    netIncome: netTotal - (sale.taxTotal ?? 0) + returns.reduce((n,r)=>n+(r.taxTotal??0),0),
     netPaid,
     due: Math.max(0, netTotal - netPaid),
     netCost:
@@ -73,22 +74,31 @@ export function salePosition(sale: Sale) {
     ),
   };
 }
+export function saleActivity(sale: Sale, start: string, end: string) {
+  const within = (date: string) => date.slice(0,10) >= start && date.slice(0,10) <= end;
+  const sold = within(sale.date);
+  const returns = (sale.returns ?? []).filter(r => within(r.date));
+  const beforeEnd = (sale.returns ?? []).filter(r => r.date.slice(0,10) <= end).reduce((n,r)=>n+r.amount,0);
+  return {
+    netIncome: (sold ? sale.total - (sale.taxTotal ?? 0) : 0) - returns.reduce((n,r)=>n+r.amount-(r.taxTotal??0),0),
+    netCost: (sold ? sale.lines.reduce((n,l)=>n+(l.costTotal??(l.cost??0)*l.quantity),0) : 0) - returns.flatMap(r=>r.lines).filter(l=>l.restock).reduce((n,l)=>n+(l.cost??0),0),
+    units: (sold ? sale.lines.reduce((n,l)=>n+l.quantity,0) : 0) - returns.flatMap(r=>r.lines).reduce((n,l)=>n+l.quantity,0),
+    count: sold && sale.total > beforeEnd ? 1 : 0,
+  };
+}
+
 export interface ReturnSelection {
   lineIndex: number;
   quantity: number;
   restock: boolean;
 }
 export function quoteReturn(sale: Sale, selections: ReturnSelection[]) {
-  if (sale.tradeValue)
-    throw new Error(
-      "Une reprise nécessite l’annulation conjointe des deux appareils.",
-    );
   if (sale.status === "refunded")
     throw new Error("Vente déjà annulée ou remboursée.");
   if (!selections.length)
     throw new Error("Sélectionnez au moins un article à retourner.");
   const used = new Set<number>();
-  const lines: SaleReturnLine[] = selections.map((s) => {
+  const lines: (SaleReturnLine & { cost: number })[] = selections.map((s) => {
     integer(s.lineIndex, "Ligne");
     integer(s.quantity, "Quantité");
     const line = sale.lines[s.lineIndex];
@@ -109,16 +119,19 @@ export function quoteReturn(sale: Sale, selections: ReturnSelection[]) {
       value:
         share(net, previous + s.quantity, line.quantity) -
         share(net, previous, line.quantity),
-      cost: (line.cost ?? 0) * s.quantity,
+      cost: share(line.costTotal ?? (line.cost ?? 0) * line.quantity, previous + s.quantity, line.quantity) - share(line.costTotal ?? (line.cost ?? 0) * line.quantity, previous, line.quantity),
     };
   });
   const amount = lines.reduce((s, l) => s + l.value, 0);
-  const creditReduction = Math.min(salePosition(sale).due, amount);
+  if (sale.tradeValue && ((sale.returns ?? []).length || amount !== sale.total || selections.some(l => !l.restock))) throw new Error("Un troc exige un retour intégral des deux appareils.");
+  const tradeReduction = sale.tradeValue ?? 0;
+  const creditReduction = Math.min(salePosition(sale).due, amount - tradeReduction);
   return {
     lines,
     amount,
     creditReduction,
-    cashRefund: amount - creditReduction,
+    tradeReduction,
+    cashRefund: amount - creditReduction - tradeReduction,
   };
 }
 export function belowCostLines(lines: SaleLine[], discount: number) {
@@ -171,7 +184,11 @@ export function replenishment(product: Product) {
   return { target, suggested: Math.max(0, target - product.quantity) };
 }
 
-export function netLineValue(sale: Sale, index: number) {
+export function netLineValue(sale: Sale, index: number, period?: {start:string;end:string}) {
+  if (period) {
+    const within=(date:string)=>date.slice(0,10)>=period.start && date.slice(0,10)<=period.end;
+    return (within(sale.date) ? lineValue(sale,index) : 0) - (sale.returns??[]).filter(r=>within(r.date)).flatMap(r=>r.lines).filter(l=>l.lineIndex===index).reduce((n,l)=>n+l.value,0);
+  }
   return sale.status === "refunded" && !sale.returns?.length
     ? 0
     : lineValue(sale, index) -

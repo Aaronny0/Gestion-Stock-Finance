@@ -1,3 +1,5 @@
+> État global actuel et limites backend : [audit final](docs/final-project-audit.md). Les résultats de ce document concernent sa tranche/date, pas une certification du projet complet.
+
 # Améliorations du frontend — 17 septembre 2026
 
 ## Périmètre et décision

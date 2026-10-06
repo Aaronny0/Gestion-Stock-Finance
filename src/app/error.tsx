@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import { request } from "@/frontend/api";
 export default function ErrorBoundary({
   error,
   reset,
@@ -8,9 +9,8 @@ export default function ErrorBoundary({
   reset: () => void;
 }) {
   useEffect(() => {
-    fetch("/api/v1/telemetry", {
+    request("telemetry", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         kind: "ui_error",
         digest: error.digest ?? "unknown",

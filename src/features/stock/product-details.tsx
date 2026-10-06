@@ -23,7 +23,7 @@ function ProductDetails({ product, history, canReadCost, canAdjust, canTransfer,
         <Card className="p-4"><p className="text-xs font-medium text-muted-foreground">Stock</p><p className="mt-2 text-xl font-bold [font-variant-numeric:tabular-nums]">{product.quantity} unités</p><div className="mt-2"><StatusBadge value={stockStatus(product)} /></div></Card>
         <Card className="p-4"><p className="text-xs font-medium text-muted-foreground">Prix de vente</p><Money value={product.price} className="mt-2 block text-xl font-bold" /></Card>
         {canReadCost ? <Card className="p-4"><p className="text-xs font-medium text-muted-foreground">Coût unitaire</p><Money value={product.cost ?? 0} className="mt-2 block text-xl font-bold" /></Card> : null}
-        <Card className="p-4"><p className="text-xs font-medium text-muted-foreground">IMEI</p><p className="mt-2 truncate text-sm font-semibold">{product.imei || "Non renseigné"}</p><p className="mt-1 text-xs text-muted-foreground">{product.condition} · {product.variant}</p></Card>
+        <Card className="p-4"><p className="text-xs font-medium text-muted-foreground">IMEI</p><p className="mt-2 break-all text-sm font-semibold">{product.availableImeis?.join(", ") || product.imei || "Non renseigné"}</p><p className="mt-1 text-xs text-muted-foreground">{product.condition} · {product.variant}</p></Card>
       </div>
       <div className="flex flex-wrap gap-2">
         {canAdjust ? <Button onClick={onEdit}><Pencil /> Modifier le produit</Button> : null}

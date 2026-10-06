@@ -24,7 +24,11 @@ type ImportRow = Record<string, unknown> & { id: string; line: number; error: st
 
 function downloadCsv(rows: Record<string, unknown>[], name: string) {
   const columns = Object.keys(rows[0] ?? {});
-  const content = "\uFEFF" + [columns, ...rows.map((row) => columns.map((key) => row[key] ?? ""))].map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(";")).join("\r\n");
+  const content = "\uFEFF" + [columns, ...rows.map((row) => columns.map((key) => row[key] ?? ""))].map((row) => row.map((value) => {
+    const text = String(value);
+    const safe = /^[=+\-@\t\r\n]/.test(text) ? `'${text}` : text;
+    return `"${safe.replaceAll('"', '""')}"`;
+  }).join(";")).join("\r\n");
   const url = URL.createObjectURL(new Blob([content], { type: "text/csv;charset=utf-8;" }));
   const anchor = document.createElement("a");
   anchor.href = url;

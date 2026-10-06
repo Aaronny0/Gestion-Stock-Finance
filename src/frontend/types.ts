@@ -63,6 +63,7 @@ export interface Product {
   storeId: string;
   active: boolean;
   imei?: string;
+  availableImeis?:string[];
   createdAt: string;
   supplierId?: string;
   reorderTarget?: number;
@@ -84,6 +85,7 @@ export interface SaleLine {
   quantity: number;
   price: number;
   cost?: number;
+  costTotal?: number;
   imei?: string;
 }
 export interface Sale {
@@ -95,6 +97,7 @@ export interface Sale {
   seller: string;
   lines: SaleLine[];
   total: number;
+  taxTotal?: number;
   discount: number;
   paid: number;
   status: string;
@@ -104,21 +107,24 @@ export interface Sale {
   cashChange?: number;
   priceOverrideReason?: string;
   returns?: SaleReturn[];
+  fiscalInvoices?: {id:string;status:string;returnId?:string;code?:string;qrCode?:string;ifu?:string}[];
 }
 export interface SaleReturnLine {
   lineIndex: number;
   quantity: number;
   restock: boolean;
   value: number;
-  cost: number;
+  cost?: number;
 }
 export interface SaleReturn {
   id: string;
   date: string;
   reason: string;
   amount: number;
+  taxTotal?: number;
   cashRefund: number;
   creditReduction: number;
+  tradeReduction?: number;
   method: string;
   lines: SaleReturnLine[];
 }
@@ -185,6 +191,7 @@ export interface Database {
   audit: RecordRow[];
 }
 export interface Snapshot {
+  pagination?: {page:number;pageSize:number;hasMore:boolean;snapshotVersion:string};
   reporting?: DashboardReporting;
   session: UserSession;
   data: Database;

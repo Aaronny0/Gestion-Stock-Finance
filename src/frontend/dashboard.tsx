@@ -80,10 +80,11 @@ export default function Dashboard() {
     value.date.slice(0, 10) >= start &&
     value.date.slice(0, 10) <= end;
 
-  const sales = db.sales.filter(scope);
+  const history = db.sales.filter(sale => storeId === "all" || sale.storeId === storeId);
+  const sales = history.filter(scope);
   const payments = db.payments.filter(scope);
   const entries = db.entries.filter(scope);
-  const kpi = snapshot!.reporting?.kpis ?? indicators(sales, payments, entries);
+  const kpi = snapshot!.reporting?.kpis ?? indicators(history, payments, entries, {start,end});
 
   const products = db.products.filter(
     (product) => product.active && (storeId === "all" || product.storeId === storeId),
@@ -105,9 +106,10 @@ export default function Dashboard() {
   ) {
     const date = cursor.toISOString().slice(0, 10);
     const daily = indicators(
-      sales.filter((sale) => sale.date.slice(0, 10) === date),
+      history,
       [],
       [],
+      {start:date,end:date},
     );
     days.push({ date, revenue: daily.revenue, margin: daily.margin });
   }

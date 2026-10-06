@@ -53,7 +53,7 @@ interface DataTableProps<TData, TValue> {
 }
 
 function safeCell(value: unknown) {
-  if (typeof value === "string" && /^[=+\-@]/.test(value)) return `'${value}`;
+  if (typeof value === "string" && /^[=+\-@\t\r\n]/.test(value)) return `'${value}`;
   return value ?? "";
 }
 

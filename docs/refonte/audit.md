@@ -1,3 +1,5 @@
+> État global actuel et limites backend : [audit final](../final-project-audit.md). Les résultats de ce document concernent sa tranche/date, pas une certification du projet complet.
+
 # Refonte VORTEX — audit et périmètre initial (25 septembre 2026)
 
 ## État des lieux vérifié

@@ -15,11 +15,12 @@ import { WorkspaceProvider, useWorkspace, publicRoutes } from "./provider";
 import { canonical, routePermission } from "./navigation";
 import { Alert, Skeleton } from "./ui";
 import { roleLabels, type Role } from "./types";
-import { api } from "./api";
+import { useAuth } from "./auth-provider";
 import { cn } from "@/lib/utils";
 
 function Shell({ children }: { children: ReactNode }) {
   const router = useRouter();
+  const auth = useAuth();
   const pathname = usePathname();
   const path = canonical(pathname);
   const {
@@ -134,7 +135,7 @@ function Shell({ children }: { children: ReactNode }) {
       return;
     }
     try {
-      await api.auth("logout", {});
+      await auth.signOut();
       location.assign("/login");
     } catch (caught) {
       setNotice((caught as Error).message);
@@ -332,8 +333,11 @@ export default function App() {
 }
 
 export function FrontendShell({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const pathname = usePathname();
+  const mode = pathname === "/demo" || pathname.startsWith("/demo/") ? "demo" : "live";
   return (
-    <WorkspaceProvider>
+    <WorkspaceProvider key={`${user?.id ?? "anonymous"}:${mode}`}>
       <Shell>{children}</Shell>
     </WorkspaceProvider>
   );
