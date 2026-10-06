@@ -13,6 +13,10 @@ const allowed = new Set([
   "auth/forgot-password",
   "auth/invitation",
   "auth/activate",
+  "auth/verify-email",
+  "auth/resend-verification",
+  "auth/reset-password",
+  "auth/accept-invitation",
 ]);
 async function forward(
   req: NextRequest,
@@ -36,6 +40,8 @@ async function forward(
       "Content-Type": "application/json",
       Accept: "application/json",
     });
+    // L'origine a déjà été vérifiée par le proxy pour les mutations.
+    if (req.method !== "GET") headers.set("Origin", req.nextUrl.origin);
     const cookie = req.headers.get("cookie");
     if (cookie) headers.set("Cookie", cookie);
     const key = req.headers.get("Idempotency-Key");

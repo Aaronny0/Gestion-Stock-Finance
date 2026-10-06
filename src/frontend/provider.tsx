@@ -92,6 +92,9 @@ export const publicRoutes = [
   "/signup",
   "/forgot-password",
   "/invite/activate",
+  "/verify-email",
+  "/reset-password",
+  "/account",
 ];
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname(),

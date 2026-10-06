@@ -2,20 +2,79 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Check, Eye, EyeOff, BarChart2, Package, Shield } from "lucide-react";
-import { api } from "./api";
+import {
+  ArrowRight,
+  Check,
+  Eye,
+  EyeOff,
+  BarChart2,
+  Package,
+  Shield,
+} from "lucide-react";
+import { api, ApiError } from "./api";
+import { useForm, type Resolver } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  signupSchema,
+  loginSchema,
+  emailSchema,
+  resetSchema,
+  tokenSchema,
+} from "./auth.schemas";
+import { useUnsavedChanges } from "./provider";
 import { Alert, Field } from "./ui";
 export default function AuthPage() {
   const path = usePathname(),
     signup = path === "/signup",
     forgot = path === "/forgot-password",
-    invite = path === "/invite/activate";
+    invite = path === "/invite/activate",
+    verify = path === "/verify-email",
+    resetPassword = path === "/reset-password";
+  const schema = signup
+    ? signupSchema
+    : forgot
+      ? emailSchema
+      : invite || resetPassword
+        ? resetSchema
+        : verify
+          ? tokenSchema
+          : loginSchema;
+  const defaults: Record<string, string> = signup
+    ? {
+        name: "",
+        email: "",
+        password: "",
+        organizationName: "",
+        country: "Bénin",
+        currency: "XOF",
+        timezone: "Africa/Porto-Novo",
+        storeName: "",
+        city: "",
+      }
+    : verify
+      ? { token: "" }
+      : invite || resetPassword
+        ? { token: "", password: "" }
+        : forgot
+          ? { email: "" }
+          : { email: "", password: "" };
+  const form = useForm<Record<string, string>>({
+    resolver: zodResolver(schema) as unknown as Resolver<
+      Record<string, string>
+    >,
+    defaultValues: defaults,
+  });
+  const {
+    register,
+    handleSubmit,
+    trigger,
+    watch,
+    reset,
+    setError: setFieldError,
+    formState: { errors, isDirty },
+  } = form;
+  const values = watch();
   const [step, setStep] = useState(0),
-    [values, setValues] = useState<Record<string, string>>({
-      country: "Bénin",
-      currency: "XOF",
-      timezone: "Africa/Porto-Novo",
-    }),
     [visible, setVisible] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -24,11 +83,35 @@ export default function AuthPage() {
       organization?: string;
       role?: string;
     } | null>(null);
-  const change = (key: string, value: string) =>
-    setValues({ ...values, [key]: value });
+  useUnsavedChanges(isDirty && !success, "Formulaire de connexion");
   useEffect(() => {
+    setStep(0);
+    setError("");
+    setSuccess("");
+    setInvitation(null);
+    const token = new URLSearchParams(location.search).get("token") ?? "";
+    reset(
+      invite || verify || resetPassword
+        ? { token, ...(verify ? {} : { password: "" }) }
+        : signup
+          ? {
+              name: "",
+              email: "",
+              password: "",
+              organizationName: "",
+              country: "Bénin",
+              currency: "XOF",
+              timezone: "Africa/Porto-Novo",
+              storeName: "",
+              city: "",
+            }
+          : forgot
+            ? { email: "" }
+            : { email: "", password: "" },
+    );
+    if ((verify || resetPassword) && !token)
+      setError("Lien incomplet. Demandez un nouvel email.");
     if (invite) {
-      const token = new URLSearchParams(location.search).get("token");
       if (!token) {
         setError(
           "Lien d’invitation incomplet. Demandez un nouveau lien au propriétaire.",
@@ -44,7 +127,7 @@ export default function AuthPage() {
           ),
         );
     }
-  }, [invite]);
+  }, [invite, verify, resetPassword, signup, forgot, reset]);
   const title = signup
     ? [
         "Créons votre compte.",
@@ -56,32 +139,34 @@ export default function AuthPage() {
       ? "Retrouvez votre accès."
       : invite
         ? "Rejoignez votre équipe."
-        : "Heureux de vous retrouver.";
+        : verify
+          ? "Confirmez votre adresse email."
+          : resetPassword
+            ? "Choisissez un nouveau mot de passe."
+            : "Heureux de vous retrouver.";
   const input = (
     key: string,
     label: string,
     type = "text",
     required = true,
   ) => (
-    <Field label={label} required={required}>
+    <Field label={label} required={required} error={errors[key]?.message}>
       <input
-        name={key}
+        {...register(key)}
         type={type}
         required={required}
         autoComplete={
           key === "email"
             ? "email"
             : key === "password"
-              ? signup || invite
+              ? signup || invite || resetPassword
                 ? "new-password"
                 : "current-password"
               : key === "name"
                 ? "name"
                 : undefined
         }
-        minLength={key === "password" && (signup || invite) ? 10 : undefined}
-        value={values[key] ?? ""}
-        onChange={(e) => change(key, e.target.value)}
+        aria-invalid={Boolean(errors[key])}
       />
     </Field>
   );
@@ -148,7 +233,11 @@ export default function AuthPage() {
                 ? "Un lien vous sera envoyé si un compte correspond à cet email."
                 : invite
                   ? `${invitation?.organization ?? "Votre entreprise"} · ${invitation?.role ?? "Invitation sécurisée"}`
-                  : "Connectez-vous pour retrouver votre activité."}
+                  : verify
+                    ? "Cette confirmation protège l’accès à votre compte."
+                    : resetPassword
+                      ? "Utilisez au moins 12 caractères pour votre nouveau mot de passe."
+                      : "Connectez-vous pour retrouver votre activité."}
           </p>
           {signup && (
             <div className="steps">
@@ -160,45 +249,85 @@ export default function AuthPage() {
             </div>
           )}
           <form
+            noValidate
+            onChange={() => {
+              if (success) setSuccess("");
+            }}
             onSubmit={async (e) => {
               e.preventDefault();
               setError("");
               if (signup && step < 3) {
-                setStep(step + 1);
+                const fields = [
+                  ["name", "email", "password"],
+                  ["organizationName", "country", "currency", "timezone"],
+                  ["storeName", "city"],
+                ][step];
+                if (await trigger(fields, { shouldFocus: true }))
+                  setStep(step + 1);
                 return;
               }
               if (busy) return;
-              setBusy(true);
-              try {
-                if (forgot) {
-                  await api.auth("forgot-password", { email: values.email });
-                  setSuccess(
-                    "Si ce compte existe, un lien de réinitialisation a été envoyé.",
+              await handleSubmit(async (data) => {
+                setBusy(true);
+                try {
+                  if (forgot) {
+                    await api.auth("forgot-password", { email: data.email });
+                    setSuccess(
+                      "Si ce compte existe, un lien de réinitialisation a été envoyé.",
+                    );
+                  } else if (signup) {
+                    const result = await api.auth("signup", data);
+                    setSuccess(
+                      result.message ??
+                        "Compte créé. Consultez votre email pour confirmer votre inscription.",
+                    );
+                  } else if (invite) {
+                    await api.auth("activate", {
+                      token: data.token,
+                      password: data.password,
+                    });
+                    reset(data);
+                    setSuccess("Compte activé. Vous pouvez vous connecter.");
+                    window.setTimeout(() => location.assign("/login"), 0);
+                  } else if (verify) {
+                    await api.auth("verify-email", { token: data.token });
+                    setSuccess(
+                      "Adresse email confirmée. Vous pouvez vous connecter.",
+                    );
+                  } else if (resetPassword) {
+                    await api.auth("reset-password", data);
+                    setSuccess(
+                      "Mot de passe modifié. Vous pouvez vous connecter.",
+                    );
+                  } else {
+                    await api.auth("login", {
+                      email: data.email,
+                      password: data.password,
+                    });
+                    reset(data);
+                    setSuccess("Connexion réussie.");
+                    window.setTimeout(() => location.assign("/account"), 0);
+                  }
+                  reset(data);
+                } catch (e) {
+                  if (e instanceof ApiError)
+                    for (const [field, message] of Object.entries(e.fields))
+                      setFieldError(field, { type: "server", message });
+                  setError(
+                    e instanceof ApiError &&
+                      e.status === 403 &&
+                      !signup &&
+                      !forgot &&
+                      !invite &&
+                      !verify &&
+                      !resetPassword
+                      ? "Vérifiez votre adresse email avant de vous connecter. Vous pouvez demander un nouvel email ci-dessous."
+                      : (e as Error).message,
                   );
-                } else if (signup) {
-                  const result = await api.auth("signup", values);
-                  setSuccess(
-                    result.message ??
-                      "Compte créé. Consultez votre email pour confirmer votre inscription.",
-                  );
-                } else if (invite) {
-                  await api.auth("activate", {
-                    token: new URLSearchParams(location.search).get("token"),
-                    password: values.password,
-                  });
-                  location.assign("/");
-                } else {
-                  await api.auth("login", {
-                    email: values.email,
-                    password: values.password,
-                  });
-                  location.assign("/");
+                } finally {
+                  setBusy(false);
                 }
-              } catch (e) {
-                setError((e as Error).message);
-              } finally {
-                setBusy(false);
-              }
+              })(e);
             }}
           >
             {signup ? (
@@ -208,7 +337,7 @@ export default function AuthPage() {
                   {input("email", "Adresse email", "email")}
                   {input(
                     "password",
-                    "Mot de passe (10 caractères minimum)",
+                    "Mot de passe (12 caractères minimum)",
                     "password",
                   )}
                 </>
@@ -217,11 +346,8 @@ export default function AuthPage() {
                   {input("organizationName", "Nom commercial")}
                   {input("country", "Pays")}
                   <div className="form-grid">
-                    <Field label="Devise">
-                      <select
-                        value={values.currency}
-                        onChange={(e) => change("currency", e.target.value)}
-                      >
+                    <Field label="Devise" error={errors.currency?.message}>
+                      <select {...register("currency")}>
                         {["XOF", "XAF", "EUR", "USD", "GNF"].map((v) => (
                           <option key={v}>{v}</option>
                         ))}
@@ -233,7 +359,7 @@ export default function AuthPage() {
               ) : step === 2 ? (
                 <>
                   {input("storeName", "Nom du point de vente")}
-                  {input("city", "Ville / adresse", "text", false)}
+                  {input("city", "Ville / adresse")}
                 </>
               ) : (
                 <>
@@ -253,23 +379,28 @@ export default function AuthPage() {
               )
             ) : forgot ? (
               input("email", "Adresse email", "email")
-            ) : invite ? (
+            ) : verify ? (
+              <p>
+                Confirmez votre adresse en cliquant sur le bouton ci-dessous. Ce
+                lien ne peut être utilisé qu’une fois.
+              </p>
+            ) : invite || resetPassword ? (
               input(
                 "password",
-                "Définir votre mot de passe (10 caractères minimum)",
+                "Définir votre mot de passe (12 caractères minimum)",
                 "password",
               )
             ) : (
               <>
                 {input("email", "Adresse email", "email")}
-                <Field label="Mot de passe">
+                <Field label="Mot de passe" error={errors.password?.message}>
                   <div className="password-field">
                     <input
                       required
                       type={visible ? "text" : "password"}
                       autoComplete="current-password"
-                      value={values.password ?? ""}
-                      onChange={(e) => change("password", e.target.value)}
+                      {...register("password")}
+                      aria-invalid={Boolean(errors.password)}
                     />
                     <button
                       type="button"
@@ -289,6 +420,7 @@ export default function AuthPage() {
                 </div>
               </>
             )}
+            {errors.token && <Alert error>{errors.token.message}</Alert>}
             {error && <Alert error>{error}</Alert>}
             {success && <Alert>{success}</Alert>}
             <div className="auth-buttons">
@@ -304,7 +436,13 @@ export default function AuthPage() {
               )}
               <button
                 className="button primary full"
-                disabled={busy || (invite && !invitation)}
+                disabled={
+                  busy ||
+                  (Boolean(success) && path !== "/login") ||
+                  (!verify && !isDirty) ||
+                  ((invite || verify || resetPassword) && !values.token) ||
+                  (invite && !invitation)
+                }
               >
                 {busy
                   ? "Veuillez patienter…"
@@ -314,13 +452,43 @@ export default function AuthPage() {
                       : "Créer mon espace"
                     : forgot
                       ? "Envoyer le lien"
-                      : invite
-                        ? "Activer mon compte"
-                        : "Se connecter"}
+                      : verify
+                        ? "Confirmer mon email"
+                        : resetPassword
+                          ? "Enregistrer mon mot de passe"
+                          : invite
+                            ? "Activer mon compte"
+                            : "Se connecter"}
                 <ArrowRight />
               </button>
             </div>
           </form>
+          {path === "/login" && (
+            <button
+              type="button"
+              className="button secondary full"
+              disabled={busy || !values.email}
+              onClick={async () => {
+                if (!(await trigger("email", { shouldFocus: true }))) return;
+                setBusy(true);
+                setError("");
+                try {
+                  await api.auth("resend-verification", {
+                    email: values.email,
+                  });
+                  setSuccess(
+                    "Si votre compte le permet, un nouvel email de vérification vous sera envoyé.",
+                  );
+                } catch (e) {
+                  setError((e as Error).message);
+                } finally {
+                  setBusy(false);
+                }
+              }}
+            >
+              Renvoyer l’email de vérification
+            </button>
+          )}
           {path === "/login" ? (
             <>
               <p className="auth-signup">
