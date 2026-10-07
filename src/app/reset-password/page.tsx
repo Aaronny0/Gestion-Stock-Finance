@@ -9,7 +9,7 @@ export default function ResetPassword() {
   const [password, setPassword] = useState(""), [confirmation, setConfirmation] = useState("");
   const [invalid, setInvalid] = useState(false), [busy, setBusy] = useState(false), [error, setError] = useState(""), [success, setSuccess] = useState(false);
   useEffect(() => { if (new URLSearchParams(location.search).has("error")) queueMicrotask(() => setInvalid(true)); }, []);
-  return <main className="auth-main"><div className="auth-form"><h1>Choisissez votre nouveau mot de passe</h1>
+  return <main className="access-layout"><div className="access-content auth-content"><h1>Choisissez votre nouveau mot de passe</h1>
     {invalid || (!auth.loading && !auth.user) ? <Alert error>Lien invalide ou expiré. Demandez un nouveau lien.</Alert> : success ? <Alert>Mot de passe enregistré. Reconnectez-vous.</Alert> : <form onSubmit={async e => {
       e.preventDefault(); if (busy) return;
       if (password !== confirmation) { setError("Les mots de passe ne correspondent pas."); return; }

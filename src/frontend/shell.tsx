@@ -76,7 +76,7 @@ function Shell({ children }: { children: ReactNode }) {
     }
   }, [session, path, can, href, router]);
 
-  if (publicRoutes.includes(pathname)) return children;
+  if (publicRoutes.includes(pathname) || !routePermission(path)) return children;
 
   const required = routePermission(path);
   const allowed = path.startsWith("/cash")
@@ -131,12 +131,12 @@ function Shell({ children }: { children: ReactNode }) {
   async function logout() {
     if (!confirmDiscard()) return;
     if (demo) {
-      location.assign("/login");
+      router.replace("/login");
       return;
     }
     try {
       await auth.signOut();
-      location.assign("/login");
+      router.replace("/login");
     } catch (caught) {
       setNotice((caught as Error).message);
     }
@@ -153,7 +153,7 @@ function Shell({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="vortex-workspace min-h-screen bg-background text-foreground">
       <a className="skip-link" href="#main">
         Aller au contenu
       </a>
@@ -191,12 +191,12 @@ function Shell({ children }: { children: ReactNode }) {
         />
 
         {demo && (
-          <div className="border-b border-border bg-accent/55">
-            <div className="mx-auto flex min-h-11 w-full max-w-[1680px] flex-col justify-between gap-2 px-4 py-2 text-xs text-accent-foreground sm:flex-row sm:items-center sm:px-6 xl:px-8">
+          <div className="demo-banner border-b border-border bg-accent/55">
+            <div className="demo-banner-inner mx-auto flex min-h-11 w-full max-w-[1680px] flex-col justify-between gap-2 px-4 py-2 text-xs text-accent-foreground sm:flex-row sm:items-center sm:px-6 xl:px-8">
               <span>
                 <strong>Démonstration</strong> · Données fictives, réinitialisées au rechargement.
               </span>
-              <label className="flex items-center gap-2 font-medium">
+              <div className="flex flex-wrap items-center gap-4"><Link className="font-semibold underline underline-offset-4" href="/signup">Demander un accès</Link><label className="flex items-center gap-2 font-medium">
                 <span>Tester le rôle</span>
                 <select
                   aria-label="Rôle de démonstration"
@@ -210,7 +210,7 @@ function Shell({ children }: { children: ReactNode }) {
                     </option>
                   ))}
                 </select>
-              </label>
+              </label></div>
             </div>
           </div>
         )}

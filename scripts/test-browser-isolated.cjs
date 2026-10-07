@@ -18,8 +18,18 @@ let next, auth;
   const qaUrl = `http://127.0.0.1:${auth.address().port}`;
   const port = process.env.QA_FRONTEND_PORT || '3100';
   const base = `http://localhost:${port}`;
-  const env = { ...process.env, NODE_ENV: 'development', NEXT_PUBLIC_SUPABASE_URL: qaUrl, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'qa-public-key', NEXT_PUBLIC_SUPABASE_ANON_KEY: '', FRONTEND_API_URL: '', QA_SUPABASE_URL: qaUrl, TEST_BASE_URL: base };
-  next = spawn(process.execPath, ['node_modules/next/dist/bin/next', 'dev', '--port', port], { env, stdio: 'inherit' });
+  // Never attach the suite to an unrelated process already listening on this port.
+  const probe = createServer();
+  probe.listen(Number(port)); await once(probe, 'listening');
+  await new Promise(resolve => probe.close(resolve));
+  const production = process.env.QA_PRODUCTION === '1';
+  const env = { ...process.env, NODE_ENV: production ? 'production' : 'development', VORTEX_BUILD_DIR: '.next-browser-qa', NEXT_PUBLIC_SUPABASE_URL: qaUrl, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'qa-public-key', NEXT_PUBLIC_SUPABASE_ANON_KEY: '', FRONTEND_API_URL: '', QA_SUPABASE_URL: qaUrl, TEST_BASE_URL: base };
+  if (production) {
+    const build = spawn(process.execPath, ['node_modules/next/dist/bin/next','build'], {env,stdio:'inherit'});
+    const [code] = await once(build,'exit');
+    if(code !== 0) throw Error('The isolated production build failed.');
+  }
+  next = spawn(process.execPath, ['node_modules/next/dist/bin/next', production ? 'start' : 'dev', '--port', port], { env, stdio: 'inherit' });
   let ready = false;
   for (let i = 0; i < 120; i++) {
     if (next.exitCode !== null) throw Error('Next.js stopped during startup.');

@@ -95,7 +95,7 @@ function NavigationLink({
       onClick={onNavigate}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "group relative flex min-h-10 items-center gap-3 rounded-md px-3 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
+        "group relative flex min-h-9 items-center gap-3 rounded-md px-3 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
         active
           ? "bg-accent text-accent-foreground shadow-[inset_3px_0_0_var(--primary)]"
           : "text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -148,7 +148,7 @@ export function SidebarNavigation({
       </div>
 
       <nav aria-label="Navigation principale" className="min-h-0 flex-1 overflow-y-auto px-3 pb-5">
-        <div className="space-y-5">
+        <div className="space-y-4">
           {navigation.map((section) => {
             const items = section.items.filter(
               (item) => can(item.permission) || (item.path === "/cash" && can("finance.read")),
@@ -211,7 +211,7 @@ export function AppSidebar({ collapsed, onCollapsedChange, ...props }: AppSideba
     <aside
       data-qa="workspace-sidebar"
       className={cn(
-        "fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-border/80 bg-card/95 shadow-[8px_0_24px_rgb(32_42_46_/_0.03)] transition-[width] duration-200 lg:flex",
+        "vortex-rail fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-border/80 bg-card/95  transition-[width] duration-200 lg:flex",
         collapsed ? "w-[72px]" : "w-64",
       )}
     >
@@ -222,7 +222,7 @@ export function AppSidebar({ collapsed, onCollapsedChange, ...props }: AppSideba
       <Button
         variant="outline"
         size="icon"
-        className="absolute -right-5 top-24 size-9 rounded-full bg-card shadow-sm"
+        className="absolute -right-4 bottom-5 size-8 rounded-md bg-card"
         onClick={() => onCollapsedChange(!collapsed)}
         aria-label={collapsed ? "Déployer la barre latérale" : "Réduire la barre latérale"}
       >

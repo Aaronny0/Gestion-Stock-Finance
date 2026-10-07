@@ -55,7 +55,7 @@ function CashPage() {
         actions={can("cash.open_close") ? <Button onClick={() => setAction({ type: current ? "cash.close" : "cash.open", title: current ? "Clôturer la caisse" : "Ouvrir la caisse" })}>{current ? <LockKeyhole /> : <WalletCards />}{current ? "Clôturer la caisse" : "Ouvrir la caisse"}</Button> : undefined}
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="finance-summary">
         <MetricCard label={current ? "Caisse ouverte" : "Caisse fermée"} value={<Money value={cashBalance} />} icon={<WalletCards className="size-4" />} comparison={current ? String(current.label ?? "Session active") : "Aucune session active"} />
         <MetricCard label="Encaissements" value={<Money value={incoming} />} icon={<ArrowDownRight className="size-4" />} comparison="sur la période sélectionnée" />
         <MetricCard label="Décaissements" value={<Money value={outgoing} />} icon={<ArrowUpRight className="size-4" />} comparison="sur la période sélectionnée" />

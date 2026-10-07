@@ -99,17 +99,17 @@ function SettingsContent({ path }: { path: string }) {
     <div className="space-y-6">
       <PageHeader eyebrow="PARAMÈTRES" title="Configurez votre espace de travail." description="Entreprise, boutiques, règles de vente, comptabilité, fiscalité et sécurité dans une interface unique." />
 
-      <nav className="overflow-x-auto" aria-label="Sections des paramètres">
-        <div className="flex min-w-max gap-1 rounded-lg border border-border bg-card p-1">
+      <div className="settings-workbench"><nav className="settings-navigation" aria-label="Sections des paramètres">
+        <div className="settings-links">
           {tabs.map(({ key, label, icon: Icon }) => (
-            <Link key={key} href={href(`/settings/${key}`)} className={cn("inline-flex min-h-10 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", tab === key && "bg-accent text-accent-foreground")}>
+            <Link key={key} href={href(`/settings/${key}`)} aria-current={tab === key ? "page" : undefined} className={cn("inline-flex min-h-10 items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", tab === key && "bg-accent text-accent-foreground")}>
               <Icon className="size-4" />{label}
             </Link>
           ))}
         </div>
       </nav>
 
-      <form className="space-y-5" onSubmit={save}>
+      <form className="settings-form space-y-5" onSubmit={save}>
         {tab === "organization" ? (
           <Card>
             <CardHeader><CardTitle>Informations de l’entreprise</CardTitle><CardDescription>Ces informations identifient l’organisation active et alimentent ses documents.</CardDescription></CardHeader>
@@ -167,7 +167,7 @@ function SettingsContent({ path }: { path: string }) {
         {error ? <p className="rounded-md bg-destructive-background px-3 py-2 text-sm text-destructive" role="alert">{error}</p> : null}
         {status ? <p className="rounded-md bg-success-background px-3 py-2 text-sm text-success" role="status">{status}</p> : null}
         {saveVisible ? <div className="flex justify-end"><Button disabled={busy}><Save />{busy ? "Enregistrement…" : "Enregistrer les paramètres"}</Button></div> : null}
-      </form>
+      </form></div>
 
       {storeDialog ? <StoreDialog open={storeDialog} onOpenChange={setStoreDialog} /> : null}
     </div>

@@ -174,8 +174,8 @@ function DataTable<TData, TValue>({
   };
 
   return (
-    <section className="space-y-3">
-      <div className="flex flex-col gap-3 rounded-lg border border-border bg-card p-3 sm:flex-row sm:items-center sm:justify-between">
+    <section className="vortex-data-table space-y-3">
+      <div className="data-toolbar flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="w-full sm:max-w-sm">
           <SearchInput
             aria-label={`Rechercher dans ${name}`}

@@ -4,15 +4,16 @@ import "./globals.css";
 import { FrontendShell } from "@/frontend/shell";
 import { DesignSystemProvider } from "@/providers/design-system-provider";
 export const metadata: Metadata = {
-  title: "Vortex · Gestion Stock & Finance",
+  title: "VORTEX · Votre activité, en toute clarté",
   description: "Pilotez votre commerce, votre stock et vos finances.",
   manifest: "/manifest.webmanifest",
+  icons: { icon: "/brand-icon.svg", apple: "/icon-192.png" },
   appleWebApp: { capable: true, title: "Vortex", statusBarStyle: "default" },
 };
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#4F46E5",
+  themeColor: "#5551c5",
   viewportFit: "cover",
   interactiveWidget: "resizes-content",
 };

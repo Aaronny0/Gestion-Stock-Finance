@@ -124,7 +124,7 @@ export function PageHeading({
   action?: ReactNode;
 }) {
   return (
-    <div className="page-heading">
+    <div className="page-heading vortex-page-header">
       <div>
         <div className="eyebrow">{eyebrow ?? "ESPACE DE GESTION"}</div>
         <h1>{title}</h1>

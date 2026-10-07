@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { resolveAccess, AccessFailure } from "@/lib/supabase/access";
 const allowed = new Set([
+  "access",
   "onboarding",
   "session",
   "workspace",
@@ -23,6 +25,16 @@ async function forward(
     return NextResponse.json({ error: "Route introuvable." }, { status: 404 });
   if (req.method !== "GET" && req.headers.get("origin") !== req.nextUrl.origin)
     return NextResponse.json({ error: "Origine refusée." }, { status: 403 });
+  // Public invitation inspection remains public; all business reads and writes require approval.
+  if (!["auth/invitation", "auth/activate", "auth/accept-invitation", "telemetry"].includes(path)) {
+    try {
+      const access = await resolveAccess(req);
+      if (path === "access") return NextResponse.json(access, { headers: { "Cache-Control": "no-store" } });
+      if (access.status !== "APPROVED") return NextResponse.json({ code: access.status }, { status: 403, headers: { "Cache-Control": "no-store" } });
+    } catch (error) {
+      return NextResponse.json({ code: error instanceof AccessFailure ? error.code : "ACCESS_UNAVAILABLE" }, { status: error instanceof AccessFailure ? error.status : 503, headers: { "Cache-Control": "no-store" } });
+    }
+  }
   const base = process.env.FRONTEND_API_URL;
   if (!base)
     return NextResponse.json(
@@ -80,7 +92,7 @@ async function forward(
         : {
             error: "L’opération ne peut pas être exécutée.",
             ...(typeof data === "object" && data !== null && "code" in data &&
-              ["ONBOARDING_REQUIRED", "NO_MEMBERSHIP", "FORBIDDEN"].includes(String(data.code)) ? { code: data.code } : {}),
+              ["ONBOARDING_REQUIRED", "NO_MEMBERSHIP", "FORBIDDEN", "PENDING_APPROVAL", "PENDING_EMAIL", "CONTACTED", "REJECTED", "SUSPENDED"].includes(String(data.code)) ? { code: data.code } : {}),
             ...(upstream.status === 422 &&
             typeof data === "object" &&
             data !== null &&

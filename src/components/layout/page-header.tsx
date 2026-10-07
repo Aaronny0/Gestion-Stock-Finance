@@ -10,7 +10,7 @@ interface PageHeaderProps extends React.ComponentProps<"header"> {
 
 function PageHeader({ eyebrow, title, description, actions, className, ...props }: PageHeaderProps) {
   return (
-    <header className={cn("flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between", className)} {...props}>
+    <header className={cn("vortex-page-header flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between", className)} {...props}>
       <div className="min-w-0 space-y-1">
         {eyebrow ? <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">{eyebrow}</p> : null}
         <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">{title}</h1>

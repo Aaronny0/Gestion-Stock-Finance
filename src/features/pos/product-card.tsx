@@ -15,7 +15,7 @@ interface ProductCardProps {
 export function ProductCard({ product, currency, cartQuantity = 0, onAdd }: ProductCardProps) {
   const lowStock = product.quantity <= Math.max(1, product.threshold);
   return (
-    <article data-qa="product-card" className="group flex min-h-56 flex-col overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow-card)] transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md">
+    <article data-qa="product-card" className="pos-product group flex min-h-56 flex-col overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow-card)] transition-[border-color,box-shadow,transform] hover:border-primary/60">
       <button
         type="button"
         className="flex flex-1 flex-col text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"

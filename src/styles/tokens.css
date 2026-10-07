@@ -1,31 +1,31 @@
 :root {
-  --background: #f7f8fc;
-  --foreground: #172033;
+  --background: #f5f5f0;
+  --foreground: #25263b;
 
   --card: #ffffff;
-  --card-foreground: #172033;
+  --card-foreground: #25263b;
 
   --popover: #ffffff;
-  --popover-foreground: #172033;
+  --popover-foreground: #25263b;
 
-  --primary: #4f46e5;
+  --primary: #5551c5;
   --primary-foreground: #ffffff;
-  --primary-hover: #4338ca;
+  --primary-hover: #403b9c;
 
-  --secondary: #f1f5f9;
-  --secondary-foreground: #334155;
+  --secondary: #efefea;
+  --secondary-foreground: #414458;
 
-  --muted: #f1f5f9;
-  --muted-foreground: #59697e;
+  --muted: #efefea;
+  --muted-foreground: #646778;
 
-  --accent: #eef2ff;
-  --accent-foreground: #4338ca;
+  --accent: #eeedf8;
+  --accent-foreground: #403b9c;
 
-  --border: #e2e8f0;
-  --input: #cbd5e1;
-  --ring: #4f46e5;
+  --border: #dedfdc;
+  --input: #b9bbc4;
+  --ring: #5551c5;
 
-  --success: #166534;
+  --success: #22735d;
   --success-background: #ecfdf3;
   --warning: #92400e;
   --warning-background: #fffbeb;
@@ -35,8 +35,8 @@
   --info: #1d4ed8;
   --info-background: #eff6ff;
 
-  --chart-1: #4f46e5;
-  --chart-2: #166534;
+  --chart-1: #5551c5;
+  --chart-2: #22735d;
   --chart-3: #92400e;
   --chart-4: #64748b;
   --chart-5: #1d4ed8;
@@ -46,10 +46,42 @@
   --radius-lg: 12px;
   --radius-xl: 16px;
 
-  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.03), 0 1px 3px rgb(15 23 42 / 0.04);
+  --shadow-card: none;
   --shadow-dialog: 0 24px 60px rgb(15 23 42 / 0.16);
 
   --font-sans: "DM Sans", "Avenir Next", ui-sans-serif, system-ui, sans-serif;
+
+  --brand-primary: var(--primary);
+  --brand-secondary: #25263b;
+  --surface: var(--card);
+  --surface-elevated: var(--popover);
+  --surface-subtle: var(--muted);
+  --border-strong: #b9bbc4;
+  --foreground-muted: var(--muted-foreground);
+  --danger: var(--destructive);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --type-display: clamp(36px, 4.5vw, 64px);
+  --type-page-title: clamp(26px, 2.5vw, 34px);
+  --type-section-title: 20px;
+  --type-subsection-title: 17px;
+  --type-card-title: 16px;
+  --type-metric-xl: clamp(32px, 3.2vw, 48px);
+  --type-metric-lg: 28px;
+  --type-metric: 22px;
+  --type-body: 14px;
+  --type-body-sm: 13px;
+  --type-label: 12px;
+  --type-caption: 12px;
+  --type-metadata: 11px;
+  --motion-fast: 120ms;
+  --motion-normal: 200ms;
+  --motion-deliberate: 300ms;
 
   /* Compatibilité temporaire avec le frontend V1 pendant la migration. */
   --bg: var(--background);

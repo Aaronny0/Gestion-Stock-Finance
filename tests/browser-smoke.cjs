@@ -28,8 +28,8 @@ const base = process.env.TEST_BASE_URL || 'http://localhost:3000';
   checks.push(`${routes.length} routes métier sans erreur`);
   await open('/demo/analytics');await page.locator('.recharts-bar-rectangle').first().waitFor();await page.locator('.recharts-bar-rectangle').first().click();await page.waitForURL('**/demo/sales?brand=**');assert.ok(!page.url().includes('undefined'));checks.push('Drill-down graphique vers les ventes');
   for(const width of [768,360]){await page.setViewportSize({width,height:900});for(const path of ['/demo','/demo/stock','/demo/pos','/demo/accounting/trial-balance']){await open(path);await checkWidth();await page.screenshot({path:`output/frontend-qa/${path.split('/').filter(Boolean).join('-')}-${width}.png`,fullPage:true});}checks.push(`Responsive ${width}px`);}
-  await page.goto(base+'/');await page.waitForURL('**/login');await page.getByRole('heading',{name:'Heureux de vous retrouver.'}).waitFor();checks.push('Route protégée anonyme : redirection vers login');
-  await page.goto(base+'/login');await page.getByRole('heading',{name:'Heureux de vous retrouver.'}).waitFor();await page.screenshot({path:'output/frontend-qa/login-mobile.png',fullPage:true});
+  await page.goto(base+'/app/dashboard');await page.waitForURL('**/login');await page.getByRole('heading',{name:'Accéder à VORTEX'}).waitFor();checks.push('Route protégée anonyme : redirection vers login');
+  await page.goto(base+'/login');await page.getByRole('heading',{name:'Accéder à VORTEX'}).waitFor();await page.screenshot({path:'output/frontend-qa/login-mobile.png',fullPage:true});
   const response=await page.request.post(base+'/api/v1/commands',{data:{},headers:{Origin:'https://example.invalid'}});assert.equal(response.status(),403);checks.push('Proxy : mutation externe refusée');
   const oldAuth=await page.request.post(base+'/api/auth',{data:{action:'change_password'}});assert.equal(oldAuth.status(),410);checks.push('Ancien endpoint sensible retiré');
   assert.deepEqual(errors,[]);

@@ -1,5 +1,5 @@
-import { request, ApiError } from "./api";
-import type { UserSession } from "./types";
+import { request } from "./api";
+import type { AccessDecision } from "@/lib/access-policy";
 export const draftKey = "vortex:onboarding";
 export function saveOnboarding(values: Record<string, string>) {
   const fields = ["name", "email", "organizationName", "country", "currency", "timezone", "storeName", "city"];
@@ -16,14 +16,8 @@ export function readOnboarding(): { payload: Record<string, string>; idempotency
   } catch { return null; }
 }
 export async function businessDestination() {
-  try {
-    const session = await request<UserSession>("session");
-    return session.stores.length ? "/" : "/onboarding?state=no_membership";
-  } catch (error) {
-    if (error instanceof ApiError && error.code === "ONBOARDING_REQUIRED") return "/onboarding";
-    if (error instanceof ApiError && error.code === "NO_MEMBERSHIP") return "/onboarding?state=no_membership";
-    throw error;
-  }
+  const decision = await request<AccessDecision>("access");
+  return decision.destination;
 }
 export function authError(error: { code?: string; message?: string }) {
   switch (error.code) {

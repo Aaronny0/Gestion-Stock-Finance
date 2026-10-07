@@ -9,7 +9,7 @@
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/accounting.test.cjs tests/auth.test.cjs tests/history.test.cjs",
-    "test:browser": "node tests/browser-smoke.cjs && node tests/browser-ux.cjs && node tests/navigation-responsive.cjs && node tests/responsive-matrix.cjs && node tests/responsive-workflows.cjs && node tests/design-system-regressions.cjs",
+    "test:browser": "node tests/browser-smoke.cjs && node tests/browser-ux.cjs && node tests/navigation-responsive.cjs && node tests/responsive-matrix.cjs && node tests/responsive-workflows.cjs && node tests/design-system-regressions.cjs && node tests/browser-access.cjs",
     "test:browser:isolated": "node scripts/test-browser-isolated.cjs"
   },
   "dependencies": {

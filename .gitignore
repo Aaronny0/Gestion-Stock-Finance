@@ -31,3 +31,6 @@ pnpm-debug.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# Isolated previews and validation builds
+.next-*/

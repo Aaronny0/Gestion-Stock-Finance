@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 interface AppLogoProps {
@@ -19,15 +19,12 @@ export function AppLogo({ href, compact = false, className }: AppLogoProps) {
         className,
       )}
     >
-      <span className="relative flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-lg font-bold text-primary-foreground shadow-sm">
-        V
-        <ArrowUpRight className="absolute right-0.5 top-0.5 size-3.5" aria-hidden="true" />
-      </span>
+      <span className="vortex-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M3 6h8l6 13 5-13h7L17 29 3 6Z" fill="currentColor"/><path d="m3 6 14 13L11 6H3Z" fill="white" opacity=".4"/></svg></span>
       {!compact && (
         <span className="min-w-0 leading-none">
           <span className="block text-xl font-bold tracking-[-0.04em] text-foreground">VORTEX</span>
           <span className="mt-1 block text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Stock &amp; Finance
+            Pilotage du commerce
           </span>
         </span>
       )}

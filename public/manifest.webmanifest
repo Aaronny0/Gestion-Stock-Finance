@@ -1,11 +1,11 @@
 {
-  "name": "Vortex · Gestion Stock & Finance",
-  "short_name": "Vortex",
+  "name": "VORTEX · Votre activité, en toute clarté",
+  "short_name": "VORTEX",
   "lang": "fr",
-  "start_url": "/",
+  "start_url": "/app/dashboard",
   "display": "standalone",
-  "background_color": "#f7f8fc",
-  "theme_color": "#4f46e5",
+  "background_color": "#f5f5f0",
+  "theme_color": "#25263b",
   "icons": [
     {
       "src": "/icon-192.png",

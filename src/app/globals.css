@@ -1,6 +1,6 @@
 /* Legacy rules precede utility classes so migrated components own their styles. */
 @layer theme, base, legacy, components, utilities;
-@import "tailwindcss";
+@import "tailwindcss" source("../");
 @import "tw-animate-css";
 @import "../styles/tokens.css";
 @import "../styles/base.css" layer(base);
@@ -12,3 +12,5 @@
 @import "../styles/legacy/refinements.css" layer(legacy);
 @import "../styles/legacy/navigation.css" layer(legacy);
 @import "../styles/print.css";
+
+@import "../styles/product.css";

@@ -36,7 +36,7 @@ function PaymentsPage() {
   return (
     <div className="space-y-6">
       <PageHeader eyebrow="PAIEMENTS" title="Des règlements sans zone d’ombre." description="Encaissements clients et paiements fournisseurs." actions={can("finance.read") ? <Button onClick={() => setCreate(true)}><Plus /> Enregistrer un règlement</Button> : undefined} />
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="finance-summary">
         <MetricCard label="Encaissements" value={<Money value={incoming} />} icon={<ArrowDownRight className="size-4" />} comparison="sur la période sélectionnée" />
         <MetricCard label="Décaissements" value={<Money value={outgoing} />} icon={<ArrowUpRight className="size-4" />} comparison="sur la période sélectionnée" />
         <MetricCard label="Flux net" value={<Money value={incoming - outgoing} />} comparison={`${rows.length} règlement${rows.length > 1 ? "s" : ""}`} />

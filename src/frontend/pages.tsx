@@ -54,6 +54,7 @@ function BusinessPage({ path }: { path: string }) {
   const { snapshot, storeId, start, end, href, can } = useWorkspace(),
     router = useRouter();
   const db = snapshot!.data;
+  const [balanceOnly, setBalanceOnly] = useState(false);
   const [action, setAction] = useState<{
       type: string;
       title: string;
@@ -267,10 +268,11 @@ function BusinessPage({ path }: { path: string }) {
               button(c.action, c.actionLabel!)
             }
           />
+          {["suppliers", "clients"].includes(key) && <section className="directory-summary"><div><strong>{rows.length}</strong><span>{key === "clients" ? "clients dans votre répertoire" : "partenaires fournisseurs"}</span></div><button type="button" aria-pressed={balanceOnly} onClick={()=>setBalanceOnly(!balanceOnly)}><span>{key === "clients" ? "Créances clients" : "Soldes fournisseurs"}</span><Money value={rows.reduce((sum,r)=>sum+(r.amount ?? 0),0)}/><small>{balanceOnly ? "Afficher tout le répertoire" : "Voir uniquement les soldes à régler"}</small></button></section>}
           {!["suppliers", "clients"].includes(key) && <DateRangePicker />}
           <DataTable
             name={key}
-            rows={rows}
+            rows={balanceOnly && ["suppliers", "clients"].includes(key) ? rows.filter(r=>(r.amount ?? 0)>0) : rows}
             columns={[
               {
                 key: "label",

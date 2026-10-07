@@ -9,6 +9,7 @@ export default function ErrorBoundary({
   reset: () => void;
 }) {
   useEffect(() => {
+    if (location.pathname === "/demo" || location.pathname.startsWith("/demo/")) return;
     request("telemetry", {
       method: "POST",
       body: JSON.stringify({

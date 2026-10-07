@@ -13,7 +13,7 @@ import {
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { installHistoryGuard } from "./history";
-import { canonical, parentRoute } from "./navigation";
+import { canonical, parentRoute, routePermission } from "./navigation";
 import { useAuth } from "./auth-provider";
 import { api, request } from "./api";
 import { createDemo, executeDemo } from "./demo";
@@ -90,6 +90,11 @@ export function useViewState<T>(
   return [value, update];
 }
 export const publicRoutes = [
+  "/",
+  "/features",
+  "/admin/access",
+  "/access-pending",
+  "/verify-email",
   "/login",
   "/signup",
   "/forgot-password",
@@ -104,7 +109,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname(),
     router = useRouter(),
     demo = pathname === "/demo" || pathname.startsWith("/demo/"),
-    isPublic = publicRoutes.includes(pathname);
+    isPublic = publicRoutes.includes(pathname) || !routePermission(canonical(pathname));
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null),
     [loading, setLoading] = useState(true),
     [error, setError] = useState(""),
@@ -155,11 +160,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const goBack = () =>
     historyControl.current?.back(() =>
       router.replace(
-        (demo ? "/demo" : "") +
+        (demo ? "/demo" : "/app") +
           (parentRoute(canonical(pathname)) === "/"
             ? demo
               ? ""
-              : "/"
+              : "/dashboard"
             : parentRoute(canonical(pathname))),
       ),
     );
@@ -255,7 +260,9 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         .catch((e) => {
           if (abort.signal.aborted) return;
           setSnapshot(null);
-          if (e.code === "ONBOARDING_REQUIRED") router.replace("/onboarding");
+          if (["PENDING_APPROVAL", "CONTACTED", "REJECTED", "SUSPENDED"].includes(e.code)) router.replace("/access-pending");
+          else if (e.code === "PENDING_EMAIL") router.replace("/verify-email");
+          else if (e.code === "ONBOARDING_REQUIRED") router.replace("/onboarding");
           else if (e.code === "NO_MEMBERSHIP") router.replace("/onboarding?state=no_membership");
           else if (e.status === 401) router.replace("/login?expired=1");
           else if (e.name !== "AbortError") setError(e.message);
@@ -290,6 +297,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         })
         .catch((error) => {
           if (!active) return;
+          if (["PENDING_EMAIL", "PENDING_APPROVAL", "CONTACTED", "REJECTED", "SUSPENDED"].includes(error.code)) {
+            setSnapshot(null); viewCache.current.clear();
+            router.replace(error.code === "PENDING_EMAIL" ? "/verify-email" : "/access-pending"); return;
+          }
           if (error.code === "ONBOARDING_REQUIRED" || error.code === "NO_MEMBERSHIP") {
             setSnapshot(null);
             router.replace(error.code === "NO_MEMBERSHIP" ? "/onboarding?state=no_membership" : "/onboarding");
@@ -435,7 +446,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         command,
         reload: () => setVersion((v) => v + 1),
         setRole,
-        href: (path) => (demo ? `/demo${path === "/" ? "" : path}` : path),
+        href: (path) => (demo ? `/demo${path === "/" ? "" : path}` : `/app${path === "/" ? "/dashboard" : path}`),
         notice,
         setNotice,
         setOrganization: (id) => {

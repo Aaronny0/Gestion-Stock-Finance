@@ -36,7 +36,7 @@ function ExpensesPage() {
   return (
     <div className="space-y-6">
       <PageHeader eyebrow="DÉPENSES" title="Chaque dépense à sa place." description="Suivez vos charges et leurs justificatifs, sans effacer l’historique." actions={can("finance.read") ? <Button onClick={() => setAction({ type: "expense.create", title: "Nouvelle dépense" })}><Plus /> Nouvelle dépense</Button> : undefined} />
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="finance-summary">
         <MetricCard label="Dépenses de la période" value={<Money value={total} />} icon={<ReceiptText className="size-4" />} comparison={`${activeRows.length} opération${activeRows.length > 1 ? "s" : ""}`} />
         <MetricCard label="Catégories utilisées" value={categories} comparison="sur la période sélectionnée" />
         <MetricCard label="Montant moyen" value={<Money value={activeRows.length ? Math.round(total / activeRows.length) : 0} />} comparison="par dépense active" />

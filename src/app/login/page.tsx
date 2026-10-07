@@ -1,1 +1,1 @@
-export { default } from "@/frontend/auth-page";
+export { default } from "@/frontend/google-login";

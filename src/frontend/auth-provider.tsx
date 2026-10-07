@@ -1,15 +1,19 @@
 "use client";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
+import { usePathname } from "next/navigation";
 import { getSupabase } from "@/lib/supabase/client";
 import { supabaseConfig } from "@/lib/supabase/config";
 type Identity = { session: Session | null; user: User | null; accessToken: string | null; loading: boolean; error: string; signOut: () => Promise<void> };
 const Context = createContext<Identity | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const demo = pathname === "/demo" || pathname.startsWith("/demo/");
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   useEffect(() => {
+    if (demo) { setSession(null); setLoading(false); setError(""); return; }
     if (!supabaseConfig()) { setError("Authentification non configurée."); setLoading(false); return; }
     const client = getSupabase();
     let active = true, eventSeen = false;
@@ -23,7 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (error) setError("Impossible de charger votre session.");
     }).catch(() => { if (active) { setLoading(false); setError("Connexion indisponible."); } });
     return () => { active = false; data.subscription.unsubscribe(); };
-  }, []);
+  }, [demo]);
   async function signOut() {
     const { error } = await getSupabase().auth.signOut();
     if (error) throw new Error("Déconnexion impossible. Réessayez.");

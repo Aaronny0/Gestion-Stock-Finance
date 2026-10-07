@@ -142,7 +142,7 @@ export const aliases: Record<string, string> = {
   "/roles": "/team",
 };
 export function canonical(path: string) {
-  const value = path.replace(/^\/demo(?=\/|$)/, "") || "/";
+  const value = path.replace(/^\/(?:demo|app)(?=\/|$)/, "") || "/";
   return aliases[value] ?? value;
 }
 export function routePermission(path: string): Permission | undefined {

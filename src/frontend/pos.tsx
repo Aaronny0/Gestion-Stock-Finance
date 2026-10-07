@@ -294,7 +294,7 @@ export default function POS() {
 
   return (
     <>
-      <div className="space-y-6 pb-24 lg:pb-0">
+      <div className="pos-workbench space-y-6 pb-24 lg:pb-0">
         <PageHeader
           eyebrow="Espace de vente"
           title="Nouvelle vente"

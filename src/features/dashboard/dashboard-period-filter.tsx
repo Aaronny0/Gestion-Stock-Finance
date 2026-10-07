@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { CalendarDays } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,6 +14,7 @@ import { useWorkspace } from "@/frontend/provider";
 
 export function DashboardPeriodFilter() {
   const { start, end, setDates } = useWorkspace();
+  const [expanded, setExpanded] = useState(false);
 
   const applyPreset = (days: string) => {
     const count = Number(days);
@@ -24,7 +26,9 @@ export function DashboardPeriodFilter() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+    <div className="dashboard-filter">
+      <button type="button" className="period-toggle" aria-expanded={expanded} onClick={()=>setExpanded(!expanded)}><CalendarDays size={17}/><span>{start.split("-").reverse().join("/")} — {end.split("-").reverse().join("/")}</span><span>{expanded ? "Fermer" : "Modifier"}</span></button>
+      <div className={`period-fields ${expanded ? "expanded" : ""} flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center`}>
       <Select onValueChange={applyPreset}>
         <SelectTrigger className="w-full sm:w-44" aria-label="Période prédéfinie">
           <CalendarDays className="size-4 text-muted-foreground" aria-hidden="true" />
@@ -57,6 +61,6 @@ export function DashboardPeriodFilter() {
           className="min-w-0 sm:w-40"
         />
       </div>
-    </div>
+    </div></div>
   );
 }

@@ -26,7 +26,7 @@ function Money({ value, currency: explicitCurrency, locale = "fr-FR", minorUnits
     maximumFractionDigits: decimals,
   }).format(normalized);
 
-  return <span className={cn("whitespace-nowrap [font-variant-numeric:tabular-nums]", className)} {...props}>{formatted}</span>;
+  return <span data-money="" className={cn("whitespace-nowrap [font-variant-numeric:tabular-nums]", className)} {...props}>{formatted}</span>;
 }
 
 export { Money };

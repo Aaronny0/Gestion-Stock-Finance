@@ -66,7 +66,7 @@ export function TeamPage() {
         actions={can("team.manage") ? <Button onClick={() => { setSelected(null); setDialogOpen(true); }}><Plus /> Inviter un membre</Button> : null}
       />
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="team-summary">
         <Card><CardHeader className="pb-3"><CardDescription>Membres</CardDescription><CardTitle className="flex items-center gap-2 text-2xl tabular-nums"><Users className="size-5 text-primary" />{team.length}</CardTitle></CardHeader></Card>
         <Card><CardHeader className="pb-3"><CardDescription>Boutiques</CardDescription><CardTitle className="flex items-center gap-2 text-2xl tabular-nums"><Store className="size-5 text-primary" />{snapshot!.session.stores.length}</CardTitle></CardHeader></Card>
         <Card><CardHeader className="pb-3"><CardDescription>Permissions disponibles</CardDescription><CardTitle className="flex items-center gap-2 text-2xl tabular-nums"><ShieldCheck className="size-5 text-primary" />{rolePermissions.owner.length}</CardTitle></CardHeader></Card>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CreditCard, Plus } from "lucide-react";
+import { Money } from "@/components/data-display/money";
 import { DateRangeFilter } from "@/components/data-display/date-range-filter";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,8 @@ function SalesPage({ path }: { path: string }) {
         description="Consultez les reçus, suivez les crédits et retrouvez vos transactions."
         actions={can("sales.create") ? <Button asChild><Link href={href("/pos")}><Plus /> Nouvelle vente</Link></Button> : undefined}
       />
+
+      {!saleId && <section className="sales-ledger-summary" aria-label="Synthèse des ventes affichées"><div><span>Ventes nettes</span><Money value={sales.reduce((sum,s)=>sum+salePosition(s).netIncome,0)}/></div><div><span>Transactions</span><strong>{sales.length}</strong></div><Link href={href("/sales/credits")}><span>Reste à encaisser</span><Money value={sales.reduce((sum,s)=>sum+salePosition(s).due,0)}/><small>Consulter les crédits <CreditCard size={14}/></small></Link></section>}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {!saleId ? <DateRangeFilter /> : <div />}

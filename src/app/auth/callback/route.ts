@@ -7,8 +7,15 @@ export async function GET(request: NextRequest) {
   if (!request.nextUrl.searchParams.has("error") && code) {
     try {
       const client = await createSupabaseServer();
-      const { error } = await client.auth.exchangeCodeForSession(code);
-      if (!error) return NextResponse.redirect(new URL(next, request.nextUrl.origin), { headers: { "Cache-Control": "no-store" } });
+      const { data, error } = await client.auth.exchangeCodeForSession(code);
+      if (!error) {
+        const response = NextResponse.redirect(new URL(next, request.nextUrl.origin), { headers: { "Cache-Control": "no-store" } });
+        // Display preference only; never used to grant product access.
+        if (data?.user) response.cookies.set("vortex_last_login", data.user.app_metadata?.provider === "google" ? "google" : "email", {
+          path: "/", maxAge: 60 * 60 * 24 * 180, sameSite: "lax", secure: request.nextUrl.protocol === "https:", httpOnly: false,
+        });
+        return response;
+      }
     } catch { /* Configuration/network errors use the same safe public message. */ }
   }
   const failure = next === "/reset-password" ? "/reset-password?error=invalid_link"

@@ -48,6 +48,10 @@ const routes = [
     "fiscal",
     "security",
   ].map((p) => "/demo/settings/" + p),
+  "/",
+  "/features",
+  "/access-pending",
+  "/verify-email",
   "/login",
   "/signup",
   "/forgot-password",
@@ -55,6 +59,7 @@ const routes = [
 ];
 const sizes = [
   [320, 568],
+  [375, 812],
   [360, 800],
   [390, 844],
   [430, 932],
@@ -62,6 +67,9 @@ const sizes = [
   [820, 1180],
   [1024, 768],
   [1180, 820],
+  [1280, 900],
+  [1440, 1000],
+  [1920, 1080],
   [844, 390],
 ];
 (async () => {
@@ -91,13 +99,13 @@ const sizes = [
         await page.goto(base + route);
         if (route.startsWith("/demo"))
           await page.locator('[data-qa="workspace-main"] h1').waitFor();
-        else await page.locator(".auth-form h1, .auth-form h2").first().waitFor();
+        else await page.locator("main h1").first().waitFor();
         await page.waitForTimeout(70);
         const issue = await page.evaluate(() => {
           const width = innerWidth;
           const bad = [
             ...document.querySelectorAll(
-              '[data-qa="workspace-main"] *, .auth-main *, header *, dialog[open] *, [role="dialog"] *',
+              '[data-qa="workspace-main"] *, .access-content *, header *, dialog[open] *, [role="dialog"] *',
             ),
           ]
             .filter((el) => {

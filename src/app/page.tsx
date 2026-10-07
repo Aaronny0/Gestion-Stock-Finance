@@ -1,1 +1,1 @@
-export { default } from "@/frontend/pages";
+export { default } from "@/frontend/public-site";

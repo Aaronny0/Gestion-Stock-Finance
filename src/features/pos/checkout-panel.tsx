@@ -22,7 +22,7 @@ interface CheckoutPanelProps {
 
 export function CheckoutPanel({ currency, total, paidAmount, credit, split, method, secondMethod, secondAmount, error, disabled, quoting, buttonId, onCheckout }: CheckoutPanelProps) {
   return (
-    <div className="space-y-3 border-t border-border bg-card pt-4">
+    <div className="checkout-summary space-y-3 border-t border-border bg-card pt-4">
       <div className="flex items-end justify-between gap-4">
         <span className="text-sm text-muted-foreground">Total à payer</span>
         <Money value={total} currency={currency} className="text-xl font-bold text-foreground" />

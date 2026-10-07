@@ -11,7 +11,6 @@ import { Money } from "@/components/data-display/money";
 import { StatusBadge } from "@/components/data-display/status-badge";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ActionForm } from "@/frontend/forms";
@@ -77,12 +76,11 @@ function StockPage({ path }: { path: string }) {
     <div className="space-y-6">
       <PageHeader eyebrow="STOCK & CATALOGUE" title="Le bon stock, au bon endroit." description="Retrouvez vos produits, anticipez les ruptures et gérez vos arrivages." actions={can("stock.adjust") ? <Button onClick={() => launch("stock.entry", "Nouvelle entrée")}><PackagePlus /> Nouvelle entrée</Button> : undefined} />
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Card className="p-4"><p className="text-xs font-medium text-muted-foreground">Références</p><p className="mt-2 text-xl font-bold [font-variant-numeric:tabular-nums]">{products.length}</p></Card>
-        <Card className="p-4"><p className="text-xs font-medium text-muted-foreground">Unités disponibles</p><p className="mt-2 text-xl font-bold [font-variant-numeric:tabular-nums]">{products.reduce((sum, product) => sum + product.quantity, 0)}</p></Card>
-        <Card className="p-4"><p className="text-xs font-medium text-muted-foreground">Sous le seuil</p><p className="mt-2 text-xl font-bold [font-variant-numeric:tabular-nums]">{products.filter((product) => product.quantity <= product.threshold).length}</p></Card>
-        {can("stock.cost.read") ? <Card className="p-4"><p className="text-xs font-medium text-muted-foreground">Valeur du stock</p><Money value={products.reduce((sum, product) => sum + (product.cost ?? 0) * product.quantity, 0)} className="mt-2 block text-xl font-bold" /></Card> : null}
-      </div>
+      <section className="inventory-overview" aria-label="État du catalogue">
+        <div><span>Catalogue actif</span><strong>{products.length} <small>références</small></strong><p>{products.reduce((sum,p)=>sum+p.quantity,0)} unités dans cette sélection</p></div>
+        <button type="button" className={low ? "inventory-warning selected" : "inventory-warning"} aria-pressed={low} onClick={()=>setLow(!low)}><PackagePlus/><span><strong>{scopedProducts.filter(p=>p.active && p.quantity<=p.threshold).length} références sous le seuil</strong><small>{low ? "Afficher tout le catalogue" : "Voir les références à réapprovisionner"}</small></span></button>
+        {can("stock.cost.read") && <div className="inventory-value"><span>Valeur d’achat du stock</span><Money value={products.reduce((sum,p)=>sum+(p.cost ?? 0)*p.quantity,0)}/><small>Sur la sélection affichée</small></div>}
+      </section>
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <Tabs value={tab} onValueChange={(value) => router.push(href(value === "catalog" ? "/stock" : `/stock/${value}`))}>

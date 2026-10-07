@@ -135,6 +135,7 @@ export function createDemo(): Snapshot {
       status: "Actif",
     },
   ];
+  for (let i = 3; i <= 220; i++) data.clients.push({ id: `c${i}`, label: `${["Aïcha", "Daniel", "Grâce", "Ibrahim", "Mariam", "Jules", "Fatou", "Serge"][i % 8]} ${["Dossou", "Mensah", "Agossou", "Bello", "Soglo", "Assogba", "Traoré"][i % 7]} ${i}`, email: `client${i}@example.test`, date: day(-i % 120), status: "Actif" });
   data.suppliers = [
     {
       id: "sup1",
@@ -175,7 +176,7 @@ export function createDemo(): Snapshot {
       email: "samuel@example.test",
     },
   ];
-  for (let i = 0; i < 24; i++) {
+  for (let i = 0; i < 360; i++) {
     const product = data.products[i % 8];
     const total = product.price;
     const date = day(-Math.floor(i / 3));
