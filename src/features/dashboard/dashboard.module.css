@@ -1,0 +1,1185 @@
+@font-face {
+  font-family: "Vortex Dashboard Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/auth/font-3.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Vortex Dashboard Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/auth/font-4.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Vortex Dashboard Sans";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/auth/font-5.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Vortex Dashboard Display";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/auth/font-1.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Vortex Dashboard Display";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/auth/font-2.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Vortex Dashboard Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/auth/font-8.ttf") format("truetype");
+}
+.workspace {
+  --background: #f9f9fc;
+  --foreground: #0a1a1b;
+  --card: #fff;
+  --card-foreground: #0a1a1b;
+  --popover: #fff;
+  --popover-foreground: #0a1a1b;
+  --primary: #007176;
+  --primary-foreground: #fbfbfe;
+  --primary-hover: #045c60;
+  --muted: #eff4f4;
+  --muted-foreground: #586767;
+  --secondary: #eff4f4;
+  --secondary-foreground: #344344;
+  --accent: #dff2f2;
+  --accent-foreground: #04585c;
+  --border: #dde3e4;
+  --input: #7d898a;
+  --ring: #007176;
+  --success: #135c30;
+  --success-background: #e4f9e9;
+  --warning: #864900;
+  --warning-background: #fff2d6;
+  --destructive: #9e1618;
+  --destructive-background: #ffede9;
+  --info: #005892;
+  --info-background: #e4f5ff;
+  --font-sans: "Vortex Dashboard Sans", sans-serif;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--foreground);
+  background: var(--background);
+  color-scheme: light;
+}
+.workspace :global(.vortex-rail) {
+  width: 248px;
+  --card: #eff6f6;
+  --foreground: #182728;
+  --muted-foreground: #566768;
+  --border: #d7e0e0;
+  --muted: #e9f2f2;
+  --accent: #d2ecee;
+  --accent-foreground: #0d1b1c;
+  --primary: #007176;
+  background: #eff6f6;
+}
+.workspace :global(.vortex-rail) > div:first-child {
+  height: 64px;
+  padding: 0 16px;
+}
+.workspace :global(.vortex-rail) [data-qa="nav-item"] {
+  min-height: 44px;
+  font-size: 13px;
+}
+.workspace :global(.vortex-rail) [aria-current="page"] {
+  background: #d2ecee;
+  box-shadow: inset 3px 0 var(--primary);
+}
+.workspace :global(.vortex-rail) h2 {
+  font-size: 11px;
+  color: #566768;
+  letter-spacing: 0.08em;
+}
+.workspace :global(.vortex-mark) {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: url("/auth/vortex-logo.png") center/cover;
+}
+.workspace :global(.vortex-mark) svg {
+  display: none;
+}
+.workspace :global(.vortex-topbar) {
+  height: 64px;
+  padding: 0 28px;
+}
+.workspace :global(.demo-banner) {
+  background: #e4f5ff;
+  color: #005892;
+}
+.workspace :global(.demo-banner-inner) {
+  max-width: 1440px;
+  padding: 8px 32px;
+  font-size: 12px;
+}
+.workspace :global(.demo-banner) select {
+  min-height: 44px;
+}
+.workspace button,
+.workspace input,
+.workspace select {
+  font-family: inherit;
+}
+.container {
+  max-width: 1440px;
+  padding: 28px 32px 32px;
+}
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.dashboard h1 {
+  margin: 0;
+  font:
+    600 30px/1.1 "Vortex Dashboard Display",
+    sans-serif;
+  letter-spacing: -0.025em;
+}
+.dashboard h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.dashboard h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.dashboard p {
+  margin: 0;
+  line-height: 1.5;
+}
+.dashboard a {
+  text-decoration: none;
+}
+.dashboard a:hover {
+  text-decoration: underline;
+}
+.dashboard a:focus-visible,
+.dashboard button:focus-visible,
+.dashboard select:focus-visible,
+.dashboard summary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.context {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+.headerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.headerActions a,
+.headerActions button {
+  min-height: 44px;
+  font-size: 13.5px;
+  padding: 0 14px;
+  border-radius: 8px;
+}
+.period {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.presets {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 8px;
+  background: #e9f2f2;
+}
+.presets button {
+  background: transparent;
+  color: var(--muted-foreground);
+  border: 0;
+  border-radius: 6px;
+  min-height: 44px;
+  padding: 0 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.presets button[aria-pressed="true"] {
+  background: #fff;
+  color: var(--foreground);
+}
+.dateToggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  background: transparent;
+  border: 0;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+.dateFields {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: end;
+  width: 100%;
+}
+.dateFields label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+.dateFields input {
+  width: 150px;
+  min-height: 44px;
+  background: #fff;
+  border-color: var(--input);
+}
+.dateFields button {
+  border: 1px solid var(--border);
+  background: #fff;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 8px;
+}
+.attention {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.attention > h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.attention > h2 > span {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.attentionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+  gap: 12px;
+}
+.attentionCard {
+  padding: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--foreground);
+}
+.attentionCard:hover {
+  border-color: #c0c9c9;
+  text-decoration: none !important;
+}
+.attentionTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+.attentionTop > strong {
+  font:
+    600 28px/1 "Vortex Dashboard Display",
+    sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.iconTile {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+}
+.iconTile[data-tone="warning"] {
+  color: var(--warning);
+  background: var(--warning-background);
+}
+.iconTile[data-tone="info"] {
+  color: var(--info);
+  background: var(--info-background);
+}
+.iconTile[data-tone="primary"] {
+  color: var(--accent-foreground);
+  background: var(--accent);
+}
+.iconTile[data-tone="destructive"] {
+  color: var(--destructive);
+  background: var(--destructive-background);
+}
+.attentionCard p {
+  color: var(--muted-foreground);
+  font-size: 12.5px;
+  flex: 1;
+}
+.textAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 13px;
+  min-height: 44px;
+}
+.nothing {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  color: var(--success);
+}
+.performance {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+  padding: 24px;
+  gap: 24px;
+}
+.hero {
+  flex: 1.2;
+  min-width: 0;
+}
+.heroLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.heroLabel button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  min-height: 44px;
+  color: var(--muted-foreground);
+  font-size: 13.5px;
+}
+.heroLabel > a {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: var(--muted-foreground);
+}
+.heroAmount {
+  display: block;
+  font:
+    600 clamp(30px, 3.2vw, 44px) / 1.12 "Vortex Dashboard Display",
+    sans-serif;
+  letter-spacing: -0.035em;
+}
+.currency {
+  font: 500 14px/1 var(--font-sans);
+  color: var(--muted-foreground);
+  letter-spacing: 0;
+}
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.variation {
+  background: var(--success-background);
+  color: var(--success);
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-weight: 600;
+}
+.variation[data-negative="true"] {
+  color: var(--destructive);
+  background: var(--destructive-background);
+}
+.metrics {
+  flex: 2;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  min-width: 0;
+}
+.metrics > a {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 20px;
+  border-left: 1px solid var(--border);
+  color: var(--foreground);
+}
+.metrics > a > span:first-child {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted-foreground);
+  font-size: 12.5px;
+}
+.metrics [data-money] {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+.metricCurrency {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+.metrics small {
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.card {
+  min-width: 0;
+  padding: 20px 22px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.cardHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.cardHeading > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.legend > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend i {
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+.legend .marginDot {
+  background: #d72f92;
+}
+.legend small {
+  margin-left: auto;
+}
+.readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: baseline;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  min-height: 56px;
+  padding: 12px 0;
+}
+.readout strong {
+  color: var(--foreground);
+  font-size: 14px;
+}
+.chart {
+  display: flex;
+  gap: 12px;
+  height: 222px;
+  margin-top: 8px;
+}
+.axis {
+  flex: none;
+  width: 38px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 22px;
+  font-size: 11px;
+  color: var(--muted-foreground);
+  text-align: right;
+}
+.plot {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.grid {
+  position: absolute;
+  inset: 0 0 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.grid i {
+  display: block;
+  border-top: 1px dashed var(--border);
+}
+.bars {
+  position: relative;
+  display: flex;
+  align-items: end;
+  flex: 1;
+  gap: 3px;
+  min-height: 0;
+}
+.barTarget {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  align-items: end;
+  border-radius: 4px 4px 1px 1px;
+}
+.bar {
+  display: block;
+  width: 100%;
+  background: var(--primary);
+  border-radius: 4px 4px 1px 1px;
+  position: absolute;
+  transition: opacity 120ms ease-out;
+}
+.marginBar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: block;
+  background: #d72f92;
+  border-radius: 0 0 1px 1px;
+}
+.xAxis {
+  display: flex;
+  height: 22px;
+  justify-content: space-between;
+  align-items: end;
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+.dayPicker {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border);
+  margin-top: 16px;
+  padding-top: 12px;
+}
+.dayPicker label {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+.dayPicker select {
+  min-height: 44px;
+  min-width: 0;
+  font-size: 12px;
+  width: auto;
+}
+.cashList {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.cashRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  color: var(--foreground);
+  min-height: 72px;
+}
+.cashRow + .cashRow {
+  border-top: 1px solid var(--border);
+}
+.cashRow > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.cashRow strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.cashRow small {
+  display: block;
+  font-size: 11.5px;
+  color: var(--muted-foreground);
+  margin-top: 3px;
+}
+.cashDot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: #9ba7a8;
+}
+.cashDot[data-open="true"] {
+  background: #1a763f;
+  box-shadow: 0 0 0 3px var(--success-background);
+}
+.cashBalance {
+  text-align: right;
+  font-size: 13px;
+  font-weight: 600;
+}
+.cashBalance [data-money] {
+  white-space: normal;
+}
+.cashStatus {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 11.5px;
+}
+.dashboard .paymentTitle {
+  font-size: 12.5px;
+  margin: 20px 0 12px;
+}
+.paymentBar {
+  display: flex;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--muted);
+}
+.paymentBar span,
+.paymentRows i {
+  background: var(--muted-foreground);
+}
+.paymentBar [data-method="Espèces"],
+.paymentRows [data-method="Espèces"] {
+  background: #2c965d;
+}
+.paymentBar [data-method="Mobile Money"],
+.paymentRows [data-method="Mobile Money"] {
+  background: #d08300;
+}
+.paymentBar [data-method="Carte"],
+.paymentRows [data-method="Carte"],
+.paymentBar [data-method="Banque"],
+.paymentRows [data-method="Banque"] {
+  background: #3673cb;
+}
+.paymentRows {
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+}
+.paymentRows > a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--foreground);
+  font-size: 12.5px;
+}
+.paymentRows > a > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.paymentRows i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.outlineAction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--foreground);
+  font-weight: 600;
+  font-size: 12.5px;
+  padding: 8px;
+  margin-top: 16px;
+}
+.salesCard {
+  padding: 0;
+  overflow: hidden;
+}
+.salesCard .cardHeading {
+  padding: 12px 20px;
+  margin: 0;
+}
+.salesTable {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+  font-size: 12.5px;
+}
+.salesTable th {
+  text-align: left;
+  padding: 10px 12px;
+  background: var(--background);
+  border-block: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--muted-foreground);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.salesTable th:first-child {
+  width: 22%;
+}
+.salesTable th:nth-child(2) {
+  width: 24%;
+}
+.salesTable th:nth-child(3) {
+  width: 17%;
+}
+.salesTable th:last-child {
+  text-align: right;
+  width: 20%;
+}
+.salesTable td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eaefef;
+  height: 60px;
+  overflow-wrap: anywhere;
+}
+.salesTable td:first-child a {
+  font-family: "Vortex Dashboard Mono", monospace;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--foreground);
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+.salesTable small {
+  display: block;
+  color: var(--muted-foreground);
+  font-size: 10.5px;
+}
+.salesTable td:last-child {
+  text-align: right;
+  font-weight: 600;
+}
+.salesTable [data-money] {
+  white-space: normal;
+}
+.mobileSales {
+  display: none;
+}
+.stockList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.stockItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 7px 8px;
+  color: var(--foreground);
+  padding: 4px 0;
+}
+.stockItem strong {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.stockItem small {
+  display: block;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  margin-top: 2px;
+}
+.stockItem > span:nth-child(2) {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  align-self: center;
+}
+.stockItem > span:nth-child(2) > strong {
+  color: var(--warning);
+}
+.stockItem > span[data-critical="true"] > strong {
+  color: var(--destructive);
+}
+.stockTrack {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--muted);
+  grid-column: 1/-1;
+  overflow: hidden;
+}
+.stockTrack i {
+  display: block;
+  height: 100%;
+  background: #e8a127;
+  border-radius: 999px;
+}
+.stockTrack i[data-critical="true"] {
+  background: #c51e21;
+}
+.empty {
+  padding: 24px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--muted-foreground);
+  text-align: center;
+  font-size: 13px;
+}
+.muted {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  padding-top: 8px;
+}
+.setup {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 22px;
+}
+.setup summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  min-height: 44px;
+  list-style: none;
+}
+.setup summary::-webkit-details-marker {
+  display: none;
+}
+.setup summary > span:nth-child(2) {
+  flex: 1;
+}
+.setup small {
+  display: block;
+  color: var(--muted-foreground);
+  margin-top: 3px;
+  font-size: 12px;
+}
+.progress {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.progress > span {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-foreground);
+}
+.setupSteps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 12px;
+}
+.setupSteps > a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  min-height: 44px;
+  border: 1px solid #c9e2e3;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-foreground);
+  font-size: 12px;
+}
+.setupSteps > a[data-done="true"] {
+  border-color: var(--border);
+  background: var(--background);
+  color: var(--muted-foreground);
+}
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.skeleton > div {
+  min-height: 160px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: linear-gradient(90deg, #eff4f4, #fff, #eff4f4);
+  background-size: 200% 100%;
+  animation: loading 1.4s ease-in-out infinite;
+}
+.skeleton > div:first-child {
+  min-height: 72px;
+}
+.skeleton > div:last-child {
+  min-height: 300px;
+}
+@keyframes loading {
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (min-width: 1024px) {
+  .frame {
+    padding-left: 248px !important;
+  }
+  .frame[data-collapsed="true"] {
+    padding-left: 72px !important;
+  }
+  .workspace:has(.frame[data-collapsed="true"]) :global(.vortex-rail) {
+    width: 72px;
+  }
+}
+@media (max-width: 1279px) {
+  .split {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+  .performance {
+    flex-wrap: wrap;
+  }
+  .hero {
+    flex: 1 1 100%;
+  }
+  .metrics {
+    flex: 1 1 100%;
+  }
+  .metrics > a:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+@media (max-width: 1023px) {
+  .container {
+    padding: 24px;
+  }
+  .workspace :global(.vortex-topbar) {
+    padding: 0 16px;
+  }
+  .workspace :global(.demo-banner-inner) {
+    padding: 8px 24px;
+  }
+}
+@media (max-width: 767px) {
+  .container {
+    padding: 24px 16px;
+  }
+  .dashboard {
+    gap: 20px;
+  }
+  .dashboard h1 {
+    font-size: 28px;
+  }
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .card {
+    padding: 16px;
+  }
+  .salesCard {
+    padding: 0;
+  }
+  .workspace :global(.demo-banner-inner) {
+    padding: 8px 16px;
+  }
+  .salesTable {
+    display: none;
+  }
+  .mobileSales {
+    display: flex;
+    flex-direction: column;
+  }
+  .mobileSales > a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    color: var(--foreground);
+  }
+  .mobileSales > a > span {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .mobileSales > a > span:last-child {
+    align-items: end;
+    font-size: 12px;
+    text-align: right;
+  }
+  .mobileSales small {
+    color: var(--muted-foreground);
+    font-size: 11.5px;
+  }
+  .mobileSales strong {
+    font-family: "Vortex Dashboard Mono", monospace;
+    font-size: 12px;
+  }
+  .attentionGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .attentionCard {
+    padding: 12px;
+  }
+  .performance {
+    padding: 16px;
+    gap: 16px;
+  }
+  .metrics {
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  }
+  .metrics > a {
+    padding: 12px;
+  }
+  .metrics > a:first-child {
+    padding-left: 0;
+  }
+  .metrics [data-money] {
+    font-size: 20px;
+  }
+  .setup {
+    padding: 16px;
+  }
+  .dateToggle span {
+    font-size: 11px;
+  }
+  .dateFields input {
+    width: 140px;
+  }
+}
+@media (max-width: 374px) {
+  .attentionGrid {
+    grid-template-columns: 1fr;
+  }
+  .metrics {
+    grid-template-columns: 1fr;
+  }
+  .metrics > a {
+    padding: 12px 0;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+  .headerActions {
+    width: 100%;
+  }
+  .headerActions > a,
+  .headerActions > button {
+    flex: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace *,
+  .workspace *::before,
+  .workspace *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Five columns need enough usable card width, including beside the desktop rail. */
+.salesCard {
+  container-type: inline-size;
+}
+@container (max-width:600px) {
+  .salesTable {
+    display: none;
+  }
+  .mobileSales {
+    display: flex;
+    flex-direction: column;
+  }
+  .mobileSales > a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    color: var(--foreground);
+  }
+  .mobileSales > a > span {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .mobileSales > a > span:last-child {
+    align-items: end;
+    font-size: 12px;
+    text-align: right;
+  }
+  .mobileSales small {
+    color: var(--muted-foreground);
+    font-size: 11.5px;
+  }
+  .mobileSales strong {
+    font-family: "Vortex Dashboard Mono", monospace;
+    font-size: 12px;
+  }
+}

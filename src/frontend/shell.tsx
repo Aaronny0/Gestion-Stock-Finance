@@ -17,6 +17,7 @@ import { Alert, Skeleton } from "./ui";
 import { roleLabels, type Role } from "./types";
 import { useAuth } from "./auth-provider";
 import { cn } from "@/lib/utils";
+import dashboardStyles from "@/features/dashboard/dashboard.module.css";
 
 function Shell({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -153,7 +154,7 @@ function Shell({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="vortex-workspace min-h-screen bg-background text-foreground">
+    <div className={cn("vortex-workspace min-h-screen bg-background text-foreground", path === "/" && dashboardStyles.workspace)}>
       <a className="skip-link" href="#main">
         Aller au contenu
       </a>
@@ -173,8 +174,10 @@ function Shell({ children }: { children: ReactNode }) {
       <div
         className={cn(
           "min-h-screen pb-16 transition-[padding] duration-200 lg:pb-0",
+          path === "/" && dashboardStyles.frame,
           sidebarCollapsed ? "lg:pl-[72px]" : "lg:pl-64",
         )}
+        data-collapsed={sidebarCollapsed}
       >
         <Topbar
           path={path}
@@ -216,7 +219,7 @@ function Shell({ children }: { children: ReactNode }) {
         )}
 
         <main id="main" data-qa="workspace-main" className="min-h-[calc(100vh-120px)]">
-          <PageContainer>
+          <PageContainer className={path === "/" ? dashboardStyles.container : undefined}>
             <div className="space-y-4">
               {offline && (
                 <Alert error>
@@ -244,7 +247,7 @@ function Shell({ children }: { children: ReactNode }) {
               )}
 
               {loading ? (
-                <Skeleton />
+                path === "/" ? <div className={dashboardStyles.skeleton} role="status" aria-label="Chargement du tableau de bord"><div /><div /><div /><div /></div> : <Skeleton />
               ) : error ? (
                 <Card className="mx-auto max-w-xl">
                   <CardContent className="space-y-4 p-6">

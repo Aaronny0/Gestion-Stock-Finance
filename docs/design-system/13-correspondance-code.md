@@ -84,3 +84,11 @@ Tests existants : [auth unitaires](../../tests/auth.test.cjs), [auth responsive]
 ## Valeurs CSS globales et isolées
 
 L’[inventaire des valeurs](references/inventaire-valeurs.md) contient toutes les déclarations de custom properties du handoff, des tokens implémentés et du CSS auth ; il complète les tables de couleurs. [Occurrences sources](references/source-color-occurrences.json) donne valeur exacte, fichier et ligne de chaque couleur extraite.
+
+## Dashboard intégré — 8 octobre 2026
+
+- [Orchestration](../../src/frontend/dashboard.tsx) : données workspace/reporting, permissions, comparaison disponible, alertes, entrée de stock réelle et liens contextualisés.
+- [Styles isolés](../../src/features/dashboard/dashboard.module.css) : thème Claude limité au dashboard, rail248/72, topbar64, responsive et reduced-motion.
+- [Activité](../../src/features/dashboard/dashboard-chart.tsx) : histogramme quotidien, CA/marge positifs ou négatifs, sélection clavier et accès aux ventes du jour ; les charts historiques restent utilisés ailleurs.
+- [Caisses et paiements](../../src/features/dashboard/dashboard-cash.tsx), [ventes récentes](../../src/features/dashboard/dashboard-recent-sales.tsx), [attention](../../src/features/dashboard/dashboard-attention.tsx), [période](../../src/features/dashboard/dashboard-period-filter.tsx), [checklist](../../src/features/dashboard/dashboard-setup-checklist.tsx).
+- [Régressions dashboard](../../tests/browser-dashboard-design.cjs), [rapport](../dashboard-design-implementation.md).

@@ -37,3 +37,7 @@ Analyses/Trésorerie reprennent anatomie dashboard, pas un nouveau langage graph
 | /invite/activate | Organisation/rôle fournis, compte existant/nouveau, changer identité, confirmer email, activer | Inspection invitation + auth/activate ; backend contrôle adresse et rôle |
 
 Shell : panneau clair avec logo/promesse/reçu/stock, formulaire max400, champs44, labels au-dessus, erreurs locales + globale. Sous960 px logo en tête et panneau supprimé. Les onglets de démonstration de la maquette et données préremplies ne sont pas une navigation produit à reproduire. Le backend ne donne pas l’adresse invitée/émetteur/boutique : ne pas inventer. Voir [rapport d’intégration auth](../auth-design-implementation.md).
+
+## État de l’intégration dashboard — 8 octobre 2026
+
+L’anatomie dashboard ci-dessus est implémentée dans `src/frontend/dashboard.tsx` et `src/features/dashboard/`. Le shell applique les styles Claude uniquement au dashboard canonique (`/app`, `/demo`). Le sélecteur de période conserve les dates dans l’URL, les raccourcis7/30 jours utilisent le fuseau de l’organisation et les champs empêchent les intervalles inversés. L’action Entrée de stock ouvre le formulaire métier existant ; les autres actions rejoignent les parcours réels. Voir le [rapport de vérification](../dashboard-design-implementation.md) et les arbitrages datés du registre.

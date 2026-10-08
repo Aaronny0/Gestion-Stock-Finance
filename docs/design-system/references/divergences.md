@@ -30,3 +30,9 @@ Constats du8 octobre2026. Toutes ces divergences sont signalées avant une éven
 | D24 Unités rem | Base14 px / utilitaires Tailwind | Ne pas convertir h-16 en64 px ou w-64 en256 px sans vérifier le root. Avec --spacing:.25rem et root14 : h-16=56 px, w-64=224 px, px-4/6/8=14/21/28 px ; cibles en pixels du design distinctes. |
 
 Pour arbitrer : citer ID, fichiers/sections, valeur retenue, usages, permission éventuelle et validation explicite. Ajouter une entrée datée ; ne pas supprimer l’historique ni changer les originaux. Si aucune décision n’est fournie, ne pas transformer ce registre en autorisation automatique de refonte.
+
+## Application dashboard — 8 octobre 2026
+
+La demande d’implémenter le dashboard Claude applique la maquette `Tableau de bord.dc.html` uniquement à `/app` et `/demo` (route canonique `/`). D02/D03/D05 : primaire fonctionnelle `#007176`, surfaces HTML, Geist/Bricolage/mono locaux. D12/D13/D24 : rail clair 248/72 px, contexte64 px, contenu1440 px et gouttières32/24/16 px physiques. D15 : histogramme CA pétrole et marge magenta `#d72f92`, valeurs négatives visibles. D17 : marge commandée par `analytics.cost_margin_read`, jamais par le seul nom du rôle. Logo original conservé (D23).
+
+Ces décisions sont isolées dans `src/features/dashboard/dashboard.module.css` ; les valeurs globales, les autres pages et les originaux archivés ne changent pas. D11/D12/D13/D15 restent applicables aux autres modules historiques. La variation comparative n’est affichée que si la période précédente est calculable à partir des données disponibles ; aucun pourcentage fictif n’est ajouté au reporting serveur.
