@@ -18,7 +18,7 @@ Inventaire lu le8 octobre2026. Les chemins ci-dessous sont relatifs à la racine
 | Auth UI | [src/frontend/auth-page.tsx](../../src/frontend/auth-page.tsx) | Six routes / signup quatre étapes, SDK/API réels |
 | Auth layout | [src/frontend/auth-shell.tsx](../../src/frontend/auth-shell.tsx) | Illustration/identité/footer |
 | Auth champs | [src/frontend/auth-fields.tsx](../../src/frontend/auth-fields.tsx) | AuthField, AuthNotice, password |
-| Auth CSS | [src/frontend/auth-design.module.css](../../src/frontend/auth-design.module.css) | Polices Vortex Auth locales, primaire057176, light isolé |
+| Auth CSS | [src/frontend/auth-design.module.css](../../src/frontend/auth-design.module.css) | Polices Vortex Auth locales, primaire007176 depuis le 9 octobre, light isolé |
 | Auth métier | [src/frontend/auth-flow.ts](../../src/frontend/auth-flow.ts) | Draft sans secret, businessDestination, authError |
 | UI historique | [src/frontend/ui.tsx](../../src/frontend/ui.tsx) | Consommateurs V1 encore présents |
 | Pages métiers | [src/frontend/pages.tsx](../../src/frontend/pages.tsx) | À lire avec dashboard, pos, analytics, accounting-page, settings |
@@ -92,3 +92,16 @@ L’[inventaire des valeurs](references/inventaire-valeurs.md) contient toutes l
 - [Activité](../../src/features/dashboard/dashboard-chart.tsx) : histogramme quotidien, CA/marge positifs ou négatifs, sélection clavier et accès aux ventes du jour ; les charts historiques restent utilisés ailleurs.
 - [Caisses et paiements](../../src/features/dashboard/dashboard-cash.tsx), [ventes récentes](../../src/features/dashboard/dashboard-recent-sales.tsx), [attention](../../src/features/dashboard/dashboard-attention.tsx), [période](../../src/features/dashboard/dashboard-period-filter.tsx), [checklist](../../src/features/dashboard/dashboard-setup-checklist.tsx).
 - [Régressions dashboard](../../tests/browser-dashboard-design.cjs), [rapport](../dashboard-design-implementation.md).
+
+## Intégration Claude — 9 octobre 2026
+
+[Rapport de couverture et validation](../claude-design-integration.md).
+
+- `src/styles/claude-product.css` : tokens HEX HTML et polices locales sur tout le shell métier ; aucune refonte du site public.
+- `src/components/layout/app-sidebar.tsx` et `sidebar.module.css` : navigation B312/68, boutiques/organisations réelles, caisse, recherche et raccourcis.
+- `src/features/sales/sales-page.tsx`, `sales-table.tsx`, `sale-details.tsx`, `sales.module.css` : synthèse filtrée, recherche client/IMEI, statuts, périodes, tri/export/pagination, détail460 et actions réelles. Les factures fiscales et historiques de retours sont conservés.
+- `src/components/data-display/data-table.tsx` : recherche contrôlée et pagination numérotée optionnelles ; les autres consommateurs gardent leur comportement par défaut.
+- `src/components/data-display/money.tsx` : affichage ISO optionnel sans changement des unités mineures ni du format par défaut.
+- `tests/browser-claude-pages.cjs` : dimensions HTML, interactions, focus, responsive et confidentialité des marges.
+
+Les descriptions datées du 8 octobre ci-dessus documentent l’état antérieur. Le registre D18 daté du 9 octobre remplace l’ancien statut de proposition non approuvée.

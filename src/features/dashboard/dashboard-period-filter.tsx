@@ -32,7 +32,7 @@ export function DashboardPeriodFilter() {
             aria-pressed={active(days)}
             onClick={() => preset(days)}
           >
-            {days} jours
+            {days} derniers jours
           </button>
         ))}
       </div>
@@ -41,6 +41,7 @@ export function DashboardPeriodFilter() {
         type="button"
         aria-expanded={expanded}
         aria-controls="dashboard-dates"
+        aria-label="Choisir une période personnalisée"
         onClick={() => setExpanded(!expanded)}
       >
         <CalendarDays size={16} />

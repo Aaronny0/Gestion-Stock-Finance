@@ -31,7 +31,7 @@ export function DashboardCash({ cashHref }: { cashHref: string }) {
   return (
     <section className={styles.card} aria-labelledby="cash-title">
       <div className={styles.cardHeading}>
-        <h2 id="cash-title">Caisses & paiements</h2>
+        <h2 id="cash-title">Caisses</h2>
         <Link href={cashHref}>Trésorerie</Link>
       </div>
       <div className={styles.cashList}>
@@ -86,6 +86,7 @@ export function DashboardCash({ cashHref }: { cashHref: string }) {
               {balance !== undefined && Number.isFinite(balance) ? (
                 <span className={styles.cashBalance}>
                   <Money
+                    currencyDisplay="code"
                     value={balance}
                     currency={session.organization.currency}
                   />
@@ -100,9 +101,7 @@ export function DashboardCash({ cashHref }: { cashHref: string }) {
           );
         })}
       </div>
-      <h3 className={styles.paymentTitle}>
-        Encaissements par moyen de paiement
-      </h3>
+      <h3 className={styles.paymentTitle}>Encaissements par moyen</h3>
       {total > 0 ? (
         <>
           <div className={styles.paymentBar} aria-hidden="true">
@@ -121,7 +120,14 @@ export function DashboardCash({ cashHref }: { cashHref: string }) {
                   <i data-method={method} />
                   {method}
                 </span>
-                <Money value={value} currency={session.organization.currency} />
+                <span className={styles.paymentValue}>
+                  <Money
+                    currencyDisplay="code"
+                    value={value}
+                    currency={session.organization.currency}
+                  />
+                  <small>{Math.round((value / total) * 100)} %</small>
+                </span>
               </Link>
             ))}
           </div>

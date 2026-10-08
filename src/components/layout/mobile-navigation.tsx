@@ -5,8 +5,10 @@ import { useRef } from "react";
 import { BookOpen, Menu, Package, Repeat2, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { AppLogo } from "@/components/layout/app-logo";
-import { SidebarNavigation, type SidebarNavigationProps } from "@/components/layout/app-sidebar";
+import {
+  SidebarNavigation,
+  type SidebarNavigationProps,
+} from "@/components/layout/app-sidebar";
 import { cn } from "@/lib/utils";
 import type { Permission } from "@/frontend/types";
 
@@ -16,37 +18,74 @@ interface MobileNavigationProps extends SidebarNavigationProps {
 }
 
 const shortcuts = [
-  { path: "/pos", label: "Vendre", permission: "sales.create" as Permission, icon: ShoppingCart },
-  { path: "/stock", label: "Stock", permission: "stock.read" as Permission, icon: Package },
-  { path: "/trade", label: "Troc", permission: "trade.create" as Permission, icon: Repeat2 },
-  { path: "/accounting", label: "Compta", permission: "accounting.read" as Permission, icon: BookOpen },
+  {
+    path: "/pos",
+    label: "Vendre",
+    permission: "sales.create" as Permission,
+    icon: ShoppingCart,
+  },
+  {
+    path: "/stock",
+    label: "Stock",
+    permission: "stock.read" as Permission,
+    icon: Package,
+  },
+  {
+    path: "/trade",
+    label: "Troc",
+    permission: "trade.create" as Permission,
+    icon: Repeat2,
+  },
+  {
+    path: "/accounting",
+    label: "Compta",
+    permission: "accounting.read" as Permission,
+    icon: BookOpen,
+  },
 ];
 
 function shortcutActive(path: string, itemPath: string) {
-  return path === itemPath || path.startsWith(`${itemPath}/`) || (itemPath === "/stock" && path.startsWith("/products/"));
+  return (
+    path === itemPath ||
+    path.startsWith(`${itemPath}/`) ||
+    (itemPath === "/stock" && path.startsWith("/products/"))
+  );
 }
 
-export function MobileNavigation({ open, onOpenChange, ...props }: MobileNavigationProps) {
+export function MobileNavigation({
+  open,
+  onOpenChange,
+  ...props
+}: MobileNavigationProps) {
   const triggerRef = useRef<HTMLElement | null>(null);
-  const visible = shortcuts.filter((item) => props.can(item.permission)).slice(0, 3);
+  const visible = shortcuts
+    .filter((item) => props.can(item.permission))
+    .slice(0, 3);
 
   return (
     <>
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent
           onOpenAutoFocus={() => {
-            triggerRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+            triggerRef.current =
+              document.activeElement instanceof HTMLElement
+                ? document.activeElement
+                : null;
           }}
           onCloseAutoFocus={(event) => {
             event.preventDefault();
             triggerRef.current?.focus();
           }}
-          side="left" className="flex w-[88%] max-w-[340px] flex-col p-0 sm:max-w-[340px]">
-          <SheetTitle className="sr-only">Navigation VORTEX</SheetTitle>
-          <div className="flex h-[72px] items-center border-b border-border px-5">
-            <AppLogo href={props.href("/")} />
+          side="left"
+          className="flex w-[312px] max-w-full flex-col p-0 sm:max-w-[312px] [&>button:last-child]:top-0"
+        >
+          <div className="flex h-11 shrink-0 items-center border-b border-border bg-[#f7fbfb] px-4">
+            <SheetTitle className="text-[13px]">Navigation VORTEX</SheetTitle>
           </div>
-          <SidebarNavigation {...props} onNavigate={() => onOpenChange(false)} />
+          <SidebarNavigation
+            {...props}
+            onNavigate={() => onOpenChange(false)}
+          />
         </SheetContent>
       </Sheet>
 
@@ -86,7 +125,13 @@ export function MobileNavigation({ open, onOpenChange, ...props }: MobileNavigat
   );
 }
 
-export function MobileMenuButton({ onClick, expanded }: { onClick: () => void; expanded: boolean }) {
+export function MobileMenuButton({
+  onClick,
+  expanded,
+}: {
+  onClick: () => void;
+  expanded: boolean;
+}) {
   return (
     <Button
       variant="ghost"

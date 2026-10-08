@@ -1,9 +1,9 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  CircleDollarSign,
+  WalletCards,
   PackageSearch,
-  UsersRound,
+  UserRoundPlus,
   CheckCheck,
   HandCoins,
 } from "lucide-react";
@@ -19,8 +19,8 @@ export type AttentionItem = {
 };
 const icons = {
   stock: PackageSearch,
-  cash: CircleDollarSign,
-  team: UsersRound,
+  cash: WalletCards,
+  team: UserRoundPlus,
   credit: HandCoins,
 };
 export function DashboardAttention({ items }: { items: AttentionItem[] }) {
@@ -45,8 +45,10 @@ export function DashboardAttention({ items }: { items: AttentionItem[] }) {
                   </span>
                   <strong>{item.count}</strong>
                 </div>
-                <h3>{item.label}</h3>
-                <p>{item.description}</p>
+                <div className={styles.attentionText}>
+                  <h3>{item.label}</h3>
+                  <p>{item.description}</p>
+                </div>
                 <span className={styles.textAction}>
                   {item.action}
                   <ArrowRight size={14} />

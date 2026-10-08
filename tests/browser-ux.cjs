@@ -59,6 +59,7 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3000";
     ),
   );
   checks.push("Retour depuis la vente : historique et état du stock");
+  await page.getByRole("dialog").getByRole("button", { name: "Fermer", exact: true }).click();
   await page.getByRole("link", { name: "Crédits et échéances" }).click();
   await page.getByRole("heading", { name: "Les crédits à suivre." }).waitFor();
   await page.screenshot({
@@ -127,10 +128,17 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3000";
         "--destructive",
         "--info",
         "--background",
+        "--card",
+        "--primary-foreground",
+        "--success-background",
+        "--warning-background",
+        "--destructive-background",
+        "--info-background",
       ].map((k) => [k, css.getPropertyValue(k).trim()]),
     );
   });
   function luminance(hex) {
+    if (/^#[0-9a-f]{3}$/i.test(hex)) hex = "#" + [...hex.slice(1)].map(char => char + char).join("");
     return hex
       .replace("#", "")
       .match(/../g)
@@ -144,13 +152,13 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3000";
     return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
   }
   const pairs = [
-    ["Texte principal", contrast["--foreground"], "#FFFFFF"],
+    ["Texte principal", contrast["--foreground"], contrast["--card"]],
     ["Texte secondaire", contrast["--muted-foreground"], contrast["--background"]],
-    ["Action principale", "#FFFFFF", contrast["--primary"]],
-    ["Succès", contrast["--success"], "#ECFDF3"],
-    ["Attention", contrast["--warning"], "#FFFBEB"],
-    ["Erreur", contrast["--destructive"], "#FEF3F2"],
-    ["Information", contrast["--info"], "#EFF6FF"],
+    ["Action principale", contrast["--primary-foreground"], contrast["--primary"]],
+    ["Succès", contrast["--success"], contrast["--success-background"]],
+    ["Attention", contrast["--warning"], contrast["--warning-background"]],
+    ["Erreur", contrast["--destructive"], contrast["--destructive-background"]],
+    ["Information", contrast["--info"], contrast["--info-background"]],
   ].map(([label, fg, bg]) => ({
     label,
     fg,

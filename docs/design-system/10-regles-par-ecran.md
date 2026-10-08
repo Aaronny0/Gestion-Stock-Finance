@@ -41,3 +41,7 @@ Shell : panneau clair avec logo/promesse/reçu/stock, formulaire max400, champs4
 ## État de l’intégration dashboard — 8 octobre 2026
 
 L’anatomie dashboard ci-dessus est implémentée dans `src/frontend/dashboard.tsx` et `src/features/dashboard/`. Le shell applique les styles Claude uniquement au dashboard canonique (`/app`, `/demo`). Le sélecteur de période conserve les dates dans l’URL, les raccourcis7/30 jours utilisent le fuseau de l’organisation et les champs empêchent les intervalles inversés. L’action Entrée de stock ouvre le formulaire métier existant ; les autres actions rejoignent les parcours réels. Voir le [rapport de vérification](../dashboard-design-implementation.md) et les arbitrages datés du registre.
+
+## Intégration multi-écrans — 9 octobre 2026
+
+Le thème Claude et la navigation B sont désormais communs aux routes métier. Le dashboard conserve son anatomie et adopte les dimensions exactes HTML. Ventes applique le gabarit complet avec détail latéral460 et listes compactes sous900 px utiles. Les six parcours auth conservent leurs mécanismes réels et utilisent la primaire HTML007176. Les matrices de rôles et le catalogue Design System restent des documents de référence, sans invention de parcours ni de permissions. Voir `docs/claude-design-integration.md`.

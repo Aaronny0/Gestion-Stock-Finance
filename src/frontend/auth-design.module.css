@@ -74,7 +74,7 @@
 }
 
 .page {
-  --auth-primary:#057176;
+  --auth-primary:#007176;
   min-height:100svh;
   display:flex;
   background:#f9f9fc;
@@ -115,7 +115,7 @@
 }
 
 .page :focus-visible {
-  outline:3px solid #057176;
+  outline:3px solid #007176;
   outline-offset:3px;
 }
 
@@ -160,7 +160,7 @@
   right:-260px;
   bottom:-240px;
   border-radius:50%;
-  background:radial-gradient(closest-side,#0571761f,transparent 70%);
+  background:radial-gradient(closest-side,#0071761f,transparent 70%);
   pointer-events:none;
 }
 
@@ -530,7 +530,7 @@
 .inputWrap input:focus,.field select:focus {
   outline:none;
   border-color:var(--auth-primary);
-  box-shadow:0 0 0 3px #0571762e;
+  box-shadow:0 0 0 3px #0071762e;
 }
 
 .inputWrap input::placeholder {
@@ -689,7 +689,7 @@
 
 .demo:hover {
   border-color:#a2ced0;
-  box-shadow:0 2px 10px #05717614;
+  box-shadow:0 2px 10px #00717614;
 }
 
 .demo>span {

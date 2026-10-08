@@ -8,6 +8,7 @@ const base = process.env.TEST_BASE_URL || 'http://localhost:3000';
     const page = await browser.newPage({viewport:{width:1280,height:900}});
     const calls=[];page.on('request',r=>{if(/\/api\/v1\/|\/auth\/v1\//.test(r.url()))calls.push(r.url());});
     await page.goto(base+'/demo');await page.getByRole('heading',{name:/Bonjour/}).waitFor();
+    await page.locator('[data-qa="workspace-sidebar"]').getByRole('button',{name:'Opérations',exact:true}).click();
     await page.getByRole('link',{name:'Caisse / Vendre',exact:true}).click();
     await page.locator('[data-qa="product-card"]').first().click();
     assert.equal(await page.locator('[data-qa="cart-item"]').count(),1);

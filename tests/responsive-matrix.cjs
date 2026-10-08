@@ -100,7 +100,11 @@ const sizes = [
         if (route.startsWith("/demo"))
           await page.locator('[data-qa="workspace-main"] h1').waitFor();
         else await page.locator("main h1").first().waitFor();
-        await page.waitForTimeout(70);
+        if (route === "/demo/sales/sale0") await page.getByRole("dialog").waitFor();
+        // Inspect the final drawer geometry rather than a frame during its transition.
+        await page.getByRole("dialog").evaluateAll(dialogs =>
+          Promise.all(dialogs.flatMap(dialog => dialog.getAnimations().map(animation => animation.finished)))
+        );
         const issue = await page.evaluate(() => {
           const width = innerWidth;
           const bad = [

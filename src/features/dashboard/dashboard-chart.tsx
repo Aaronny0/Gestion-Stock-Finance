@@ -12,7 +12,6 @@ export function DashboardChart({
   currency,
   showMargin,
   salesHref,
-  analyticsHref,
 }: {
   rows: Day[];
   currency: string;
@@ -47,53 +46,56 @@ export function DashboardChart({
   });
   return (
     <section className={styles.card} aria-labelledby="activity-title">
-      <div className={styles.cardHeading}>
-        <h2 id="activity-title">Activité</h2>
-        {analyticsHref && (
-          <Link href={analyticsHref}>
-            Analyses <ArrowUpRight size={14} />
-          </Link>
-        )}
-      </div>
-      <div className={styles.legend}>
-        <span>
-          <i />
-          Chiffre d’affaires
-        </span>
-        {showMargin && (
+      <div className={styles.chartHeading}>
+        <div>
+          <h2 id="activity-title">Activité</h2>
+          <div className={styles.readout} aria-live="polite">
+            <span>
+              {active
+                ? new Date(active.date + "T12:00:00").toLocaleDateString(
+                    "fr-FR",
+                    { day: "numeric", month: "short" },
+                  )
+                : `Total ${rows.length} jours`}{" "}
+              ·
+            </span>
+            <strong>
+              <Money
+                currencyDisplay="code"
+                value={
+                  active?.revenue ??
+                  rows.reduce((sum, row) => sum + row.revenue, 0)
+                }
+                currency={currency}
+              />
+            </strong>
+            {showMargin && (
+              <span>
+                · marge{" "}
+                <Money
+                  currencyDisplay="code"
+                  value={
+                    active?.margin ??
+                    rows.reduce((sum, row) => sum + row.margin, 0)
+                  }
+                  currency={currency}
+                />
+              </span>
+            )}
+          </div>
+        </div>
+        <div className={styles.legend}>
           <span>
-            <i className={styles.marginDot} />
-            Marge brute
+            <i />
+            Chiffre d’affaires
           </span>
-        )}
-        <small>{currency}</small>
-      </div>
-      <div className={styles.readout} aria-live="polite">
-        {active
-          ? new Date(active.date + "T12:00:00").toLocaleDateString("fr-FR", {
-              day: "numeric",
-              month: "short",
-            })
-          : "Total de la période"}
-        <strong>
-          <Money
-            value={
-              active?.revenue ?? rows.reduce((sum, row) => sum + row.revenue, 0)
-            }
-            currency={currency}
-          />
-        </strong>
-        {showMargin && (
-          <span>
-            · marge{" "}
-            <Money
-              value={
-                active?.margin ?? rows.reduce((sum, row) => sum + row.margin, 0)
-              }
-              currency={currency}
-            />
-          </span>
-        )}
+          {showMargin && (
+            <span>
+              <i className={styles.marginDot} />
+              Marge brute
+            </span>
+          )}
+        </div>
       </div>
       {rows.some(
         (row) => row.revenue !== 0 || (showMargin && row.margin !== 0),
@@ -115,7 +117,11 @@ export function DashboardChart({
                 <i key={tick} />
               ))}
             </div>
-            <div className={styles.bars} onMouseLeave={() => setSelected(null)}>
+            <div
+              className={styles.bars}
+              data-short={rows.length <= 7}
+              onMouseLeave={() => setSelected(null)}
+            >
               {rows.map((row) => (
                 <Link
                   key={row.date}

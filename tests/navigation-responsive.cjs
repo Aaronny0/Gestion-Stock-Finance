@@ -8,48 +8,76 @@ async function waitWorkspace(page) {
 }
 
 async function openMobileMenu(page) {
-  await page.getByRole("button", { name: "Ouvrir le menu", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Ouvrir le menu", exact: true })
+    .click();
   const menu = page.getByRole("dialog", { name: "Navigation VORTEX" });
   await menu.waitFor();
   return menu;
 }
 
-async function navLinks(page, mobile) {
-  if (mobile) {
-    const menu = await openMobileMenu(page);
-    const links = await menu.locator('[data-qa="nav-item"]').evaluateAll((els) =>
-      els.map((el) => ({ name: el.textContent.trim(), url: el.getAttribute("href") })),
-    );
-    await page.keyboard.press("Escape");
-    await menu.waitFor({ state: "hidden" });
-    await page.waitForFunction(() => document.activeElement?.getAttribute("aria-label") === "Ouvrir le menu");
-    return links;
+const sections = ["Pilotage", "Opérations", "Finance", "Administration"];
+async function collectLinks(root) {
+  const links = [];
+  for (const section of sections) {
+    const button = root.getByRole("button", { name: section, exact: true });
+    if (await button.count()) {
+      await button.click();
+      links.push(
+        ...(await root
+          .locator('[data-qa="nav-item"]')
+          .evaluateAll((els) =>
+            els.map((el) => ({
+              name: el.textContent.trim(),
+              url: el.getAttribute("href"),
+            })),
+          )),
+      );
+    }
   }
-  return page.locator('[data-qa="workspace-sidebar"] [data-qa="nav-item"]').evaluateAll((els) =>
-    els.map((el) => ({ name: el.textContent.trim(), url: el.getAttribute("href") })),
-  );
+  return links;
 }
-
-async function navigateByMenu(page, mobile, url) {
+async function navLinks(page, mobile) {
+  const root = mobile
+    ? await openMobileMenu(page)
+    : page.locator('[data-qa="workspace-sidebar"]');
+  const links = await collectLinks(root);
   if (mobile) {
-    const menu = await openMobileMenu(page);
-    await menu.locator(`[data-qa="nav-item"][href="${url}"]`).click();
-    await menu.waitFor({ state: "hidden" });
-  } else {
-    await page.locator(`[data-qa="workspace-sidebar"] [data-qa="nav-item"][href="${url}"]`).click();
+    await page.keyboard.press("Escape");
+    await root.waitFor({ state: "hidden" });
+    await page.waitForFunction(
+      () =>
+        document.activeElement?.getAttribute("aria-label") === "Ouvrir le menu",
+    );
   }
+  return links;
+}
+async function navigateByMenu(page, mobile, url) {
+  const root = mobile
+    ? await openMobileMenu(page)
+    : page.locator('[data-qa="workspace-sidebar"]');
+  for (const section of sections) {
+    const button = root.getByRole("button", { name: section, exact: true });
+    if (await button.count()) {
+      await button.click();
+      if (await root.locator(`[data-qa="nav-item"][href="${url}"]`).count())
+        break;
+    }
+  }
+  await root.locator(`[data-qa="nav-item"][href="${url}"]`).click();
+  if (mobile) await root.waitFor({ state: "hidden" });
   await page.waitForURL("**" + url);
   await waitWorkspace(page);
-
+  const currentRoot = mobile ? await openMobileMenu(page) : root;
+  assert.equal(
+    await currentRoot
+      .locator(`[data-qa="nav-item"][href="${url}"]`)
+      .getAttribute("aria-current"),
+    "page",
+  );
   if (mobile) {
-    const menu = await openMobileMenu(page);
-    const current = menu.locator(`[data-qa="nav-item"][href="${url}"]`);
-    assert.equal(await current.getAttribute("aria-current"), "page");
     await page.keyboard.press("Escape");
-    await menu.waitFor({ state: "hidden" });
-  } else {
-    const current = page.locator(`[data-qa="workspace-sidebar"] [data-qa="nav-item"][href="${url}"]`);
-    assert.equal(await current.getAttribute("aria-current"), "page");
+    await currentRoot.waitFor({ state: "hidden" });
   }
 }
 
@@ -63,15 +91,27 @@ async function navigateByMenu(page, mobile, url) {
   const checks = [];
   const errors = [];
 
-  for (const [width, height] of (process.env.QA_NAVIGATION_ONLY_ROLES === "1" ? [] : [
-    [360, 800],
-    [820, 1180],
-    [1024, 768],
-    [844, 390],
-  ])) {
+  for (const [width, height] of process.env.QA_NAVIGATION_ONLY_ROLES === "1"
+    ? []
+    : [
+        [360, 800],
+        [820, 1180],
+        [1024, 768],
+        [844, 390],
+      ]) {
     const mobile = width < 1024;
-    const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: width < 768 });
-    if (process.env.QA_DISABLE_NATIVE_NAVIGATION === "1") await page.addInitScript(() => Object.defineProperty(window, "navigation", { value: undefined, configurable: true }));
+    const page = await browser.newPage({
+      viewport: { width, height },
+      hasTouch: true,
+      isMobile: width < 768,
+    });
+    if (process.env.QA_DISABLE_NATIVE_NAVIGATION === "1")
+      await page.addInitScript(() =>
+        Object.defineProperty(window, "navigation", {
+          value: undefined,
+          configurable: true,
+        }),
+      );
     page.setDefaultTimeout(20000);
     page.on("pageerror", (e) => errors.push(e.message));
 
@@ -80,37 +120,66 @@ async function navigateByMenu(page, mobile, url) {
     const links = await navLinks(page, mobile);
     if (process.env.QA_NAVIGATION_ONLY_DRAFTS !== "1") {
       for (const link of links) await navigateByMenu(page, mobile, link.url);
-      checks.push(`${width}x${height}: ${links.length} menus accessibles et états actifs cohérents`);
+      checks.push(
+        `${width}x${height}: ${links.length} menus accessibles et états actifs cohérents`,
+      );
     }
 
     await page.goto(base + "/demo/products/p0");
-    await page.getByRole("button", { name: "Revenir à la page précédente" }).click();
+    await page
+      .getByRole("button", { name: "Revenir à la page précédente" })
+      .click();
     await page.waitForURL("**/demo/stock");
-    const search = page.getByRole("searchbox", { name: "Rechercher dans stock" });
+    const search = page.getByRole("searchbox", {
+      name: "Rechercher dans stock",
+    });
     await search.fill("iPhone");
-    await page.getByLabel("Ouvrir le détail p0").filter({ visible: true }).click();
+    await page
+      .getByLabel("Ouvrir le détail p0")
+      .filter({ visible: true })
+      .click();
     await page.waitForURL("**/demo/products/p0");
-    await page.getByRole("button", { name: "Revenir à la page précédente" }).click();
+    await page
+      .getByRole("button", { name: "Revenir à la page précédente" })
+      .click();
     await page.waitForURL("**/demo/stock");
     assert.equal(await search.inputValue(), "iPhone");
 
     if (width < 768) {
-      const sort = page.getByRole("combobox", { name: "Trier stock", exact: true });
+      const sort = page.getByRole("combobox", {
+        name: "Trier stock",
+        exact: true,
+      });
       await sort.click();
       await page.getByRole("option", { name: "Produit", exact: true }).click();
       await page.getByRole("button", { name: "Inverser le tri stock" }).click();
-      await page.getByLabel("Ouvrir le détail p0").filter({ visible: true }).click();
+      await page
+        .getByLabel("Ouvrir le détail p0")
+        .filter({ visible: true })
+        .click();
       await page.waitForURL("**/demo/products/p0");
-      await page.getByRole("button", { name: "Revenir à la page précédente" }).click();
+      await page
+        .getByRole("button", { name: "Revenir à la page précédente" })
+        .click();
       await page.waitForURL("**/demo/stock");
       assert.ok((await sort.innerText()).includes("Produit"));
-      assert.ok((await page.getByRole("button", { name: "Inverser le tri stock" }).innerText()).includes("Décroissant"));
+      assert.ok(
+        (
+          await page
+            .getByRole("button", { name: "Inverser le tri stock" })
+            .innerText()
+        ).includes("Décroissant"),
+      );
     }
-    checks.push(`${width}px: retour, recherche${width < 768 ? " et tri mobile" : ""} restaurés`);
+    checks.push(
+      `${width}px: retour, recherche${width < 768 ? " et tri mobile" : ""} restaurés`,
+    );
 
     await navigateByMenu(page, mobile, "/demo/pos");
     await page.locator('[data-qa="product-card"]').first().click();
-    const cancelledTraversal = page.waitForEvent("dialog").then((d) => d.dismiss());
+    const cancelledTraversal = page
+      .waitForEvent("dialog")
+      .then((d) => d.dismiss());
     await page.evaluate(() => history.back());
     await cancelledTraversal;
     await page.waitForURL("**/demo/pos");
@@ -119,7 +188,12 @@ async function navigateByMenu(page, mobile, url) {
     page.once("dialog", (d) => d.accept());
     await page.evaluate(() => history.back());
     await page.waitForURL("**/demo/stock");
-    assert.equal(await page.getByRole("searchbox", { name: "Rechercher dans stock" }).inputValue(), "iPhone");
+    assert.equal(
+      await page
+        .getByRole("searchbox", { name: "Rechercher dans stock" })
+        .inputValue(),
+      "iPhone",
+    );
     await page.evaluate(() => history.forward());
     await page.waitForURL("**/demo/pos");
     assert.equal(await page.locator('[data-qa="cart-item"]').count(), 0);
@@ -130,38 +204,82 @@ async function navigateByMenu(page, mobile, url) {
     const dialog = page.getByRole("dialog").last();
     await dialog.waitFor();
     const bounds = await dialog.boundingBox();
-    assert.ok(bounds && bounds.x >= 0 && bounds.x + bounds.width <= width + 1 && bounds.y >= 0 && bounds.y + bounds.height <= height + 1);
+    assert.ok(
+      bounds &&
+        bounds.x >= 0 &&
+        bounds.x + bounds.width <= width + 1 &&
+        bounds.y >= 0 &&
+        bounds.y + bounds.height <= height + 1,
+    );
     await dialog.getByRole("button", { name: "Fermer", exact: true }).click();
     await dialog.waitFor({ state: "hidden" });
-    await page.screenshot({ path: `output/responsive-qa/team-${width}.png`, fullPage: true });
+    await page.screenshot({
+      path: `output/responsive-qa/team-${width}.png`,
+      fullPage: true,
+    });
     checks.push(`${width}px: formulaire équipe contenu dans la fenêtre`);
     await page.close();
   }
 
   if (process.env.QA_NAVIGATION_ONLY_DRAFTS !== "1") {
-  const rolePage = await browser.newPage({ viewport: { width: 820, height: 1180 }, hasTouch: true });
-  rolePage.setDefaultTimeout(15000);
-  rolePage.on("pageerror", (e) => errors.push(e.message));
-  await rolePage.goto(base + "/demo");
-  await waitWorkspace(rolePage);
-  for (const role of ["manager", "cashier", "stock", "accountant"]) {
-    await rolePage.getByRole("combobox", { name: "Rôle de démonstration" }).selectOption(role);
-    const landing = { manager: "/demo", cashier: "/demo/pos", stock: "/demo/stock", accountant: "/demo/accounting" }[role];
-    await rolePage.waitForURL("**" + landing);
+    const rolePage = await browser.newPage({
+      viewport: { width: 820, height: 1180 },
+      hasTouch: true,
+    });
+    rolePage.setDefaultTimeout(15000);
+    rolePage.on("pageerror", (e) => errors.push(e.message));
+    await rolePage.goto(base + "/demo");
     await waitWorkspace(rolePage);
-    const links = await navLinks(rolePage, true);
-    for (const { url } of links) {
-      await navigateByMenu(rolePage, true, url);
-      assert.equal(await rolePage.getByRole("heading", { name: "Accès réservé" }).count(), 0);
+    for (const role of ["manager", "cashier", "stock", "accountant"]) {
+      await rolePage
+        .getByRole("combobox", { name: "Rôle de démonstration" })
+        .selectOption(role);
+      const landing = {
+        manager: "/demo",
+        cashier: "/demo/pos",
+        stock: "/demo/stock",
+        accountant: "/demo/accounting",
+      }[role];
+      await rolePage.waitForURL("**" + landing);
+      await waitWorkspace(rolePage);
+      const links = await navLinks(rolePage, true);
+      for (const { url } of links) {
+        await navigateByMenu(rolePage, true, url);
+        assert.equal(
+          await rolePage
+            .getByRole("heading", { name: "Accès réservé" })
+            .count(),
+          0,
+        );
+      }
+      checks.push(
+        `${role}: ${links.length} menus autorisés ouverts sans accès refusé`,
+      );
     }
-    checks.push(`${role}: ${links.length} menus autorisés ouverts sans accès refusé`);
-  }
-  await rolePage.close();
+    await rolePage.close();
   }
 
   assert.deepEqual(errors, []);
-  const variant = process.env.QA_NAVIGATION_ONLY_ROLES === "1" ? "navigation-roles" : process.env.QA_NAVIGATION_ONLY_DRAFTS === "1" ? "navigation-drafts" : "navigation";
-  fs.writeFileSync(`output/responsive-qa/${variant}.json`, JSON.stringify({ date: new Date().toISOString(), nativeNavigationDisabled: process.env.QA_DISABLE_NATIVE_NAVIGATION === "1", checks, errors }, null, 2));
+  const variant =
+    process.env.QA_NAVIGATION_ONLY_ROLES === "1"
+      ? "navigation-roles"
+      : process.env.QA_NAVIGATION_ONLY_DRAFTS === "1"
+        ? "navigation-drafts"
+        : "navigation";
+  fs.writeFileSync(
+    `output/responsive-qa/${variant}.json`,
+    JSON.stringify(
+      {
+        date: new Date().toISOString(),
+        nativeNavigationDisabled:
+          process.env.QA_DISABLE_NATIVE_NAVIGATION === "1",
+        checks,
+        errors,
+      },
+      null,
+      2,
+    ),
+  );
   console.log(JSON.stringify({ checks, errors }, null, 2));
   await browser.close();
 })().catch((e) => {

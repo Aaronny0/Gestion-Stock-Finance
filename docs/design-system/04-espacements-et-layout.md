@@ -8,7 +8,7 @@ Source : [DESIGN.md §8–11 et §14](references/claude-original/DESIGN.md).
 | Échelle | 4, 8, 12, 16, 20, 24, 32, 40, 56 px |
 | Gouttières mobile / tablette / desktop | 16 / 24 / 32 px |
 | Gap entre cartes | 16 px |
-| Rail ouvert / replié | 248 / 72 px |
+| Rail ouvert / replié | 312 / 68 px : Sidebar B approuvée le 9 octobre 2026 ; maquette initiale 248 / 72 |
 | Barre de contexte | 64 px |
 | Contenu max | 1440 px |
 | Rayons contrôle / carte / panneau-dialogue | 8 / 12 / 18 px |
@@ -31,3 +31,7 @@ Auth : split décrit comme 5/7 dans DESIGN.md ; HTML et CSS actuel utilisent pan
 `PageContainer` : max1680 px, classes px-4/6/8. `AppSidebar` : w-64 (16rem),72 px replié ; tête72 px. `Topbar` : h-16 (4rem). Le rail devient sombre dans `src/styles/product.css`. Attention : le socle fixe html à14 px ; les utilitaires Tailwind en rem ne valent donc pas leurs conversions habituelles à16 px. Avec la configuration standard --spacing:.25rem, rail ouvert224 px, topbar56 px, gouttières14/21/28 px sont les valeurs dérivées, à confirmer par styles calculés si une surcharge change le root. Les valeurs officielles248/64 et16/24/32 restent en pixels. Voir D24. Ne pas changer ces éléments dans une mission purement documentaire.
 
 Contrôle navigateur en lecture seule sur `/demo`, viewport1440×1000 : root14 px, --spacing .25rem, rail224 px et topbar56 px mesurés. Ce constat décrit le rendu courant et ne change pas les dimensions officielles de Claude.
+
+## Application produit — 9 octobre 2026
+
+Le shell métier utilise `sidebar.module.css` et `claude-product.css` : 312/68 px physiques, contexte64 px, contenu1440 px avec gouttières28 px (HTML) et16 px sur petit écran. La racine16 px est limitée au workspace par `html:has(.claude-workspace)` ; les portails de dialogue héritent ainsi des mêmes tokens. Le site public conserve son socle historique. Les contrôles desktop reprennent leurs dimensions HTML ; les zones tactiles utilisent44 px via pointer:coarse.

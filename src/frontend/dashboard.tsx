@@ -321,16 +321,9 @@ export default function Dashboard() {
                 Le chiffre d’affaires n’est pas le bénéfice.
               </TooltipContent>
             </Tooltip>
-            {can("sales.read") && (
-              <Link
-                href={periodHref("/sales")}
-                aria-label="Consulter les ventes de la période"
-              >
-                <ArrowUpRight size={17} />
-              </Link>
-            )}
           </div>
           <Money
+            currencyDisplay="code"
             value={kpi.revenue}
             currency={currency}
             className={styles.heroAmount}
@@ -360,6 +353,7 @@ export default function Dashboard() {
                 <ArrowUpRight size={14} />
               </span>
               <Money
+                currencyDisplay="code"
                 value={item.value}
                 currency={currency}
                 currencyClassName={styles.metricCurrency}

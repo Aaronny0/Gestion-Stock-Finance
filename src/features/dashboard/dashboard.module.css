@@ -125,9 +125,6 @@
   padding: 8px 32px;
   font-size: 12px;
 }
-.workspace :global(.demo-banner) select {
-  min-height: 44px;
-}
 .workspace button,
 .workspace input,
 .workspace select {
@@ -1182,4 +1179,257 @@
     font-family: "Vortex Dashboard Mono", monospace;
     font-size: 12px;
   }
+}
+
+/* Faithful desktop geometry from Tableau de bord.dc.html. */
+.container {
+  padding: 28px 28px 40px;
+}
+.context {
+  font-size: 13.5px;
+}
+.context > span:first-child:first-letter {
+  text-transform: uppercase;
+}
+.headerActions a,
+.headerActions button {
+  min-height: 40px;
+  height: 40px;
+}
+.presets button {
+  min-height: 28px;
+  height: 28px;
+  font-weight: 500;
+}
+.dateToggle {
+  min-height: 34px;
+  height: 34px;
+  padding: 0 8px;
+}
+.dateToggle > span {
+  display: none;
+}
+.attentionGrid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+}
+.attentionCard {
+  min-height: 132px;
+  gap: 8px;
+}
+.attentionTop > strong {
+  font: 600 22px/1 var(--font-display);
+}
+.textAction {
+  min-height: 20px;
+}
+.cardHeading > a {
+  min-height: 20px;
+}
+.performance {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+}
+.hero {
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.heroLabel button {
+  min-height: 20px;
+  font-size: 13px;
+}
+.heroLabel > a {
+  width: 22px;
+  height: 22px;
+}
+.heroAmount {
+  font-size: 44px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.currency {
+  font-size: 15px;
+}
+.heroMeta {
+  margin: 0;
+  font-size: 12.5px;
+}
+.metrics {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+.metrics > a {
+  padding: 22px 20px;
+  gap: 8px;
+  border-left: 1px solid #eaefef;
+}
+.metrics > a:first-child {
+  padding-left: 20px;
+  border-left: 1px solid #eaefef;
+}
+.metrics [data-money] {
+  font-size: clamp(18px, 1.6vw, 22px);
+  line-height: 1.15;
+  white-space: normal;
+}
+.metrics small {
+  font-size: 12px;
+}
+.split {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+}
+.chartHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.chartHeading h2 {
+  margin-bottom: 6px;
+}
+.legend {
+  gap: 12px;
+  justify-content: flex-end;
+  font-size: 12px;
+  padding-top: 2px;
+}
+.readout {
+  min-height: 0;
+  padding: 0;
+  font-size: 12.5px;
+}
+.readout strong {
+  font-size: 12.5px;
+}
+.chart {
+  height: 220px;
+  gap: 10px;
+  margin-top: 0;
+}
+.axis {
+  width: 36px;
+}
+.bars {
+  gap: 4px;
+}
+.bars[data-short="true"] {
+  gap: 14px;
+}
+.dayPicker {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.dayPicker:focus-within {
+  position: static;
+  width: auto;
+  height: auto;
+  clip-path: none;
+  white-space: normal;
+}
+.cashRow {
+  min-height: 64px;
+}
+.paymentTitle {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+@media (max-width: 1199px) and (min-width: 1024px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 767px) {
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .heroAmount {
+    font-size: 36px;
+  }
+  .chartHeading {
+    flex-wrap: wrap;
+  }
+  .metrics > a {
+    padding: 18px 16px;
+  }
+  .hero {
+    padding: 20px;
+  }
+  .headerActions a,
+  .headerActions button {
+    min-height: 40px;
+  }
+  .container {
+    padding: 24px 16px 40px;
+  }
+}
+@media (pointer: coarse) {
+  .headerActions a,
+  .headerActions button,
+  .presets button,
+  .dateToggle {
+    min-height: 44px;
+    height: auto;
+  }
+  .textAction,
+  .cardHeading > a {
+    min-height: 44px;
+  }
+}
+
+.attentionCard {
+  gap: 14px;
+}
+.attentionText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+.attentionText h3 {
+  font-size: 13.5px;
+}
+.attentionTop > strong {
+  font: 600 28px/1 var(--font-display);
+  letter-spacing: -0.02em;
+}
+.salesTable td {
+  height: 52px;
+}
+.salesTable td:first-child a {
+  min-height: 0;
+  display: inline;
+  font-size: 12.5px;
+}
+.salesTable td {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.paymentValue {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.paymentValue small {
+  min-width: 38px;
+  text-align: right;
+  color: #586767;
+  font-weight: 400;
+  font-size: 12px;
+}
+.tableCurrency {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

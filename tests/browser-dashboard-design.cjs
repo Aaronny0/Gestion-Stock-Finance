@@ -42,10 +42,37 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3100";
     for (const width of [320, 375, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.evaluate(() => document.fonts.ready);
-      await page.waitForFunction(() => getComputedStyle(document.querySelector('[data-collapsed]')).paddingLeft === (innerWidth >= 1024 ? "248px" : "0px"));
       await page.waitForFunction(
-        () => document.documentElement.scrollWidth <= innerWidth,
+        () =>
+          getComputedStyle(document.querySelector(".claude-frame"))
+            .paddingLeft === (innerWidth >= 1024 ? "312px" : "0px"),
       );
+      await page
+        .waitForFunction(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        )
+        .catch(async (error) => {
+          console.error(
+            "Overflow",
+            width,
+            await page.evaluate(() =>
+              [...document.querySelectorAll("body *")]
+                .filter(
+                  (el) =>
+                    el.getBoundingClientRect().right > innerWidth + 1 &&
+                    getComputedStyle(el).display !== "none",
+                )
+                .slice(0, 12)
+                .map((el) => ({
+                  tag: el.tagName,
+                  cls: el.className,
+                  right: el.getBoundingClientRect().right,
+                  text: el.textContent.slice(0, 80),
+                })),
+            ),
+          );
+          throw error;
+        });
       assert.ok(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= innerWidth,
@@ -58,7 +85,9 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3100";
         fullPage: true,
       });
     }
-    await page.getByRole("button", { name: "7 jours", exact: true }).click();
+    await page
+      .getByRole("button", { name: "7 derniers jours", exact: true })
+      .click();
     await page.waitForFunction(() =>
       new URL(location.href).searchParams.has("start"),
     );
@@ -68,16 +97,16 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3100";
         86400000,
       6,
     );
-    await page.getByRole("button", { name: "7 jours", exact: true }).waitFor();
+    await page
+      .getByRole("button", { name: "7 derniers jours", exact: true })
+      .waitFor();
     await page
       .getByRole("button", { name: "Entrée de stock", exact: true })
       .click();
     await page.getByRole("dialog").waitFor();
     await page.keyboard.press("Escape");
     await page.getByRole("dialog").waitFor({ state: "hidden" });
-    const day = page.locator("#dashboard-day");
-    await day.selectOption(dates.get("start"));
-    const drill = page.getByRole("link", { name: "Ouvrir", exact: true });
+    const drill = page.locator('a[aria-label^="Voir les ventes du"]').first();
     const drillUrl = new URL(await drill.getAttribute("href"), base);
     assert.equal(
       drillUrl.searchParams.get("start"),

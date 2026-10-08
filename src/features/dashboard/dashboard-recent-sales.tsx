@@ -65,6 +65,8 @@ export function DashboardRecentSales({
                   </td>
                   <td>
                     <Money
+                      currencyClassName={styles.tableCurrency}
+                      currencyDisplay="code"
                       value={salePosition(sale).netTotal}
                       currency={currency}
                     />
@@ -89,6 +91,8 @@ export function DashboardRecentSales({
                 <span>
                   <StatusBadge value={sale.status} showIcon={false} />
                   <Money
+                    currencyClassName={styles.tableCurrency}
+                    currencyDisplay="code"
                     value={salePosition(sale).netTotal}
                     currency={currency}
                   />

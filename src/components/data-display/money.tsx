@@ -10,6 +10,7 @@ interface MoneyProps extends React.ComponentProps<"span"> {
   locale?: string;
   minorUnits?: boolean;
   currencyClassName?: string;
+  currencyDisplay?: Intl.NumberFormatOptions["currencyDisplay"];
 }
 
 function currencyDecimals(currency: string, locale: string) {
@@ -27,6 +28,7 @@ function Money({
   locale = "fr-FR",
   minorUnits = true,
   currencyClassName,
+  currencyDisplay = "symbol",
   className,
   ...props
 }: MoneyProps) {
@@ -38,6 +40,7 @@ function Money({
   const formatted = new Intl.NumberFormat(locale, {
     style: "currency",
     currency,
+    currencyDisplay,
     maximumFractionDigits: decimals,
   }).format(normalized);
 
@@ -54,6 +57,7 @@ function Money({
         ? new Intl.NumberFormat(locale, {
             style: "currency",
             currency,
+            currencyDisplay,
             maximumFractionDigits: decimals,
           })
             .formatToParts(normalized)

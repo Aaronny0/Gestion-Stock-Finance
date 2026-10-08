@@ -1,0 +1,275 @@
+/* Exact light product palette from Claude HTML. Scoped to the business workspace. */
+@font-face {
+  font-family: VortexGeist;
+  src: url("/auth/font-3.ttf");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: VortexGeist;
+  src: url("/auth/font-4.ttf");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: VortexGeist;
+  src: url("/auth/font-5.ttf");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: VortexBricolage;
+  src: url("/auth/font-1.ttf");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: VortexBricolage;
+  src: url("/auth/font-2.ttf");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: VortexMono;
+  src: url("/auth/font-8.ttf");
+  font-weight: 500;
+  font-display: swap;
+}
+html:has(.claude-workspace) {
+  font-size: 16px;
+  --background: #f9f9fc;
+  --foreground: #0a1a1b;
+  --card: #fff;
+  --card-foreground: #0a1a1b;
+  --popover: #fff;
+  --popover-foreground: #0a1a1b;
+  --primary: #007176;
+  --primary-hover: #045c60;
+  --primary-foreground: #fbfbfe;
+  --secondary: #eff4f4;
+  --secondary-foreground: #344344;
+  --muted: #eff4f4;
+  --muted-foreground: #586767;
+  --accent: #dff2f2;
+  --accent-foreground: #04585c;
+  --border: #dde3e4;
+  --input: #7d898a;
+  --ring: #007176;
+  --success: #135c30;
+  --success-background: #e4f9e9;
+  --warning: #864900;
+  --warning-background: #fff2d6;
+  --destructive: #9e1618;
+  --destructive-background: #ffede9;
+  --info: #005892;
+  --info-background: #e4f5ff;
+  --font-sans: VortexGeist, sans-serif;
+  --font-display: VortexBricolage, sans-serif;
+  --font-mono: VortexMono, monospace;
+  color-scheme: light;
+}
+.claude-workspace {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  background: #f9f9fc;
+  color: #0a1a1b;
+}
+.claude-workspace .vortex-topbar {
+  height: 64px;
+  background: #f9f9fcdb;
+  backdrop-filter: blur(10px);
+  padding: 0 28px;
+  border-color: #dde3e4;
+}
+.claude-workspace .demo-banner {
+  background: #e4f5ff;
+  color: #005892;
+  border-color: #cde9fb;
+}
+.claude-workspace .demo-banner-inner {
+  max-width: 1440px;
+  padding: 8px 28px;
+  font-size: 12.5px;
+  min-height: 46px;
+}
+.claude-workspace .demo-banner select {
+  height: 30px;
+  min-height: 30px;
+  font-size: 12px;
+}
+.claude-workspace [data-qa="workspace-main"] > div {
+  max-width: 1440px;
+  padding: 28px 28px 40px;
+}
+.claude-workspace .vortex-page-header h1 {
+  margin: 0;
+  font: 600 30px/1.1 var(--font-display);
+  letter-spacing: -0.025em;
+}
+.claude-workspace .vortex-page-header p {
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.claude-workspace .vortex-page-header button,
+.claude-workspace .vortex-page-header a {
+  min-height: 40px;
+  height: 40px;
+  padding: 0 14px;
+  font-size: 13.5px;
+  border-radius: 8px;
+}
+.claude-workspace footer {
+  padding: 16px 28px;
+  font-size: 12px;
+}
+.claude-workspace button,
+.claude-workspace input,
+.claude-workspace select {
+  font-family: inherit;
+}
+@media (min-width: 1024px) {
+  .claude-frame {
+    padding-left: 312px !important;
+  }
+  .claude-frame[data-collapsed="true"] {
+    padding-left: 68px !important;
+  }
+}
+@media (max-width: 767px) {
+  .claude-workspace [data-qa="workspace-main"] > div {
+    padding: 24px 16px 40px;
+  }
+  .claude-workspace .vortex-topbar {
+    padding: 0 16px;
+  }
+  .claude-workspace .demo-banner-inner {
+    padding: 8px 16px;
+  }
+  .claude-workspace .vortex-page-header h1 {
+    font-size: 28px;
+  }
+}
+@media (pointer: coarse) {
+  .claude-workspace .vortex-page-header a,
+  .claude-workspace .vortex-page-header button,
+  .claude-workspace .demo-banner select {
+    min-height: 44px;
+    height: auto;
+  }
+}
+
+.claude-workspace .demo-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: row;
+  gap: 8px 16px;
+  flex-wrap: wrap;
+}
+.claude-workspace .demo-banner-inner > span {
+  font-size: 12.5px;
+}
+.claude-workspace .demo-banner-inner > div {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.claude-workspace .demo-banner-inner label {
+  gap: 8px;
+}
+.claude-workspace .demo-banner-inner select {
+  width: auto;
+  max-width: 180px;
+  min-height: 30px;
+  height: 30px;
+  padding: 0 10px;
+}
+.claude-workspace
+  .vortex-topbar
+  button[aria-label="Ouvrir le menu utilisateur"]
+  > span:first-child {
+  background: #dff2f2;
+  color: #04585c;
+  width: 32px;
+  height: 32px;
+  font-weight: 600;
+}
+.claude-workspace .vortex-topbar button[aria-label="Notifications"] {
+  border: 1px solid #dde3e4;
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+}
+.claude-workspace .vortex-topbar [aria-label="Boutique active"] {
+  height: 40px;
+  min-height: 40px;
+  font-size: 13px;
+}
+@media (max-width: 767px) {
+  .claude-workspace .demo-banner-inner > div {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .claude-workspace .demo-banner-inner select {
+    min-height: 44px;
+  }
+  .claude-workspace .demo-banner-inner label > span {
+    display: inline;
+  }
+  .claude-workspace .vortex-topbar > div:first-child > nav {
+    display: flex;
+  }
+  .claude-workspace
+    .vortex-topbar
+    button[aria-label="Ouvrir le menu utilisateur"]
+    > span:nth-child(2) {
+    display: none;
+  }
+  .claude-workspace .vortex-topbar [aria-label="Boutique active"] {
+    max-width: 170px;
+  }
+}
+@media (max-width: 600px) {
+  .claude-workspace .vortex-topbar > div:first-child {
+    flex: 0 0 auto;
+    margin-right: auto;
+  }
+  .claude-workspace .vortex-topbar > div:first-child > nav {
+    display: none;
+  }
+  .claude-workspace .vortex-topbar [aria-label="Boutique active"] {
+    max-width: clamp(100px, calc(100vw - 180px), 170px);
+  }
+}
+/* Keep shared financial metrics within the HTML summary minimum column width. */
+.claude-workspace .finance-summary {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+}
+.claude-workspace .finance-summary .text-2xl {
+  font-size: clamp(18px, 1.6vw, 22px);
+  font-weight: 600;
+}
+/* The wider approved rail leaves less room at the desktop breakpoint. */
+@media (min-width: 1024px) {
+  .claude-workspace .lg\:flex-row {
+    flex-wrap: wrap;
+  }
+}
+.claude-workspace .bg-card a.inline-flex {
+  max-width: 100%;
+  height: auto;
+  white-space: normal;
+  text-align: center;
+}
+@media (pointer: coarse) {
+  .claude-workspace .demo-banner-inner select,
+  .claude-workspace .vortex-topbar [aria-label="Boutique active"],
+  .claude-workspace .vortex-topbar button[aria-label="Notifications"] {
+    min-height: 44px;
+  }
+  .claude-workspace .vortex-topbar button[aria-label="Notifications"] {
+    width: 44px;
+  }
+}

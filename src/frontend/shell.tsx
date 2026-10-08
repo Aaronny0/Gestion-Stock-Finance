@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, BookOpen, Check, X } from "lucide-react";
+import { SalesState } from "@/features/sales/sales-state";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { MobileNavigation } from "@/components/layout/mobile-navigation";
 import { PageContainer } from "@/components/layout/page-container";
@@ -77,8 +78,12 @@ function Shell({ children }: { children: ReactNode }) {
     }
   }, [session, path, can, href, router]);
 
-  if (publicRoutes.includes(pathname) || !routePermission(path)) return children;
+  if (publicRoutes.includes(pathname) || !routePermission(path))
+    return children;
 
+  const salesDesign =
+    path === "/sales" ||
+    (path.startsWith("/sales/") && path !== "/sales/credits");
   const required = routePermission(path);
   const allowed = path.startsWith("/cash")
     ? can("cash.open_close") || can("finance.read")
@@ -102,14 +107,16 @@ function Shell({ children }: { children: ReactNode }) {
   if (offline) {
     notifications.push({
       id: "offline",
-      label: "Vous êtes hors connexion. Les opérations réelles nécessitent une connexion.",
+      label:
+        "Vous êtes hors connexion. Les opérations réelles nécessitent une connexion.",
       tone: "warning",
     });
   }
   if (demo) {
     notifications.push({
       id: "demo",
-      label: "Le mode démonstration utilise des données fictives réinitialisées au rechargement.",
+      label:
+        "Le mode démonstration utilise des données fictives réinitialisées au rechargement.",
       tone: "info",
     });
   }
@@ -150,11 +157,19 @@ function Shell({ children }: { children: ReactNode }) {
     session,
     storeId,
     stockAlertCount,
+    onStoreChange: setStoreId,
+    onLogout: logout,
+    notifications,
     onOrganizationChange: setOrganization,
   };
 
   return (
-    <div className={cn("vortex-workspace min-h-screen bg-background text-foreground", path === "/" && dashboardStyles.workspace)}>
+    <div
+      className={cn(
+        "vortex-workspace claude-workspace min-h-screen bg-background text-foreground",
+        path === "/" && dashboardStyles.workspace,
+      )}
+    >
       <a className="skip-link" href="#main">
         Aller au contenu
       </a>
@@ -174,8 +189,8 @@ function Shell({ children }: { children: ReactNode }) {
       <div
         className={cn(
           "min-h-screen pb-16 transition-[padding] duration-200 lg:pb-0",
-          path === "/" && dashboardStyles.frame,
-          sidebarCollapsed ? "lg:pl-[72px]" : "lg:pl-64",
+          "claude-frame",
+          sidebarCollapsed ? "lg:pl-[68px]" : "lg:pl-[312px]",
         )}
         data-collapsed={sidebarCollapsed}
       >
@@ -197,73 +212,122 @@ function Shell({ children }: { children: ReactNode }) {
           <div className="demo-banner border-b border-border bg-accent/55">
             <div className="demo-banner-inner mx-auto flex min-h-11 w-full max-w-[1680px] flex-col justify-between gap-2 px-4 py-2 text-xs text-accent-foreground sm:flex-row sm:items-center sm:px-6 xl:px-8">
               <span>
-                <strong>Démonstration</strong> · Données fictives, réinitialisées au rechargement.
+                <strong>Démonstration</strong> · Données fictives,
+                réinitialisées au rechargement.
               </span>
-              <div className="flex flex-wrap items-center gap-4"><Link className="font-semibold underline underline-offset-4" href="/signup">Demander un accès</Link><label className="flex items-center gap-2 font-medium">
-                <span>Tester le rôle</span>
-                <select
-                  aria-label="Rôle de démonstration"
-                  value={session?.user.role ?? "owner"}
-                  onChange={(event) => setRole(event.target.value as Role)}
-                  className="h-9 min-h-9 rounded-md border-border bg-card px-2 py-1 text-xs text-foreground"
+              <div className="flex flex-wrap items-center gap-4">
+                <Link
+                  className="font-semibold underline underline-offset-4"
+                  href="/signup"
                 >
-                  {Object.entries(roleLabels).map(([value, label]) => (
-                    <option value={value} key={value}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </label></div>
+                  Demander un accès
+                </Link>
+                <label className="flex items-center gap-2 font-medium">
+                  <span>Tester le rôle</span>
+                  <select
+                    aria-label="Rôle de démonstration"
+                    value={session?.user.role ?? "owner"}
+                    onChange={(event) => setRole(event.target.value as Role)}
+                    className="h-9 min-h-9 rounded-md border-border bg-card px-2 py-1 text-xs text-foreground"
+                  >
+                    {Object.entries(roleLabels).map(([value, label]) => (
+                      <option value={value} key={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
             </div>
           </div>
         )}
 
-        <main id="main" data-qa="workspace-main" className="min-h-[calc(100vh-120px)]">
-          <PageContainer className={path === "/" ? dashboardStyles.container : undefined}>
+        <main
+          id="main"
+          data-qa="workspace-main"
+          className="min-h-[calc(100vh-120px)]"
+        >
+          <PageContainer
+            className={path === "/" ? dashboardStyles.container : undefined}
+          >
             <div className="space-y-4">
               {offline && (
                 <Alert error>
-                  Vous êtes hors connexion. Les opérations réelles nécessitent une connexion.
+                  Vous êtes hors connexion. Les opérations réelles nécessitent
+                  une connexion.
                 </Alert>
               )}
 
-              {session && storeId !== session.defaultStoreId && storeId !== "all" && (
-                <Alert>
-                  Vous travaillez dans la boutique {session.stores.find((store) => store.id === storeId)?.name}.
-                </Alert>
-              )}
+              {session &&
+                storeId !== session.defaultStoreId &&
+                storeId !== "all" && (
+                  <Alert>
+                    Vous travaillez dans la boutique{" "}
+                    {session.stores.find((store) => store.id === storeId)?.name}
+                    .
+                  </Alert>
+                )}
 
               {storeId === "all" && !allAllowed && (
-                <Alert error>Sélectionnez une boutique précise pour travailler sur cet écran.</Alert>
+                <Alert error>
+                  Sélectionnez une boutique précise pour travailler sur cet
+                  écran.
+                </Alert>
               )}
 
-              {path !== "/" && (
-                <nav aria-label="Retour" className="flex">
-                  <Button variant="outline" size="sm" onClick={goBack} aria-label="Revenir à la page précédente">
-                    <ArrowLeft />
-                    Retour
-                  </Button>
-                </nav>
-              )}
+              {path !== "/" &&
+                path.split("/").filter(Boolean).length > 1 &&
+                !path.startsWith("/sales/") && (
+                  <nav aria-label="Retour" className="flex">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={goBack}
+                      aria-label="Revenir à la page précédente"
+                    >
+                      <ArrowLeft />
+                      Retour
+                    </Button>
+                  </nav>
+                )}
 
               {loading ? (
-                path === "/" ? <div className={dashboardStyles.skeleton} role="status" aria-label="Chargement du tableau de bord"><div /><div /><div /><div /></div> : <Skeleton />
+                path === "/" ? (
+                  <div
+                    className={dashboardStyles.skeleton}
+                    role="status"
+                    aria-label="Chargement du tableau de bord"
+                  >
+                    <div />
+                    <div />
+                    <div />
+                    <div />
+                  </div>
+                ) : salesDesign ? (
+                  <SalesState />
+                ) : (
+                  <Skeleton />
+                )
               ) : error ? (
-                <Card className="mx-auto max-w-xl">
-                  <CardContent className="space-y-4 p-6">
-                    <Alert error>{error}</Alert>
-                    <div className="flex flex-wrap gap-2">
-                      <Button variant="outline" onClick={reload}>
-                        Réessayer
-                      </Button>
-                      <Button asChild>
-                        <Link href="/demo">
-                          Explorer la démonstration <ArrowUpRight />
-                        </Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                salesDesign ? (
+                  <SalesState error={error} onRetry={reload} />
+                ) : (
+                  <Card className="mx-auto max-w-xl">
+                    <CardContent className="space-y-4 p-6">
+                      <Alert error>{error}</Alert>
+                      <div className="flex flex-wrap gap-2">
+                        <Button variant="outline" onClick={reload}>
+                          Réessayer
+                        </Button>
+                        <Button asChild>
+                          <Link href="/demo">
+                            Explorer la démonstration <ArrowUpRight />
+                          </Link>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
               ) : !allowed ? (
                 <Card className="mx-auto max-w-lg">
                   <CardContent className="flex flex-col items-center px-6 py-12 text-center">
@@ -304,7 +368,8 @@ function Shell({ children }: { children: ReactNode }) {
           <div className="mx-auto flex w-full max-w-[1680px] flex-col justify-between gap-1 sm:flex-row">
             <span>VORTEX · Votre activité, en toute clarté.</span>
             <span>
-              {session?.organization.currency ?? "FCFA"} · {session?.organization.timezone ?? "Gestion Stock & Finance"}
+              {session?.organization.currency ?? "FCFA"} ·{" "}
+              {session?.organization.timezone ?? "Gestion Stock & Finance"}
             </span>
           </div>
         </footer>
@@ -338,7 +403,8 @@ export default function App() {
 export function FrontendShell({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const pathname = usePathname();
-  const mode = pathname === "/demo" || pathname.startsWith("/demo/") ? "demo" : "live";
+  const mode =
+    pathname === "/demo" || pathname.startsWith("/demo/") ? "demo" : "live";
   return (
     <WorkspaceProvider key={`${user?.id ?? "anonymous"}:${mode}`}>
       <Shell>{children}</Shell>
