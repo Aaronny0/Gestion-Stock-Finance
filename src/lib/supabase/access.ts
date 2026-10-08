@@ -21,7 +21,7 @@ export async function resolveAccess(req: NextRequest): Promise<AccessDecision> {
   if (error || !data.user) throw new AccessFailure(401, "UNAUTHENTICATED");
   const user = data.user;
   const declared = declaredAccess(user.app_metadata);
-  if (!user.email_confirmed_at || (declared && declared !== "APPROVED"))
+  if (!user.email_confirmed_at || declared !== "APPROVED")
     return accessDecision(!!user.email_confirmed_at, declared, false);
   const base = process.env.FRONTEND_API_URL;
   if (!base) throw new AccessFailure(503, "ACCESS_UNAVAILABLE");

@@ -11,7 +11,6 @@ export type AccessStatus = (typeof accessStatuses)[number];
 export type AccessDecision = {
   status: AccessStatus;
   destination: string;
-  legacy?: boolean;
 };
 export function declaredAccess(
   metadata: Record<string, unknown> | undefined,
@@ -30,9 +29,6 @@ export function accessDecision(
 ): AccessDecision {
   if (!verified)
     return { status: "PENDING_EMAIL", destination: "/verify-email" };
-  // Preserve existing accounts only when the backend confirms an active workspace.
-  if (!status && hasWorkspace)
-    return { status: "APPROVED", destination: "/app/dashboard", legacy: true };
   if (status === "APPROVED")
     return {
       status,

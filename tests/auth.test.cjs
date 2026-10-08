@@ -293,7 +293,7 @@ test('access matrix: verified email alone never authorizes onboarding', () => {
  assert.equal(policy.accessDecision(false,'APPROVED',true).destination,'/verify-email');
  assert.equal(policy.accessDecision(true,'APPROVED',false).destination,'/onboarding');
  assert.equal(policy.accessDecision(true,'APPROVED',true).destination,'/app/dashboard');
- assert.equal(policy.accessDecision(true,undefined,true).legacy,true);
+ assert.equal(policy.accessDecision(true,undefined,true).status,"PENDING_APPROVAL");
  assert.equal(policy.accessDecision(true,'SUSPENDED',true).destination,'/access-pending');
  assert.equal(policy.declaredAccess({vortex_access_status:'nonsense'}),'PENDING_APPROVAL');
 });
@@ -307,39 +307,18 @@ test('proxy refuses pending onboarding and business access before forwarding', a
  }
 });
 
-test('Back Admin requires a server-controlled admin claim and rejects unsafe approval', async () => {
-  const policy = load('src/lib/access-policy.ts');
-  let actor = null, verified = false, writes = [], notifications = [], mailAvailable = true;
-  const id = '00000000-0000-4000-8000-000000000002';
-  const route = load('src/app/api/admin/access-requests/route.ts', {
-    'next/server': next, 'zod': require('zod'), '@/lib/access-policy': policy,
-    '@/lib/supabase/config': {supabaseConfig:()=>({url:'https://identity.test'})},
-    '@/lib/supabase/server': {createSupabaseServer:async()=>({auth:{getUser:async()=>({data:{user:actor}}),getSession:async()=>({data:{session:{access_token:'fixture'}}})}})},
-    '@supabase/supabase-js': {createClient:()=>({auth:{admin:{getUserById:async()=>({data:{user:{id,email:'prospect@example.test',email_confirmed_at:verified?'now':null,app_metadata:{preserve:'value'}}}}),updateUserById:async(...args)=>{writes.push(args);return{};}}}})},
-  }, {process:{env:{SUPABASE_SERVICE_ROLE_KEY:'fixture-only',FRONTEND_API_URL:'https://nest.test/api/v1/'}},fetch:async(url,init)=>{notifications.push({url:String(url),init});return {ok:mailAvailable,json:async()=>({notification:'queued'})};}});
-  const req = {headers:new Headers({origin:'https://vortex.test'}),nextUrl:new URL('https://vortex.test/api/admin/access-requests'),json:async()=>({id,status:'APPROVED'})};
+test('Back Admin proxy forwards identity to NestJS and refuses cross-origin writes', async () => {
+  let token = null; const calls=[];
+  const route=load('src/app/api/admin/access-requests/route.ts', {
+    'next/server':next,
+    '@/lib/supabase/server':{createSupabaseServer:async()=>({auth:{getSession:async()=>({data:{session:token?{access_token:token}:null}})}})},
+  },{process:{env:{FRONTEND_API_URL:'https://nest.test/api/v1/'}},fetch:async(url,init)=>{calls.push({url:String(url),init});return{status:403,json:async()=>({error:'Accès refusé.'})};}});
+  const req={method:'POST',headers:new Headers({origin:'https://vortex.test'}),nextUrl:new URL('https://vortex.test/api/admin/access-requests'),json:async()=>({status:'APPROVED'})};
   assert.equal((await route.POST(req)).status,401);
-  actor={id:'00000000-0000-4000-8000-000000000001',app_metadata:{},user_metadata:{vortex_admin:true}};
-  assert.equal((await route.POST(req)).status,403);
-  actor.app_metadata.vortex_admin=true;
-  assert.equal((await route.POST(req)).status,409);
-  verified=true;
-  const approved=await route.POST(req);
-  assert.equal(approved.data.status,'APPROVED');
-  assert.equal(approved.data.notification,'queued');
-  assert.equal(JSON.parse(notifications[0].init.body).email,'prospect@example.test');
-  assert.equal(notifications[0].init.headers.Authorization,'Bearer fixture');
-  assert.equal(writes.length,1);
-  assert.equal(writes[0][1].app_metadata.preserve,'value');
-  assert.equal(writes[0][1].app_metadata.vortex_access_decision.actor,actor.id);
-  req.headers.set('origin','https://evil.test');
-  assert.equal((await route.POST(req)).status,403);
-  assert.equal(writes.length,1);
-  req.headers.set('origin','https://vortex.test');mailAvailable=false;
-  const withoutMail=await route.POST(req);
-  assert.equal(withoutMail.data.status,'APPROVED');
-  assert.equal(withoutMail.data.notification,'unavailable');
-  assert.equal(writes.length,2);
+  token='fixture';assert.equal((await route.POST(req)).status,403);
+  assert.equal(calls[0].url,'https://nest.test/api/v1/admin/access-requests');
+  assert.equal(calls[0].init.headers.Authorization,'Bearer fixture');
+  req.headers.set('origin','https://evil.test');assert.equal((await route.POST(req)).status,403);assert.equal(calls.length,1);
 });
 
 test('recent login preference is recorded only after a successful callback', async () => {
