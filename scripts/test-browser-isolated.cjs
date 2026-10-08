@@ -1,16 +1,24 @@
 const { createServer } = require('node:http');
 const { spawn } = require('node:child_process');
 const { once } = require('node:events');
-const { user } = require('../tests/browser-auth-fixture.cjs');
+const { user, createBrowserSession } = require('../tests/browser-auth-fixture.cjs');
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 let next, auth;
 (async () => {
   // An ephemeral local Auth server; no request is sent to a user's Supabase project.
-  auth = createServer((req, res) => {
+  auth = createServer(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'authorization,apikey,content-type,x-client-info');
+    res.setHeader('Access-Control-Allow-Headers', 'authorization,apikey,content-type,x-client-info,x-supabase-api-version');
     res.setHeader('Content-Type', 'application/json');
     if (req.method === 'OPTIONS') { res.end(); return; }
+    if (req.method === 'POST' && (req.url === '/auth/v1/verify' || req.url.startsWith('/auth/v1/token?'))) {
+      let raw = ''; for await (const chunk of req) raw += chunk;
+      let body; try { body = JSON.parse(raw); } catch { body = {}; }
+      const valid = body.token_hash === 'qa-valid' || body.auth_code === 'qa-valid';
+      if (!valid) res.statusCode = 400;
+      res.end(JSON.stringify(valid ? createBrowserSession(qaUrl) : {error_code:'otp_expired',msg:'Expired test link'}));
+      return;
+    }
     if (req.url === '/auth/v1/user') res.end(JSON.stringify(user));
     else { res.statusCode = 404; res.end('{}'); }
   });
@@ -23,7 +31,7 @@ let next, auth;
   probe.listen(Number(port)); await once(probe, 'listening');
   await new Promise(resolve => probe.close(resolve));
   const production = process.env.QA_PRODUCTION === '1';
-  const env = { ...process.env, NODE_ENV: production ? 'production' : 'development', VORTEX_BUILD_DIR: '.next-browser-qa', NEXT_PUBLIC_SUPABASE_URL: qaUrl, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'qa-public-key', NEXT_PUBLIC_SUPABASE_ANON_KEY: '', FRONTEND_API_URL: '', QA_SUPABASE_URL: qaUrl, TEST_BASE_URL: base };
+  const env = { ...process.env, NODE_ENV: production ? 'production' : 'development', VORTEX_BUILD_DIR: '.next-browser-qa', APP_ORIGIN: '', NEXT_PUBLIC_SUPABASE_URL: qaUrl, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'qa-public-key', NEXT_PUBLIC_SUPABASE_ANON_KEY: '', FRONTEND_API_URL: '', QA_SUPABASE_URL: qaUrl, TEST_BASE_URL: base };
   if (production) {
     const build = spawn(process.execPath, ['node_modules/next/dist/bin/next','build'], {env,stdio:'inherit'});
     const [code] = await once(build,'exit');

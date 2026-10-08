@@ -13,6 +13,8 @@ const redirects = load('src/lib/supabase/redirect.ts');
 test('OAuth destinations reject external, protocol-relative and unknown routes', () => {
   for (const value of ['https://evil.test', '//evil.test', '/\\evil.test', '/auth/callback', null]) assert.equal(redirects.authDestination(value), '/access-pending');
   assert.equal(redirects.authDestination('/reset-password'), '/reset-password');
+  assert.equal(redirects.authDestination('/verify-email'), '/verify-email');
+  assert.equal(redirects.authDestination('/verify-email?next=https://evil.test'), '/access-pending');
   assert.equal(redirects.authDestination('https://vortex.test/auth/callback?next=%2Finvite%2Factivate%3Ftoken%3Dabc', 'https://vortex.test'), '/invite/activate?token=abc');
   assert.equal(redirects.authDestination('https://evil.test/auth/callback?next=%2Finvite%2Factivate%3Ftoken%3Dabc', 'https://vortex.test'), '/access-pending');
   assert.equal(redirects.authDestination('/invite/activate?token=a%26b&next=https://evil.test'), '/invite/activate?token=a%26b');
@@ -33,7 +35,7 @@ test('API reads a new Bearer for each call, preserves idempotency and status cod
 });
 const next = { NextResponse: { redirect: (url, init) => ({ url: String(url), init }), json: (data, init) => ({ data, ...init, headers: new Headers(init?.headers) }) } };
 test('callback exchanges code and handles missing code, invalid code and provider errors', async () => {
-  for (const [query, fails, expected] of [['?code=ok', false, '/access-pending'], ['', false, '/login?error=auth_callback'], ['?code=bad', true, '/login?error=auth_callback'], ['?error=access_denied&code=ok', false, '/login?error=auth_callback']]) {
+  for (const [query, fails, expected] of [['?code=ok', false, '/access-pending'], ['', false, '/login?error=auth_callback'], ['?code=bad', true, '/login?error=auth_callback'], ['?error=access_denied&code=ok', false, '/login?error=auth_callback'], ['?code=ok&next=/verify-email', false, '/verify-email'], ['?code=bad&next=/verify-email', true, '/verify-email?error=invalid_link']]) {
     let exchanges = 0;
     const route = load('src/app/auth/callback/route.ts', { 'next/server': next, '@/lib/supabase/redirect': redirects, '@/lib/supabase/server': { createSupabaseServer: async () => ({ auth: { exchangeCodeForSession: async () => { exchanges++; return { error: fails ? {} : null }; } } }) } });
     const url = new URL('https://vortex.test/auth/callback'+query); const result = await route.GET({ nextUrl: url });
@@ -91,6 +93,8 @@ test('onboarding retains retry key and excludes password; VORTEX states are dist
 test('confirmation verifies OTP type and never treats an unverified link as success', async () => {
   for (const [query, failed, expected] of [
     ['?token_hash=valid&type=signup', false, '/access-pending'],
+    ['?token_hash=valid&type=email&next=/verify-email', false, '/verify-email'],
+    ['?token_hash=expired&type=signup&next=/verify-email', true, '/verify-email?error=invalid_link'],
     ['?token_hash=valid&type=signup&next=' + encodeURIComponent('https://vortex.test/auth/callback?next=%2Finvite%2Factivate%3Ftoken%3Dabc'), false, '/invite/activate?token=abc'],
     ['?token_hash=valid&type=recovery', false, '/reset-password'],
     ['?token_hash=expired&type=recovery', true, '/reset-password?error=invalid_link'],
@@ -144,6 +148,7 @@ test('signup separates Supabase identity from business onboarding and awaits con
     let options;
     const form = authForm('/signup', { signUp: async input => { options = input.options; return { data: { session }, error: null }; } }, { email: 'user@example.com', password: 'password-12345', name: 'Owner', organizationName: 'Shop', country: 'Bénin', currency: 'XOF', timezone: 'Africa/Porto-Novo', storeName: 'Main', city: 'Cotonou' });
     await form.submit(); assert.equal(form.calls.length, 0);
+    assert.equal(options.emailRedirectTo, 'https://vortex.test/auth/callback?next=/verify-email');
     assert.equal(options.data.vortex_access_request, true);
     assert.equal(options.data.vortex_onboarding.payload.organizationName, 'Shop');
     assert.equal(options.data.vortex_onboarding.payload.password, undefined);
