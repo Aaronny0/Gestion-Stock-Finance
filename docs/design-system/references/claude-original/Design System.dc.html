@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>VORTEX · Design System 2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;background:#f9f9fc;color:#0a1a1b;font-family:'Geist',ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#007176;text-decoration:none;font-weight:600}
+a:hover{color:#04585c;text-decoration:underline}
+</style>
+</helmet>
+<div style="min-height:100vh;background:#f9f9fc">
+  <header style="position:relative;background:#eff6f6;color:#182728;overflow:hidden;border-bottom:1px solid #d7e0e0">
+    <div style="position:absolute;width:700px;height:700px;right:-160px;top:-340px;border-radius:50%;background:radial-gradient(closest-side,rgba(11,146,152,0.32),rgba(11,146,152,0) 70%)"></div>
+    <div style="position:relative;max-width:1200px;margin:0 auto;padding:48px 32px 44px;display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <img src="assets/vortex-logo.png" alt="" style="width:40px;height:40px;border-radius:10px">
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:19px;letter-spacing:-0.02em;color:#0d1b1c">VORTEX</span>
+        <span style="height:24px;padding:0 10px;border-radius:999px;border:1px solid #cfdada;font-size:12px;color:#566768;display:inline-flex;align-items:center">Design System 2.0</span>
+      </div>
+      <h1 style="margin:0;max-width:780px;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:clamp(34px,4.4vw,56px);line-height:1.02;letter-spacing:-0.035em;color:#0d1b1c;text-wrap:balance">Un poste de pilotage : <span style="color:#007176">rail clair</span>, chiffres au premier plan.</h1>
+      <p style="margin:0;max-width:640px;font-size:16px;line-height:1.55;color:#344344;text-wrap:pretty">Le bleu pétrole signale l’action, et seulement l’action. Tout le reste s’efface devant les chiffres. Chaque écran répond en trois secondes : où suis-je, quelle boutique je pilote, que dois-je faire maintenant.</p>
+      <nav style="display:flex;flex-wrap:wrap;gap:8px">
+        <a href="#couleurs" style="height:34px;padding:0 14px;border-radius:999px;background:#d2ecee;color:#0d1b1c;font-size:13px;display:inline-flex;align-items:center">Couleurs</a>
+        <a href="#typo" style="height:34px;padding:0 14px;border-radius:999px;background:#d2ecee;color:#0d1b1c;font-size:13px;display:inline-flex;align-items:center">Typographie</a>
+        <a href="#composants" style="height:34px;padding:0 14px;border-radius:999px;background:#d2ecee;color:#0d1b1c;font-size:13px;display:inline-flex;align-items:center">Composants</a>
+        <a href="#regles" style="height:34px;padding:0 14px;border-radius:999px;background:#d2ecee;color:#0d1b1c;font-size:13px;display:inline-flex;align-items:center">Règles d’écran</a>
+        <a href="#dashboard" style="height:34px;padding:0 14px;border-radius:999px;background:#007176;color:#eff6f6;font-size:13px;display:inline-flex;align-items:center">Tableau de bord</a>
+        <a href="#contraste" style="height:34px;padding:0 14px;border-radius:999px;background:#d2ecee;color:#0d1b1c;font-size:13px;display:inline-flex;align-items:center">Contraste AA</a>
+      </nav>
+    </div>
+  </header>
+
+  <main style="max-width:1200px;margin:0 auto;padding:48px 32px 80px;display:flex;flex-direction:column;gap:72px">
+
+    <section id="couleurs" style="display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:680px">
+        <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:30px;letter-spacing:-0.025em">Couleurs</h2>
+        <p style="margin:0;font-size:15px;line-height:1.55;color:#586767">Une seule teinte de marque : bleu pétrole, hue OKLCH 200. Neutres légèrement teintés de la même hue. Sémantiques sur des hues fixes, indépendantes de la marque.</p>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <span style="font-size:13px;font-weight:600">Marque · pétrole 200</span>
+        <div style="display:grid;grid-template-columns:repeat(11,minmax(0,1fr));border-radius:12px;overflow:hidden;border:1px solid #dde3e4">
+          <sc-for list="{{ brand }}" as="c" hint-placeholder-count="11">
+            <div style="display:flex;flex-direction:column">
+              <span style="height:72px;background:{{ c.hex }}"></span>
+              <span style="padding:8px;background:#ffffff;display:flex;flex-direction:column;gap:2px;font-size:11.5px"><strong style="font-weight:600">{{ c.k }}</strong><span style="font-family:'Geist Mono',monospace;color:#586767;font-size:10.5px">{{ c.hex }}</span></span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <span style="font-size:13px;font-weight:600">Neutres · teintés 200</span>
+        <div style="display:grid;grid-template-columns:repeat(11,minmax(0,1fr));border-radius:12px;overflow:hidden;border:1px solid #dde3e4">
+          <sc-for list="{{ neutral }}" as="c" hint-placeholder-count="11">
+            <div style="display:flex;flex-direction:column">
+              <span style="height:56px;background:{{ c.hex }}"></span>
+              <span style="padding:8px;background:#ffffff;display:flex;flex-direction:column;gap:2px;font-size:11.5px"><strong style="font-weight:600">{{ c.k }}</strong><span style="font-family:'Geist Mono',monospace;color:#586767;font-size:10.5px">{{ c.hex }}</span></span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+        <sc-for list="{{ roles }}" as="r" hint-placeholder-count="6">
+          <div style="display:flex;flex-direction:column;border:1px solid #dde3e4;border-radius:12px;overflow:hidden;background:#ffffff">
+            <div style="height:84px;background:{{ r.bg }};color:{{ r.fg }};padding:14px 16px;display:flex;flex-direction:column;justify-content:space-between">
+              <span style="font-size:14px;font-weight:600">{{ r.name }}</span>
+              <span style="font-family:'Geist Mono',monospace;font-size:11.5px">{{ r.bg }} / {{ r.fg }}</span>
+            </div>
+            <div style="padding:12px 16px;font-size:12.5px;line-height:1.5;color:#586767">{{ r.use }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:16px">
+        <div style="background:#ffffff;border:1px solid #dde3e4;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><span style="font-size:14px;font-weight:600">Sémantiques</span><span style="font-size:12px;color:#586767">solide · douce</span></div>
+          <sc-for list="{{ semantic }}" as="s" hint-placeholder-count="4">
+            <div style="display:grid;grid-template-columns:110px 1fr 1fr;align-items:center;gap:10px">
+              <span style="font-size:13px;font-weight:500">{{ s.name }}</span>
+              <span style="height:32px;border-radius:8px;background:{{ s.solid }};color:{{ s.solidFg }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center">{{ s.solid }}</span>
+              <span style="height:32px;border-radius:999px;background:{{ s.muted }};color:{{ s.mutedFg }};font-size:12.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:{{ s.mutedFg }}"></span>{{ s.label }}</span>
+            </div>
+          </sc-for>
+          <p style="margin:0;font-size:12.5px;line-height:1.5;color:#586767">Douce par défaut (badges de statut dans les listes). Solide pour les points, icônes et boutons pleins. Warning solide porte un texte sombre.</p>
+        </div>
+        <div style="background:#ffffff;border:1px solid #dde3e4;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><span style="font-size:14px;font-weight:600">Charts</span><span style="font-size:12px;color:#586767">ordre fixe, ≥ 3:1 sur carte</span></div>
+          <div style="display:flex;align-items:flex-end;gap:10px;height:96px">
+            <span style="flex:1;height:100%;background:#007176;border-radius:5px 5px 2px 2px"></span><span style="flex:1;height:72%;background:#d72f92;border-radius:5px 5px 2px 2px"></span><span style="flex:1;height:56%;background:#d08300;border-radius:5px 5px 2px 2px"></span><span style="flex:1;height:80%;background:#2c965d;border-radius:5px 5px 2px 2px"></span><span style="flex:1;height:40%;background:#3673cb;border-radius:5px 5px 2px 2px"></span>
+          </div>
+          <sc-for list="{{ charts }}" as="c" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px">
+              <span style="width:10px;height:10px;border-radius:3px;background:{{ c.hex }}"></span>
+              <span style="font-family:'Geist Mono',monospace;font-size:12px;width:62px">{{ c.k }}</span>
+              <span style="flex:1;color:#586767">{{ c.role }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <section id="typo" style="display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:680px">
+        <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:30px;letter-spacing:-0.025em">Typographie</h2>
+        <p style="margin:0;font-size:15px;line-height:1.55;color:#586767">Bricolage Grotesque pour la voix (titres, montants héros). Geist pour le travail. Geist Mono pour les identifiants. Les capitales espacées sont réservées au rail et aux en-têtes de table.</p>
+      </div>
+      <div style="background:#ffffff;border:1px solid #dde3e4;border-radius:12px;overflow:hidden">
+        <sc-for list="{{ type }}" as="t" hint-placeholder-count="7">
+          <div style="display:grid;grid-template-columns:minmax(150px,200px) minmax(0,1fr);align-items:center;gap:20px;padding:18px 22px;border-bottom:1px solid #eaefef">
+            <span style="display:flex;flex-direction:column;gap:3px"><span style="font-size:13px;font-weight:600">{{ t.role }}</span><span style="font-family:'Geist Mono',monospace;font-size:11.5px;color:#586767">{{ t.spec }}</span></span>
+            <span style="font-family:{{ t.family }};font-size:{{ t.size }};font-weight:{{ t.weight }};letter-spacing:{{ t.ls }};text-transform:{{ t.tt }};line-height:1.15;font-variant-numeric:tabular-nums;color:{{ t.color }};min-width:0;overflow:hidden;text-overflow:ellipsis">{{ t.sample }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section id="composants" style="display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:680px">
+        <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:30px;letter-spacing:-0.025em">Composants</h2>
+        <p style="margin:0;font-size:15px;line-height:1.55;color:#586767">Rayons 8 / 12 / 18. Cartes à bordure seule ; l’ombre est réservée à ce qui flotte. Cibles tactiles de 44 px minimum.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px">
+        <div style="background:#ffffff;border:1px solid #dde3e4;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:16px">
+          <span style="font-size:13px;font-weight:600;color:#586767">Boutons</span>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <button style="height:40px;padding:0 16px;border:none;background:#007176;border-radius:8px;font-family:inherit;font-size:13.5px;font-weight:600;color:#fbfbfe;cursor:pointer" style-hover="background:#045c60">Nouvelle vente</button>
+            <button style="height:40px;padding:0 14px;border:1px solid #dde3e4;background:#ffffff;border-radius:8px;font-family:inherit;font-size:13.5px;font-weight:600;color:#0a1a1b;cursor:pointer" style-hover="border-color:#c0c9c9">Entrée de stock</button>
+            <button style="height:40px;padding:0 14px;border:none;background:transparent;border-radius:8px;font-family:inherit;font-size:13.5px;font-weight:600;color:#0a1a1b;cursor:pointer" style-hover="background:#e9f2f2">Annuler</button>
+            <button style="height:40px;padding:0 14px;border:none;background:#c51e21;border-radius:8px;font-family:inherit;font-size:13.5px;font-weight:600;color:#fcfcfc;cursor:pointer">Rembourser</button>
+          </div>
+          <p style="margin:0;font-size:12.5px;line-height:1.5;color:#586767">Primaire : une par zone. Outline : secondaire. Ghost : tertiaire. Destructive : confirmation obligatoire.</p>
+        </div>
+        <div style="background:#ffffff;border:1px solid #dde3e4;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:12px">
+          <span style="font-size:13px;font-weight:600;color:#586767">Champs</span>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:500">Adresse email
+            <input value="alex@maisonmobile.bj" readonly="" style="height:44px;padding:0 14px;border:1px solid #7d898a;border-radius:8px;font-family:inherit;font-size:14.5px;color:#0a1a1b;outline:none" style-focus="border-color:#007176;box-shadow:0 0 0 3px rgba(0,113,118,0.18)">
+          </label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-weight:500">Mot de passe
+            <input value="court" readonly="" style="height:44px;padding:0 14px;border:1px solid #c51e21;border-radius:8px;font-family:inherit;font-size:14.5px;color:#0a1a1b;outline:none">
+            <span style="font-size:12.5px;font-weight:400;color:#c51e21">12 caractères minimum.</span>
+          </label>
+        </div>
+        <div style="background:#ffffff;border:1px solid #dde3e4;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px">
+          <span style="font-size:13px;font-weight:600;color:#586767">Badges de statut (doux)</span>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <sc-for list="{{ semantic }}" as="s" hint-placeholder-count="4">
+              <span style="height:22px;padding:0 9px;border-radius:999px;background:{{ s.muted }};color:{{ s.mutedFg }};font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:{{ s.mutedFg }}"></span>{{ s.label }}</span>
+            </sc-for>
+            <span style="height:22px;padding:0 9px;border-radius:999px;background:#dff2f2;color:#04585c;font-size:12px;font-weight:600;display:inline-flex;align-items:center">Caissier</span>
+            <span style="height:22px;padding:0 9px;border-radius:999px;background:#eff4f4;color:#586767;font-size:12px;font-weight:600;display:inline-flex;align-items:center">Fermée</span>
+          </div>
+          <span style="font-size:13px;font-weight:600;color:#586767;margin-top:6px">Alertes</span>
+          <div style="display:flex;gap:10px;padding:12px 14px;border-radius:10px;background:#ffede9;color:#9e1618;font-size:13px;line-height:1.45">Vérifiez votre adresse email avant de vous connecter.</div>
+          <div style="display:flex;gap:10px;padding:12px 14px;border-radius:10px;background:#e4f5ff;color:#005892;font-size:13px;line-height:1.45">Démonstration · données fictives.</div>
+        </div>
+        <div style="background:#ffffff;border:1px solid #dde3e4;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:13px;font-weight:600;color:#586767">Montant héros</span>
+          <span style="font-size:13px;color:#586767">Chiffre d’affaires</span>
+          <span style="display:flex;align-items:baseline;gap:8px"><span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:44px;line-height:1;letter-spacing:-0.035em;font-variant-numeric:tabular-nums">18 642 500</span><span style="font-size:15px;color:#586767">XOF</span></span>
+          <span style="display:flex;gap:8px;align-items:center;font-size:12.5px;color:#586767"><span style="height:22px;padding:0 8px;border-radius:999px;background:#e4f9e9;color:#135c30;font-weight:600;display:inline-flex;align-items:center">+8,6 %</span>vs 30 jours précédents</span>
+        </div>
+        <div style="background:#ffffff;border:1px solid #dde3e4;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px">
+          <span style="font-size:13px;font-weight:600;color:#586767">Carte « À traiter »</span>
+          <div style="display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid #dde3e4;border-radius:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="width:36px;height:36px;border-radius:9px;background:#fff2d6;display:flex;align-items:center;justify-content:center"><span style="width:18px;height:18px;background:#864900;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/package-search.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/package-search.svg) center/contain no-repeat"></span></span>
+              <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:28px;line-height:1">2</span>
+            </div>
+            <strong style="font-size:14px;font-weight:600">Références sous le seuil</strong>
+            <span style="font-size:13px;font-weight:600;color:#007176">Réapprovisionner →</span>
+          </div>
+          <p style="margin:0;font-size:12.5px;line-height:1.5;color:#586767">Compteur + sujet + verbe. Tuile d’icône en couleur douce de la sémantique.</p>
+        </div>
+        <div style="background:#eff6f6;border:1px solid #d7e0e0;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:13px;font-weight:600;color:#566768;padding:0 4px 8px">Rail de navigation</span>
+          <span style="padding:0 10px 4px;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#566768">Opérations</span>
+          <span style="display:flex;align-items:center;gap:11px;min-height:40px;padding:0 10px;border-radius:8px;font-size:13.5px;font-weight:500;color:#0d1b1c;background:#d2ecee;box-shadow:inset 3px 0 0 #007176"><span style="width:18px;height:18px;background:#007176;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/receipt-text.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/receipt-text.svg) center/contain no-repeat"></span>Ventes</span>
+          <span style="display:flex;align-items:center;gap:11px;min-height:40px;padding:0 10px;border-radius:8px;font-size:13.5px;font-weight:500;color:#344344"><span style="width:18px;height:18px;background:#566768;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/package.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/package.svg) center/contain no-repeat"></span><span style="flex:1">Stock &amp; catalogue</span><span style="min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#e8a127;color:#331b06;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">2</span></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="regles" style="display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:680px">
+        <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:30px;letter-spacing:-0.025em">Règles d’écran</h2>
+        <p style="margin:0;font-size:15px;line-height:1.55;color:#586767">S’appliquent à toutes les pages du shell : ventes, stock, finance, comptabilité, administration.</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));background:#ffffff;border:1px solid #dde3e4;border-radius:12px;overflow:hidden">
+        <sc-for list="{{ rules }}" as="r" hint-placeholder-count="9">
+          <div style="background:#ffffff;box-shadow:0 0 0 0.5px #dde3e4;padding:20px 22px;display:flex;gap:14px">
+            <span style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:500;color:#007176;padding-top:2px">{{ r.n }}</span>
+            <span style="display:flex;flex-direction:column;gap:5px"><strong style="font-size:14.5px;font-weight:600">{{ r.t }}</strong><span style="font-size:13px;line-height:1.55;color:#586767;text-wrap:pretty">{{ r.d }}</span></span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section id="dashboard" style="display:flex;flex-direction:column;gap:28px">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:8px;max-width:680px">
+          <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:30px;letter-spacing:-0.025em">Anatomie du tableau de bord</h2>
+          <p style="margin:0;font-size:15px;line-height:1.55;color:#586767">Ordre de lecture : contexte → à traiter → performance → détail. Ce qui demande une action passe toujours avant ce qui informe.</p>
+        </div>
+        <a href="Tableau de bord.dc.html" style="font-size:14px">Ouvrir la maquette →</a>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,340px);gap:24px;align-items:start">
+        <div style="display:flex;gap:8px;padding:10px;background:#ffffff;border:1px solid #dde3e4;border-radius:16px;min-height:440px">
+          <div style="width:64px;flex:none;background:#eff6f6;border-radius:10px;display:flex;align-items:flex-start;justify-content:center;padding-top:10px"><span style="width:22px;height:22px;border-radius:50%;background:#007176;color:#fbfbfe;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ anatomy }}" as="a" hint-placeholder-count="6">
+              <div style="display:grid;grid-template-columns:{{ a.cols }};gap:8px;flex:{{ a.flex }}">
+                <sc-for list="{{ a.cells }}" as="c" hint-placeholder-count="2">
+                  <div style="min-height:{{ c.h }};border-radius:8px;background:{{ c.bg }};border:1px dashed {{ c.bd }};display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:12px;font-weight:500;color:#435454">
+                    <span style="width:22px;height:22px;flex:none;border-radius:50%;background:#007176;color:#fbfbfe;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ c.n }}</span>{{ c.label }}
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <ol style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:14px">
+          <sc-for list="{{ anatomyNotes }}" as="a" hint-placeholder-count="8">
+            <li style="display:flex;gap:12px">
+              <span style="width:22px;height:22px;flex:none;border-radius:50%;background:#007176;color:#fbfbfe;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ a.n }}</span>
+              <span style="display:flex;flex-direction:column;gap:3px"><strong style="font-size:13.5px;font-weight:600">{{ a.t }}</strong><span style="font-size:12.5px;line-height:1.5;color:#586767">{{ a.d }}</span></span>
+            </li>
+          </sc-for>
+        </ol>
+      </div>
+    </section>
+
+    <section id="contraste" style="display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:680px">
+        <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:30px;letter-spacing:-0.025em">Contraste WCAG 2.2 AA</h2>
+        <p style="margin:0;font-size:15px;line-height:1.55;color:#586767">Ratios calculés, pas estimés. Corrections automatiques : light chart-3/card 2.75→3.02.</p>
+      </div>
+      <div style="background:#ffffff;border:1px solid #dde3e4;border-radius:12px;overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:560px">
+          <thead><tr style="background:#f9f9fc">
+            <th style="text-align:left;padding:10px 18px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767;border-bottom:1px solid #dde3e4">Paire</th>
+            <th style="text-align:right;padding:10px 12px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767;border-bottom:1px solid #dde3e4">Seuil</th>
+            <th style="text-align:right;padding:10px 12px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767;border-bottom:1px solid #dde3e4">Light</th>
+            <th style="text-align:right;padding:10px 18px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767;border-bottom:1px solid #dde3e4">Dark</th>
+          </tr></thead>
+          <tbody>
+            <sc-for list="{{ contrast }}" as="c" hint-placeholder-count="12">
+              <tr>
+                <td style="padding:9px 18px;border-bottom:1px solid #eaefef;font-family:'Geist Mono',monospace;font-size:12px">{{ c.pair }}</td>
+                <td style="padding:9px 12px;border-bottom:1px solid #eaefef;text-align:right;color:#586767;font-variant-numeric:tabular-nums">{{ c.min }}</td>
+                <td style="padding:9px 12px;border-bottom:1px solid #eaefef;text-align:right;font-variant-numeric:tabular-nums"><span style="display:inline-flex;align-items:center;gap:6px">{{ c.l }}<span style="height:20px;padding:0 7px;border-radius:999px;background:#e4f9e9;color:#135c30;font-size:11px;font-weight:700;display:inline-flex;align-items:center">PASS</span></span></td>
+                <td style="padding:9px 18px;border-bottom:1px solid #eaefef;text-align:right;font-variant-numeric:tabular-nums"><span style="display:inline-flex;align-items:center;gap:6px">{{ c.d }}<span style="height:20px;padding:0 7px;border-radius:999px;background:#e4f9e9;color:#135c30;font-size:11px;font-weight:700;display:inline-flex;align-items:center">PASS</span></span></td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin:0;font-size:13px;color:#586767">Tableau complet (31 paires) et tokens OKLCH : <a href="DESIGN.md">DESIGN.md</a> · <a href="handoff/tokens.css">handoff/tokens.css</a></p>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const sc = (o) => Object.entries(o).map(([k, hex]) => ({ k, hex }));
+    return {
+      brand: sc({ 50: '#eef9fa', 100: '#dbf3f4', 200: '#bce8ea', 300: '#90d6d9', 400: '#48b7bd', 500: '#009298', 600: '#057176', 700: '#045b5f', 800: '#00464a', 900: '#003335', 950: '#011d1f' }),
+      neutral: sc({ 50: '#f5f7f7', 100: '#eaefef', 200: '#d9dfe0', 300: '#c1c9c9', 400: '#9ca7a8', 500: '#768384', 600: '#576767', 700: '#435354', 800: '#304142', 900: '#1e2f30', 950: '#0e1b1c' }),
+      roles: [
+        { name: 'Primary', bg: '#007176', fg: '#fbfbfe', use: 'Action primaire, lien actif, focus, série principale. Une surface pleine par écran maximum.' },
+        { name: 'Background / Foreground', bg: '#f9f9fc', fg: '#0a1a1b', use: 'Plan de travail. Encre à 17:1.' },
+        { name: 'Accent', bg: '#dff2f2', fg: '#04585c', use: 'Sélection, rôle, étape à faire. Jamais en fond de carte.' },
+        { name: 'Muted', bg: '#eff4f4', fg: '#586767', use: 'Surfaces de second plan, texte secondaire (5,4:1).' },
+        { name: 'Sidebar', bg: '#eff6f6', fg: '#182728', use: 'Rail de navigation et panneau d’auth. Clair en light, graphite en dark.' },
+        { name: 'Sidebar primary', bg: '#d2ecee', fg: '#007176', use: 'Élément actif du rail : fond accent + barre 3 px.' },
+      ],
+      semantic: [
+        { name: 'Destructive', solid: '#c51e21', solidFg: '#fcfcfc', muted: '#ffede9', mutedFg: '#9e1618', label: 'Remboursée' },
+        { name: 'Success', solid: '#1a763f', solidFg: '#fcfcfc', muted: '#e4f9e9', mutedFg: '#135c30', label: 'Payée' },
+        { name: 'Warning', solid: '#e8a127', solidFg: '#331b06', muted: '#fff2d6', mutedFg: '#864900', label: 'Partielle' },
+        { name: 'Info', solid: '#0070b5', solidFg: '#fcfcfc', muted: '#e4f5ff', mutedFg: '#005892', label: 'Crédit' },
+      ],
+      charts: [
+        { k: 'chart-1', hex: '#007176', role: 'Chiffre d’affaires (métrique principale)' },
+        { k: 'chart-2', hex: '#d72f92', role: 'Marge brute — magenta, rappel du logo' },
+        { k: 'chart-3', hex: '#d08300', role: 'Mobile Money / période précédente' },
+        { k: 'chart-4', hex: '#2c965d', role: 'Espèces / encaissements' },
+        { k: 'chart-5', hex: '#3673cb', role: 'Carte / banque' },
+      ],
+      type: [
+        { role: 'Montant héros', spec: 'Bricolage 44 · 600', family: "'Bricolage Grotesque',sans-serif", size: '44px', weight: 600, ls: '-0.035em', tt: 'none', color: '#0a1a1b', sample: '18 642 500 XOF' },
+        { role: 'Titre d’écran', spec: 'Bricolage 30 · 600', family: "'Bricolage Grotesque',sans-serif", size: '30px', weight: 600, ls: '-0.025em', tt: 'none', color: '#0a1a1b', sample: 'Bonjour Alex' },
+        { role: 'Titre de carte', spec: 'Geist 15 · 600', family: "'Geist',sans-serif", size: '15px', weight: 600, ls: '0', tt: 'none', color: '#0a1a1b', sample: 'Dernières ventes' },
+        { role: 'Corps', spec: 'Geist 14 · 400', family: "'Geist',sans-serif", size: '14px', weight: 400, ls: '0', tt: 'none', color: '#0a1a1b', sample: 'Le stock atteint ou approche le seuil d’alerte.' },
+        { role: 'Méta', spec: 'Geist 12.5 · 400 · muted', family: "'Geist',sans-serif", size: '12.5px', weight: 400, ls: '0', tt: 'none', color: '#586767', sample: 'Ouverte depuis 08:12 · Fiacre A.' },
+        { role: 'Identifiant', spec: 'Geist Mono 12.5 · 500', family: "'Geist Mono',monospace", size: '12.5px', weight: 500, ls: '0', tt: 'none', color: '#0a1a1b', sample: 'VTE-0196 · IMEI 356938035643809' },
+        { role: 'Overline', spec: 'Geist 11 · 600 · +0.08em', family: "'Geist',sans-serif", size: '11px', weight: 600, ls: '0.08em', tt: 'uppercase', color: '#586767', sample: 'Opérations · Référence' },
+      ],
+      rules: [
+        { n: '01', t: 'Shell constant', d: 'Rail clair 248 px (72 replié), barre de contexte 64 px, contenu max 1440 px. Gouttières 16 / 24 / 32.' },
+        { n: '02', t: 'Contexte toujours visible', d: 'Boutique et période dans la barre de contexte ou sous le titre. Jamais cachés dans un menu.' },
+        { n: '03', t: 'Une action primaire', d: 'Un seul bouton pétrole par en-tête de page. Le reste en outline ou ghost.' },
+        { n: '04', t: 'Action avant information', d: 'Ordre : état → à traiter → chiffres → détail. Une alerte vit en haut, pas dans une colonne latérale.' },
+        { n: '05', t: 'Chaque chiffre mène quelque part', d: 'Un indicateur ouvre sa source filtrée sur la même période et la même boutique.' },
+        { n: '06', t: 'Tables lisibles', d: 'Lignes 52 px, montants à droite en chiffres tabulaires, statut en badge doux. Sous 768 px : cartes compactes.' },
+        { n: '07', t: 'Bordure ou ombre', d: 'Cartes : bordure seule. Ombre : menus, dialogues, toasts. Jamais les deux.' },
+        { n: '08', t: 'Cinq états prévus', d: 'Chargement (squelette de même forme), vide (phrase + action), erreur (+ réessayer), hors connexion, accès réservé.' },
+        { n: '09', t: 'Mouvement bref', d: '120–200 ms, ease-out, uniquement pour un changement d’état. Coupé sous prefers-reduced-motion.' },
+      ],
+      anatomy: [
+        { cols: '1fr', flex: '0 0 auto', cells: [{ n: 2, label: 'Barre de contexte · boutique · notifications', h: '34px', bg: '#f6f6f9', bd: '#c0c9c9' }] },
+        { cols: '1fr auto', flex: '0 0 auto', cells: [{ n: 3, label: 'Bonjour + période', h: '44px', bg: '#f6f6f9', bd: '#c0c9c9' }, { n: 4, label: 'Nouvelle vente', h: '44px', bg: '#dff2f2', bd: '#63b2b6' }] },
+        { cols: 'repeat(4,1fr)', flex: '0 0 auto', cells: [{ n: 5, label: 'À traiter', h: '64px', bg: '#fff2d6', bd: '#e8a127' }, { n: 5, label: '', h: '64px', bg: '#ffede9', bd: '#f3a49c' }, { n: 5, label: '', h: '64px', bg: '#e4f5ff', bd: '#7fc3ef' }, { n: 5, label: '', h: '64px', bg: '#dff2f2', bd: '#63b2b6' }] },
+        { cols: '1fr', flex: '0 0 auto', cells: [{ n: 6, label: 'Performance : CA héros + 3 indicateurs', h: '60px', bg: '#f6f6f9', bd: '#c0c9c9' }] },
+        { cols: '2fr 1fr', flex: '1', cells: [{ n: 7, label: 'Activité (histogramme)', h: '100px', bg: '#f6f6f9', bd: '#c0c9c9' }, { n: 8, label: 'Caisses', h: '100px', bg: '#f6f6f9', bd: '#c0c9c9' }] },
+        { cols: '2fr 1fr', flex: '1', cells: [{ n: 9, label: 'Dernières ventes', h: '80px', bg: '#f6f6f9', bd: '#c0c9c9' }, { n: 10, label: 'Stock critique', h: '80px', bg: '#f6f6f9', bd: '#c0c9c9' }] },
+      ],
+      anatomyNotes: [
+        { n: 1, t: 'Rail', d: 'Sections Pilotage / Opérations / Finance / Administration. Filtré par permission. Badge stock bas.' },
+        { n: 2, t: 'Contexte', d: 'Fil d’Ariane, sélecteur de boutique, notifications, utilisateur et rôle.' },
+        { n: 3, t: 'Salutation', d: 'Prénom, date, boutique, segment 7 j / 30 j.' },
+        { n: 4, t: 'Actions', d: 'Nouvelle vente (primaire), Entrée de stock (outline). Selon permission.' },
+        { n: 5, t: 'À traiter', d: 'Stock bas, crédits échus, caisses ouvertes, invitations. Masqué si vide → « Rien d’urgent ».' },
+        { n: 6, t: 'Performance', d: 'CA + variation, Encaissements, Cashflow net, Marge brute (propriétaire seulement).' },
+        { n: 7, t: 'Activité', d: 'CA/jour, marge en superposition. Survol = lecture, clic = ventes du jour.' },
+        { n: 8, t: 'Caisses', d: 'État par boutique, solde théorique, répartition par moyen de paiement.' },
+        { n: 9, t: 'Ventes', d: '5 dernières, référence mono, statut doux, montant à droite.' },
+        { n: 10, t: 'Stock critique', d: '3 références les plus proches du seuil, jauge warning/destructive.' },
+      ],
+      contrast: [['foreground / background', '4.5', '17.22', '17.40'], ['primary-foreground / primary', '4.5', '5.61', '8.63'], ['muted-foreground / muted', '4.5', '5.33', '6.65'], ['muted-foreground / card', '4.5', '5.94', '7.24'], ['accent-foreground / accent', '4.5', '7.09', '9.89'], ['input / card', '3', '3.62', '3.27'], ['destructive-muted-foreground / destructive-muted', '4.5', '7.24', '9.13'], ['success-muted-foreground / success-muted', '4.5', '7.30', '9.71'], ['warning-foreground / warning', '4.5', '7.36', '9.58'], ['warning-muted-foreground / warning-muted', '4.5', '6.38', '9.54'], ['info-muted-foreground / info-muted', '4.5', '6.89', '9.57'], ['chart-5 / card', '3', '4.71', '7.17'], ['sidebar-muted-foreground / sidebar', '4.5', '5.43', '8.02']].map(([pair, min, l, d]) => ({ pair, min: min + ':1', l: l + ':1', d: d + ':1' })),
+    };
+  }
+}
+</script>
+</body>
+</html>

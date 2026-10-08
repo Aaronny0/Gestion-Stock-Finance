@@ -1,0 +1,91 @@
+{
+  "source_directory": "/home/aaron/Documents/VORTEX/Claude design/Refonte design et système du projet",
+  "archived_on": "2026-10-08",
+  "files": [
+    {
+      "path": "Ventes.dc.html",
+      "sha256": "1507ae2adc069da6cab64a181d09ac53a857048736cf09697e6fb0c0053db5d8",
+      "bytes": 45019
+    },
+    {
+      "path": "Design System.dc.html",
+      "sha256": "e8847fc373922e04fbfd4f086cbde344671342da432f6a68e544457c5d2268be",
+      "bytes": 36218
+    },
+    {
+      "path": "Auth.dc.html",
+      "sha256": "21b15418c8a3d99bf9681f81e7aa6bb73b62829b415d160cb0b951d1ddbe2e9c",
+      "bytes": 34638
+    },
+    {
+      "path": "Rôles et écrans.dc.html",
+      "sha256": "5bea812eab3219bc044230683e7db90031c86bc9d68cd0f62eaec81ade2a7158",
+      "bytes": 23502
+    },
+    {
+      "path": "Sidebar alternative.dc.html",
+      "sha256": "e1d587bfa028b52e5cfadbd5752559e70fb9e8395eacf7dd9302f4d1a862d7f1",
+      "bytes": 19332
+    },
+    {
+      "path": "Tableau de bord.dc.html",
+      "sha256": "69b91bc381a8319ed0b4acc76335e2c96eddb405af3a2d3325e9fbdd9f32f6a2",
+      "bytes": 44121
+    },
+    {
+      "path": "DESIGN.md",
+      "sha256": "96e938d2fe08f7691f42fd1f2302a06b05b7133c5348db3ed0d5f4f4c3450580",
+      "bytes": 14725
+    },
+    {
+      "path": "support.js",
+      "sha256": "8fe7df74405f3c55f49b7249c74ea1397e65d07dea2b1bd3b4a489bec2e28cbe",
+      "bytes": 69150
+    },
+    {
+      "path": "assets/vortex-logo.png",
+      "sha256": "7027375e70b038fd2018a5852a469cd6985357ef244e31eb98a9949e57de5388",
+      "bytes": 352742
+    },
+    {
+      "path": "handoff/tokens.css",
+      "sha256": "74dfa5489020af8ba10e604816d929fe9b856855b725ec0c9bf87c4a26d23241",
+      "bytes": 6734
+    },
+    {
+      "path": "handoff/palette.json",
+      "sha256": "bae875c5c8f6b391e14c6ea34e2ecfcaede7882a38bc13d8614fa3b471ecb542",
+      "bytes": 13011
+    },
+    {
+      "path": "uploads/pasted-1791444705355-0.png",
+      "sha256": "586b3618cf316e5e3fb2d622c61ea756d0409aad1529b4bc52bd4a54e099dfe4",
+      "bytes": 390139
+    },
+    {
+      "path": "uploads/pasted-1791450323056-0.png",
+      "sha256": "9c9be5321c5258d3bfe5c1da569b4cd467e3f99a09c000a8c79755fb74555ee0",
+      "bytes": 197680
+    },
+    {
+      "path": "uploads/Gestion-Stock-Finance/DESIGN.md",
+      "sha256": "b98029b82437a3cb74ce47ba863f51cee62309cc1435186a0db539e4678801b2",
+      "bytes": 1181
+    },
+    {
+      "path": "uploads/Gestion-Stock-Finance/PRODUCT.md",
+      "sha256": "1193cf9bae5333fa4b2ff08b6fb5c8b4a27d292cba723b30e88c79e39c0cf051",
+      "bytes": 1435
+    },
+    {
+      "path": "uploads/Gestion-Stock-Finance/docs/design-system.md",
+      "sha256": "4dc9fdb067d2d006530451c49111727328c26e0a313ab312c40365c4b233643b",
+      "bytes": 7520
+    },
+    {
+      "path": "uploads/Gestion-Stock-Finance/src/styles/tokens.css",
+      "sha256": "768cd9b6bfa5483c799ea74e221b398e3b63d197d248eba633b715cfa63c2188",
+      "bytes": 2887
+    }
+  ]
+}

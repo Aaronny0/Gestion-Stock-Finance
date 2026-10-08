@@ -1,0 +1,3 @@
+# Original bytes and downloaded dependencies must survive Git checkout unchanged.
+claude-original/** -text whitespace=cr-at-eol
+dependencies/** -text

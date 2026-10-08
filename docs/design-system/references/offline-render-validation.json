@@ -1,0 +1,41 @@
+{
+  "validated_on": "2026-10-08",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "results": [
+    {
+      "name": "Design System.dc.html",
+      "status": 200,
+      "unresolved": false
+    },
+    {
+      "name": "Auth.dc.html",
+      "status": 200,
+      "unresolved": false
+    },
+    {
+      "name": "Tableau de bord.dc.html",
+      "status": 200,
+      "unresolved": false
+    },
+    {
+      "name": "Ventes.dc.html",
+      "status": 200,
+      "unresolved": false
+    },
+    {
+      "name": "Rôles et écrans.dc.html",
+      "status": 200,
+      "unresolved": false
+    },
+    {
+      "name": "Sidebar alternative.dc.html",
+      "status": 200,
+      "unresolved": false
+    }
+  ],
+  "external": [],
+  "errors": []
+}

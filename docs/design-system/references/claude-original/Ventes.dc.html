@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>VORTEX · Ventes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;background:#f9f9fc;color:#0a1a1b;font-family:'Geist',ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#007176;text-decoration:none}
+a:hover{color:#04585c;text-decoration:underline}
+button,input{font-family:inherit}
+input::placeholder{color:#768384}
+@keyframes vxpulse{0%,100%{opacity:1}50%{opacity:.45}}
+@keyframes vxslide{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" style="display:flex;min-height:100vh;background:#f9f9fc">
+
+  <aside style="width:248px;flex:none;background:#eff6f6;color:#182728;display:{{ railDisplay }};flex-direction:column;position:sticky;top:0;height:100vh;border-right:1px solid #d7e0e0">
+    <div style="height:64px;display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid #d7e0e0">
+      <img src="assets/vortex-logo.png" alt="VORTEX" style="width:36px;height:36px;border-radius:9px;flex:none">
+      <div style="display:flex;flex-direction:column;gap:3px">
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:18px;letter-spacing:-0.02em;color:#0d1b1c;line-height:1">VORTEX</span>
+        <span style="font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#566768;line-height:1">Stock &amp; Finance</span>
+      </div>
+    </div>
+    <div style="padding:14px 12px 6px">
+      <div style="min-height:44px;display:flex;align-items:center;gap:10px;padding:6px 10px;background:#d2ecee;border:1px solid #d7e0e0;border-radius:8px">
+        <span style="width:28px;height:28px;border-radius:6px;background:#007176;color:#eff6f6;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">MM</span>
+        <span style="display:flex;flex-direction:column;gap:1px"><span style="font-size:13px;font-weight:600;color:#0d1b1c">Maison Mobile</span><span style="font-size:11px;color:#566768">Bénin · XOF</span></span>
+      </div>
+    </div>
+    <nav aria-label="Navigation principale" style="flex:1;overflow-y:auto;padding:10px 12px 16px;display:flex;flex-direction:column;gap:18px">
+      <sc-for list="{{ nav }}" as="sec" hint-placeholder-count="4">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="padding:0 10px 6px;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#566768">{{ sec.section }}</span>
+          <sc-for list="{{ sec.items }}" as="it" hint-placeholder-count="3">
+            <a href="{{ it.href }}" style="display:flex;align-items:center;gap:11px;min-height:40px;padding:0 10px;border-radius:8px;font-size:13.5px;font-weight:500;color:{{ it.color }};background:{{ it.bg }};box-shadow:{{ it.bar }};text-decoration:none" style-hover="background:#d2ecee;color:#0d1b1c;text-decoration:none">
+              <span style="width:18px;height:18px;flex:none;background:{{ it.iconColor }};-webkit-mask:url({{ it.icon }}) center/contain no-repeat;mask:url({{ it.icon }}) center/contain no-repeat"></span>
+              <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.label }}</span>
+              <sc-if value="{{ it.badge }}" hint-placeholder-val="{{ false }}">
+                <span style="min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#e8a127;color:#331b06;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">{{ it.badge }}</span>
+              </sc-if>
+            </a>
+          </sc-for>
+        </div>
+      </sc-for>
+    </nav>
+    <div style="border-top:1px solid #d7e0e0;padding:14px 18px;display:flex;align-items:center;gap:8px;font-size:12px;color:#566768">
+      <span style="width:7px;height:7px;border-radius:50%;background:#4dbf74"></span>Espace sécurisé · v2.0
+    </div>
+  </aside>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <header style="position:sticky;top:0;z-index:20;height:64px;display:flex;align-items:center;gap:12px;padding:0 {{ gutter }};background:rgba(249,249,252,0.86);backdrop-filter:blur(10px);border-bottom:1px solid #dde3e4">
+      <sc-if value="{{ compact }}" hint-placeholder-val="{{ false }}">
+        <button aria-label="Ouvrir le menu" style="width:40px;height:40px;border:1px solid #dde3e4;background:#ffffff;border-radius:8px;display:flex;align-items:center;justify-content:center">
+          <span style="width:18px;height:18px;background:#0a1a1b;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/menu.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/menu.svg) center/contain no-repeat"></span>
+        </button>
+      </sc-if>
+      <nav aria-label="Fil d'Ariane" style="display:flex;align-items:center;gap:8px;font-size:13px;flex:1;min-width:0">
+        <a href="Tableau de bord.dc.html" style="color:#586767;font-weight:400">Opérations</a>
+        <span style="color:#c0c9c9">/</span>
+        <span style="color:#0a1a1b;font-weight:600">Ventes</span>
+      </nav>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button style="height:40px;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid #dde3e4;background:#ffffff;border-radius:8px;font-size:13px;font-weight:500;color:#0a1a1b;cursor:pointer" style-hover="border-color:#c0c9c9">
+          <span style="width:16px;height:16px;background:#586767;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/store.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/store.svg) center/contain no-repeat"></span>
+          Cotonou · Principal
+        </button>
+        <button style="height:40px;display:flex;align-items:center;gap:10px;padding:0 6px 0 4px;border:none;background:transparent;border-radius:8px;cursor:pointer" style-hover="background:#e9f2f2">
+          <span style="width:32px;height:32px;border-radius:50%;background:#dff2f2;color:#04585c;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ user.initials }}</span>
+          <sc-if value="{{ notCompact }}" hint-placeholder-val="{{ true }}">
+            <span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.2">
+              <span style="font-size:13px;font-weight:600;color:#0a1a1b">{{ user.name }}</span>
+              <span style="font-size:11px;color:#586767">{{ user.role }}</span>
+            </span>
+          </sc-if>
+        </button>
+      </div>
+    </header>
+
+    <main style="flex:1;width:100%;max-width:1440px;margin:0 auto;padding:28px {{ gutter }} 40px;display:flex;flex-direction:column;gap:20px">
+
+      <div style="position:relative;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px">
+        <sc-if value="{{ annotate }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:-10px;top:-18px;height:20px;padding:0 8px;border-radius:999px;background:#d72f92;color:#ffffff;font-family:'Geist Mono',monospace;font-size:11px;font-weight:500;display:inline-flex;align-items:center;z-index:2">A · PageHeader</span></sc-if>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:30px;line-height:1.1;letter-spacing:-0.025em">Ventes</h1>
+          <p style="margin:0;font-size:14px;color:#586767">Reçus, encaissements, crédits et retours de la boutique.</p>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <a href="#" style="height:40px;display:flex;align-items:center;gap:8px;padding:0 14px;border:1px solid #dde3e4;background:#ffffff;border-radius:8px;font-size:13.5px;font-weight:600;color:#0a1a1b;text-decoration:none" style-hover="border-color:#c0c9c9;text-decoration:none">
+            <span style="width:16px;height:16px;background:#0a1a1b;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/credit-card.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/credit-card.svg) center/contain no-repeat"></span>
+            Crédits et échéances
+          </a>
+          <button style="height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border:none;background:#007176;border-radius:8px;font-size:13.5px;font-weight:600;color:#fbfbfe;cursor:pointer;box-shadow:0 1px 2px rgba(10,26,27,0.12),inset 0 1px 0 rgba(255,255,255,0.14)" style-hover="background:#045c60">
+            <span style="width:16px;height:16px;background:#fbfbfe;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/plus.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/plus.svg) center/contain no-repeat"></span>
+            Nouvelle vente
+          </button>
+        </div>
+      </div>
+
+      <section aria-label="Synthèse" style="position:relative;background:#ffffff;border:1px solid #dde3e4;border-radius:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))">
+        <sc-if value="{{ annotate }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:-10px;top:-10px;height:20px;padding:0 8px;border-radius:999px;background:#d72f92;color:#ffffff;font-family:'Geist Mono',monospace;font-size:11px;font-weight:500;display:inline-flex;align-items:center;z-index:2">B · SummaryStrip</span></sc-if>
+        <sc-for list="{{ summary }}" as="s" hint-placeholder-count="4">
+          <div style="padding:16px 20px;display:flex;flex-direction:column;gap:6px;border-left:1px solid #eaefef;margin-left:-1px">
+            <span style="font-size:12.5px;font-weight:500;color:#586767">{{ s.label }}</span>
+            <span style="font-size:20px;font-weight:600;letter-spacing:-0.01em;font-variant-numeric:tabular-nums;color:{{ s.color }};white-space:nowrap">{{ s.value }} <span style="font-size:12px;font-weight:500;color:#586767">{{ s.unit }}</span></span>
+          </div>
+        </sc-for>
+      </section>
+
+      <section aria-label="Liste des ventes" style="position:relative;background:#ffffff;border:1px solid #dde3e4;border-radius:12px">
+        <sc-if value="{{ annotate }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:-10px;top:-10px;height:20px;padding:0 8px;border-radius:999px;background:#d72f92;color:#ffffff;font-family:'Geist Mono',monospace;font-size:11px;font-weight:500;display:inline-flex;align-items:center;z-index:2">C · FilterBar</span></sc-if>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #dde3e4">
+          <label style="position:relative;flex:1 1 240px;max-width:340px;display:flex">
+            <span style="position:absolute;left:12px;top:13px;width:16px;height:16px;background:#768384;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/search.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/search.svg) center/contain no-repeat"></span>
+            <input aria-label="Rechercher" placeholder="Référence, client, IMEI…" value="{{ query }}" onChange="{{ onQuery }}" style="width:100%;height:42px;padding:0 12px 0 36px;border:1px solid #7d898a;border-radius:8px;font-size:14px;color:#0a1a1b;outline:none;background:#ffffff" style-focus="border-color:#007176;box-shadow:0 0 0 3px rgba(0,113,118,0.18)">
+          </label>
+          <div style="display:inline-flex;padding:3px;background:#e9f2f2;border-radius:8px;gap:2px">
+            <sc-for list="{{ periods }}" as="p" hint-placeholder-count="3">
+              <button onClick="{{ p.onClick }}" style="height:34px;padding:0 10px;border:none;border-radius:6px;font-size:12.5px;font-weight:600;cursor:pointer;background:{{ p.bg }};color:{{ p.color }};box-shadow:{{ p.shadow }}">{{ p.label }}</button>
+            </sc-for>
+          </div>
+          <div role="group" aria-label="Statut" style="display:flex;flex-wrap:wrap;gap:6px">
+            <sc-for list="{{ chips }}" as="c" hint-placeholder-count="4">
+              <button onClick="{{ c.onClick }}" aria-pressed="{{ c.pressed }}" style="height:34px;display:inline-flex;align-items:center;gap:6px;padding:0 12px;border-radius:999px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font-size:12.5px;font-weight:600;cursor:pointer">{{ c.label }}<span style="font-variant-numeric:tabular-nums;opacity:.75">{{ c.count }}</span></button>
+            </sc-for>
+          </div>
+          <span style="flex:1"></span>
+          <sc-if value="{{ canExport }}" hint-placeholder-val="{{ true }}">
+            <button style="height:38px;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid #dde3e4;background:#ffffff;border-radius:8px;font-size:13px;font-weight:600;color:#0a1a1b;cursor:pointer" style-hover="border-color:#c0c9c9">
+              <span style="width:15px;height:15px;background:#0a1a1b;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/download.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/download.svg) center/contain no-repeat"></span>
+              {{ exportLabel }}
+            </button>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+          <div aria-busy="true" style="display:flex;flex-direction:column">
+            <sc-for list="{{ skeleton }}" as="k" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;gap:16px;height:60px;padding:0 20px;border-bottom:1px solid #eaefef">
+                <span style="width:110px;height:12px;border-radius:6px;background:#eaefef;animation:vxpulse 1.4s ease-in-out infinite"></span>
+                <span style="flex:1;max-width:260px;height:12px;border-radius:6px;background:#eaefef;animation:vxpulse 1.4s ease-in-out infinite"></span>
+                <span style="flex:1"></span>
+                <span style="width:70px;height:20px;border-radius:999px;background:#eaefef;animation:vxpulse 1.4s ease-in-out infinite"></span>
+                <span style="width:90px;height:12px;border-radius:6px;background:#eaefef;animation:vxpulse 1.4s ease-in-out infinite"></span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isError }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:48px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px">
+            <span style="width:44px;height:44px;border-radius:11px;background:#ffede9;display:flex;align-items:center;justify-content:center"><span style="width:20px;height:20px;background:#9e1618;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/cloud-off.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/cloud-off.svg) center/contain no-repeat"></span></span>
+            <strong style="font-size:15px;font-weight:600">Impossible de charger les ventes</strong>
+            <span style="font-size:13.5px;color:#586767;max-width:380px">Le service métier ne répond pas. Vos données ne sont pas perdues.</span>
+            <button style="height:40px;padding:0 16px;border:1px solid #dde3e4;background:#ffffff;border-radius:8px;font-size:13.5px;font-weight:600;color:#0a1a1b;cursor:pointer">Réessayer</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:48px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px">
+            <span style="width:44px;height:44px;border-radius:11px;background:#dff2f2;display:flex;align-items:center;justify-content:center"><span style="width:20px;height:20px;background:#04585c;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/receipt-text.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/receipt-text.svg) center/contain no-repeat"></span></span>
+            <strong style="font-size:15px;font-weight:600">Aucune vente sur cette période</strong>
+            <span style="font-size:13.5px;color:#586767;max-width:380px">Modifiez la période ou les filtres, ou enregistrez une nouvelle vente depuis la caisse.</span>
+            <button onClick="{{ resetFilters }}" style="height:40px;padding:0 16px;border:1px solid #dde3e4;background:#ffffff;border-radius:8px;font-size:13.5px;font-weight:600;color:#0a1a1b;cursor:pointer">Effacer les filtres</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showTable }}" hint-placeholder-val="{{ true }}">
+          <div style="position:relative">
+            <sc-if value="{{ annotate }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:-10px;top:-10px;height:20px;padding:0 8px;border-radius:999px;background:#d72f92;color:#ffffff;font-family:'Geist Mono',monospace;font-size:11px;font-weight:500;display:inline-flex;align-items:center;z-index:2">D · DataTable (desktop) / MobileRow (&lt; 768 px)</span></sc-if>
+            <sc-if value="{{ notCompact }}" hint-placeholder-val="{{ true }}">
+              <div style="overflow-x:auto">
+                <table style="width:100%;border-collapse:collapse;font-size:13.5px;min-width:760px">
+                  <thead>
+                    <tr style="background:#f9f9fc">
+                      <sc-if value="{{ canExport }}" hint-placeholder-val="{{ true }}">
+                        <th style="width:44px;padding:0 0 0 16px;border-bottom:1px solid #dde3e4"><span style="display:block;width:16px;height:16px;border:1.5px solid #7d898a;border-radius:4px;background:#ffffff"></span></th>
+                      </sc-if>
+                      <th style="text-align:left;padding:10px 16px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767;border-bottom:1px solid #dde3e4;white-space:nowrap">Référence ↓</th>
+                      <th style="text-align:left;padding:10px 12px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767;border-bottom:1px solid #dde3e4">Client · articles</th>
+                      <th style="text-align:left;padding:10px 12px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767;border-bottom:1px solid #dde3e4">Vendeur</th>
+                      <th style="text-align:left;padding:10px 12px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767;border-bottom:1px solid #dde3e4">Statut</th>
+                      <th style="text-align:right;padding:10px 12px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767;border-bottom:1px solid #dde3e4;white-space:nowrap">Montant net</th>
+                      <th style="text-align:right;padding:10px 12px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767;border-bottom:1px solid #dde3e4;white-space:nowrap">Reste dû</th>
+                      <th style="width:44px;border-bottom:1px solid #dde3e4"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
+                      <tr onClick="{{ r.open }}" style="height:60px;cursor:pointer;background:{{ r.rowBg }}" style-hover="background:#f6f6f9">
+                        <sc-if value="{{ canExport }}" hint-placeholder-val="{{ true }}">
+                          <td style="padding:0 0 0 16px;border-bottom:1px solid #eaefef"><span style="display:block;width:16px;height:16px;border:1.5px solid #7d898a;border-radius:4px;background:#ffffff"></span></td>
+                        </sc-if>
+                        <td style="padding:8px 16px;border-bottom:1px solid #eaefef">
+                          <div style="display:flex;flex-direction:column;gap:2px">
+                            <span style="font-family:'Geist Mono',monospace;font-size:12.5px;font-weight:500">{{ r.ref }}</span>
+                            <span style="font-size:12px;color:#586767;white-space:nowrap">{{ r.when }}</span>
+                          </div>
+                        </td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #eaefef">
+                          <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+                            <span style="font-weight:500">{{ r.client }}</span>
+                            <span style="font-size:12px;color:#586767">{{ r.items }}</span>
+                          </div>
+                        </td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #eaefef;color:#586767;white-space:nowrap">{{ r.seller }}</td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #eaefef">
+                          <span style="height:22px;padding:0 9px;border-radius:999px;background:{{ r.bg }};color:{{ r.fg }};font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:{{ r.fg }}"></span>{{ r.status }}</span>
+                        </td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #eaefef;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap">{{ r.net }}</td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #eaefef;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:{{ r.dueWeight }};color:{{ r.dueColor }}">{{ r.due }}</td>
+                        <td style="padding:0 12px 0 0;border-bottom:1px solid #eaefef;text-align:right">
+                          <span style="display:inline-block;width:16px;height:16px;background:#9ba7a8;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevron-right.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevron-right.svg) center/contain no-repeat"></span>
+                        </td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+              </div>
+            </sc-if>
+            <sc-if value="{{ compact }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+                  <button onClick="{{ r.open }}" style="display:flex;align-items:center;gap:12px;min-height:76px;padding:12px 16px;border:none;border-bottom:1px solid #eaefef;background:#ffffff;text-align:left;cursor:pointer;width:100%">
+                    <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+                      <span style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+                        <span style="font-family:'Geist Mono',monospace;font-size:12.5px;font-weight:500;color:#0a1a1b">{{ r.ref }}</span>
+                        <span style="height:22px;padding:0 9px;border-radius:999px;background:{{ r.bg }};color:{{ r.fg }};font-size:12px;font-weight:600;display:inline-flex;align-items:center">{{ r.status }}</span>
+                      </span>
+                      <span style="font-size:12.5px;color:#586767;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.when }} · {{ r.client }}</span>
+                      <span style="display:flex;justify-content:space-between;gap:8px;font-size:14px">
+                        <strong style="font-weight:600;color:#0a1a1b;font-variant-numeric:tabular-nums">{{ r.net }} XOF</strong>
+                        <span style="font-size:12.5px;font-weight:600;color:#864900">{{ r.dueMobile }}</span>
+                      </span>
+                    </span>
+                    <span style="width:18px;height:18px;flex:none;background:#9ba7a8;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevron-right.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevron-right.svg) center/contain no-repeat"></span>
+                  </button>
+                </sc-for>
+              </div>
+            </sc-if>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;font-size:13px;color:#586767">
+              <span>{{ pageLabel }}</span>
+              <div style="display:flex;gap:6px">
+                <button disabled="" aria-label="Page précédente" style="width:36px;height:36px;border:1px solid #dde3e4;border-radius:8px;background:#f9f9fc;display:flex;align-items:center;justify-content:center;opacity:.5"><span style="width:16px;height:16px;background:#0a1a1b;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevron-left.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevron-left.svg) center/contain no-repeat"></span></button>
+                <button aria-label="Page suivante" style="width:36px;height:36px;border:1px solid #dde3e4;border-radius:8px;background:#ffffff;display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="width:16px;height:16px;background:#0a1a1b;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevron-right.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevron-right.svg) center/contain no-repeat"></span></button>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+      </section>
+    </main>
+  </div>
+
+  <sc-if value="{{ hasSel }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ close }}" style="position:fixed;inset:0;background:rgba(10,26,27,0.32);z-index:40"></div>
+    <aside role="dialog" aria-modal="true" aria-label="Détail de la vente" style="position:fixed;top:0;right:0;bottom:0;width:min(460px,100vw);background:#ffffff;z-index:41;display:flex;flex-direction:column;box-shadow:-24px 0 64px rgba(10,26,27,0.18);animation:vxslide .18s ease-out">
+      <sc-if value="{{ annotate }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:12px;top:-0px;height:20px;padding:0 8px;border-radius:0 0 8px 8px;background:#d72f92;color:#ffffff;font-family:'Geist Mono',monospace;font-size:11px;font-weight:500;display:inline-flex;align-items:center;z-index:2">E · DetailSheet</span></sc-if>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:22px 22px 16px;border-bottom:1px solid #dde3e4">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="display:flex;align-items:center;gap:10px">
+            <span style="font-family:'Geist Mono',monospace;font-size:17px;font-weight:500">{{ sel.ref }}</span>
+            <span style="height:22px;padding:0 9px;border-radius:999px;background:{{ sel.bg }};color:{{ sel.fg }};font-size:12px;font-weight:600;display:inline-flex;align-items:center">{{ sel.status }}</span>
+          </span>
+          <span style="font-size:13px;color:#586767">{{ sel.when }} · {{ sel.seller }} · Cotonou · Principal</span>
+        </div>
+        <button onClick="{{ close }}" aria-label="Fermer" style="width:36px;height:36px;border:none;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:#eff4f4">
+          <span style="width:18px;height:18px;background:#0a1a1b;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/x.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/x.svg) center/contain no-repeat"></span>
+        </button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:18px 22px;display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="width:36px;height:36px;border-radius:50%;background:#e9f2f2;color:#1b3334;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ sel.clientInitials }}</span>
+          <span style="display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;font-weight:600">{{ sel.client }}</span><span style="font-size:12.5px;color:#586767">{{ sel.phone }}</span></span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767">Articles</span>
+          <sc-for list="{{ sel.lines }}" as="l" hint-placeholder-count="2">
+            <div style="display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #eaefef">
+              <span style="display:flex;flex-direction:column;gap:3px;min-width:0">
+                <span style="font-size:14px;font-weight:500">{{ l.label }}</span>
+                <span style="font-family:'Geist Mono',monospace;font-size:11.5px;color:#586767">{{ l.meta }}</span>
+              </span>
+              <span style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap">{{ l.total }}</span>
+            </div>
+          </sc-for>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;font-variant-numeric:tabular-nums">
+            <div style="display:flex;justify-content:space-between"><span style="color:#586767">Montant net</span><strong style="font-weight:600">{{ sel.net }} XOF</strong></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:#586767">Encaissé</span><span>{{ sel.paid }} XOF</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:#586767">Reste dû</span><strong style="font-weight:600;color:{{ sel.dueColor }}">{{ sel.due }} XOF</strong></div>
+          </div>
+        </div>
+        <sc-if value="{{ sel.hasMargin }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:10px;background:#f9f9fc;border:1px solid #dde3e4;font-size:13px">
+            <span style="display:flex;align-items:center;gap:8px;color:#586767"><span style="width:8px;height:8px;border-radius:2px;background:#d72f92"></span>Marge brute <span style="font-size:11.5px">(visible : propriétaire, responsable)</span></span>
+            <strong style="font-variant-numeric:tabular-nums;font-weight:600">{{ sel.margin }} XOF</strong>
+          </div>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767">Paiements</span>
+          <sc-for list="{{ sel.payments }}" as="p" hint-placeholder-count="1">
+            <div style="display:flex;align-items:center;gap:10px;font-size:13.5px">
+              <span style="width:8px;height:8px;border-radius:50%;background:{{ p.color }};flex:none"></span>
+              <span style="flex:1">{{ p.method }} <span style="color:#586767">· {{ p.when }}</span></span>
+              <span style="font-weight:600;font-variant-numeric:tabular-nums">{{ p.amount }}</span>
+            </div>
+          </sc-for>
+          <sc-if value="{{ sel.noPayment }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:13px;color:#586767">Aucun paiement enregistré.</span>
+          </sc-if>
+        </div>
+        <sc-if value="{{ canAccounting }}" hint-placeholder-val="{{ false }}">
+          <a href="#" style="font-size:13px;font-weight:600">Voir les écritures comptables →</a>
+        </sc-if>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;padding:14px 22px;border-top:1px solid #dde3e4;background:#f9f9fc">
+        <button style="height:42px;padding:0 14px;border:1px solid #dde3e4;background:#ffffff;border-radius:8px;font-size:13.5px;font-weight:600;color:#0a1a1b;cursor:pointer;display:flex;align-items:center;gap:8px" style-hover="border-color:#c0c9c9">
+          <span style="width:15px;height:15px;background:#0a1a1b;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/printer.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/printer.svg) center/contain no-repeat"></span>Reçu
+        </button>
+        <sc-if value="{{ canRefundSel }}" hint-placeholder-val="{{ false }}">
+          <button style="height:42px;padding:0 14px;border:none;background:transparent;border-radius:8px;font-size:13.5px;font-weight:600;color:#c51e21;cursor:pointer" style-hover="background:#ffede9">Retour client</button>
+        </sc-if>
+        <span style="flex:1"></span>
+        <sc-if value="{{ sel.hasDue }}" hint-placeholder-val="{{ false }}">
+          <button style="height:42px;padding:0 16px;border:none;background:#007176;border-radius:8px;font-size:13.5px;font-weight:600;color:#fbfbfe;cursor:pointer" style-hover="background:#045c60">Encaisser {{ sel.due }}</button>
+        </sc-if>
+      </div>
+    </aside>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;role&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;owner&quot;,&quot;manager&quot;,&quot;cashier&quot;],&quot;default&quot;:&quot;owner&quot;,&quot;tsType&quot;:&quot;'owner'|'manager'|'cashier'&quot;,&quot;section&quot;:&quot;Contexte&quot;},&quot;dataState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;data&quot;,&quot;loading&quot;,&quot;empty&quot;,&quot;error&quot;],&quot;default&quot;:&quot;data&quot;,&quot;tsType&quot;:&quot;'data'|'loading'|'empty'|'error'&quot;,&quot;section&quot;:&quot;États&quot;},&quot;annotate&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Guide agent&quot;}}">
+class Component extends DCLogic {
+  state = { query: '', status: 'all', period: 7, sel: null, compact: false };
+  rootRef = React.createRef();
+  componentDidMount() {
+    const el = this.rootRef.current; if (!el) return;
+    this.ro = new ResizeObserver(([e]) => { const c = e.contentRect.width < 900; if (c !== this.state.compact) this.setState({ compact: c }); });
+    this.ro.observe(el);
+  }
+  componentWillUnmount() { this.ro && this.ro.disconnect(); }
+  ic(n) { return 'https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/' + n + '.svg'; }
+  fmt(n) { return Math.round(n).toLocaleString('fr-FR').replace(/\u202f|\u00a0/g, ' '); }
+  renderVals() {
+    const role = this.props.role ?? 'owner';
+    const P = {
+      owner: ['*'],
+      manager: ['dashboard.read', 'analytics.read', 'analytics.cost_margin_read', 'sales.read', 'sales.create', 'sales.refund', 'stock.read', 'trade.create', 'buyback.create', 'purchases.manage', 'cash.open_close', 'finance.read', 'accounting.read', 'exports.create'],
+      cashier: ['sales.read', 'sales.create', 'stock.read', 'trade.create', 'buyback.create', 'cash.open_close'],
+    }[role];
+    const can = (p) => P[0] === '*' || P.includes(p);
+    const users = { owner: ['Alex Morgan', 'AM', 'Propriétaire'], manager: ['Sènami H.', 'SH', 'Responsable'], cashier: ['Fiacre A.', 'FA', 'Caissier / vendeur'] }[role];
+    const navDef = [
+      ['Pilotage', [['Vue d’ensemble', 'layout-dashboard', 'dashboard.read', 'Tableau de bord.dc.html'], ['Analyses & rapports', 'chart-column', 'analytics.read']]],
+      ['Opérations', [['Caisse / Vendre', 'shopping-cart', 'sales.create'], ['Ventes', 'receipt-text', 'sales.read', '#', 1], ['Stock & catalogue', 'package', 'stock.read', '#', 0, 2], ['Troc & reprise', 'repeat-2', 'trade.create'], ['Rachat client', 'smartphone', 'buyback.create'], ['Achats', 'shopping-bag', 'purchases.manage'], ['Fournisseurs', 'truck', 'purchases.manage'], ['Clients', 'users', 'sales.read']]],
+      ['Finance', [['Trésorerie & caisse', 'wallet-cards', 'cash.open_close'], ['Dépenses', 'circle-dollar-sign', 'finance.read'], ['Paiements', 'credit-card', 'finance.read'], ['Comptabilité', 'book-open', 'accounting.read']]],
+      ['Administration', [['Équipe & rôles', 'users-round', 'team.manage'], ['Historique & audit', 'clock-3', 'audit.read'], ['Paramètres', 'settings', 'settings.manage']]],
+    ];
+    const nav = navDef.map(([section, items]) => ({
+      section,
+      items: items.filter((x) => can(x[2])).map(([label, icon, , href, active, badge]) => ({
+        label, href: href || '#', icon: this.ic(icon), badge: badge || 0,
+        color: active ? '#0d1b1c' : '#344344', bg: active ? '#d2ecee' : 'transparent', iconColor: active ? '#007176' : '#566768', bar: active ? 'inset 3px 0 0 #007176' : 'none',
+      })),
+    })).filter((s) => s.items.length);
+
+    const ST = { paid: ['Payée', '#e4f9e9', '#135c30'], credit: ['À crédit', '#fff2d6', '#864900'], partially_refunded: ['Retour partiel', '#e4f5ff', '#005892'], refunded: ['Remboursée', '#eff4f4', '#435454'] };
+    const raw = [
+      ['VTE-0196', 0, 'Aujourd’hui · 11:42', 'Client comptoir', '', 'iPhone 15 · 128 Go', 'Fiacre A.', 425000, 425000, 'paid', [['iPhone 15 · 128 Go · Noir', 'IMEI 356938035643809 · 1 × 425 000', 425000]], [['Mobile Money', '11:42', 425000, '#d08300']], 85000],
+      ['VTE-0195', 0, 'Aujourd’hui · 10:08', 'Bernadette H.', '+229 97 41 22 08', 'Redmi Note 13 + AirPods Pro', 'Grâce K.', 205000, 120000, 'credit', [['Redmi Note 13 · 128 Go', 'IMEI 862514067331245 · 1 × 110 000', 110000], ['AirPods Pro · 2e gén.', 'SN H4K2P9QX · 1 × 95 000', 95000]], [['Espèces', '10:08', 120000, '#2c965d']], 67000],
+      ['VTE-0194', 1, 'Hier · 18:21', 'Koffi D.', '+229 96 08 55 31', 'Galaxy S24 · 256 Go', 'Fiacre A.', 395000, 0, 'credit', [['Galaxy S24 · 256 Go · Gris', 'IMEI 351756051523999 · 1 × 395 000', 395000]], [], 95000],
+      ['VTE-0193', 1, 'Hier · 16:03', 'Client comptoir', '', 'Camon 30 · 256 Go', 'Sènami H.', 125000, 125000, 'paid', [['Tecno Camon 30 · 256 Go', 'IMEI 359812104477120 · 1 × 125 000', 125000]], [['Espèces', '16:03', 125000, '#2c965d']], 35000],
+      ['VTE-0192', 1, 'Hier · 11:47', 'Mariam S.', '+229 61 77 20 14', 'Galaxy A55 · 128 Go', 'Grâce K.', 0, 0, 'refunded', [['Galaxy A55 · 128 Go · Lilas', 'Retourné · remis en stock', 0]], [['Remboursement espèces', 'Hier 15:10', -215000, '#c51e21']], 0],
+      ['VTE-0191', 2, '6 oct · 17:30', 'Rodrigue A.', '+229 95 30 18 66', 'iPhone 13 + coque', 'Fiacre A.', 265000, 265000, 'partially_refunded', [['iPhone 13 · 128 Go · Bleu', 'IMEI 353987112204561 · 1 × 265 000', 265000], ['Coque MagSafe', 'Retournée · 1 × 15 000', 0]], [['Carte', '6 oct 17:30', 280000, '#3673cb'], ['Remboursement', '7 oct 09:12', -15000, '#c51e21']], 70000],
+      ['VTE-0190', 2, '6 oct · 15:12', 'Client comptoir', '', 'AirPods Pro', 'Sènami H.', 95000, 95000, 'paid', [['AirPods Pro · 2e gén.', 'SN J7R3M1WA · 1 × 95 000', 95000]], [['Mobile Money', '15:12', 95000, '#d08300']], 35000],
+      ['VTE-0189', 2, '6 oct · 10:41', 'Edwige T.', '+229 90 12 44 70', 'Tecno Camon 30 × 2', 'Grâce K.', 250000, 250000, 'paid', [['Tecno Camon 30 · 256 Go', '2 × 125 000', 250000]], [['Espèces', '10:41', 250000, '#2c965d']], 70000],
+      ['VTE-0188', 3, '5 oct · 18:02', 'Koffi D.', '+229 96 08 55 31', 'Infinix Note 40', 'Fiacre A.', 115000, 60000, 'credit', [['Infinix Note 40 · 256 Go', 'IMEI 357201093318842 · 1 × 115 000', 115000]], [['Mobile Money', '5 oct 18:02', 60000, '#d08300']], 33000],
+      ['VTE-0187', 3, '5 oct · 12:20', 'Client comptoir', '', 'Redmi Note 13', 'Grâce K.', 110000, 110000, 'paid', [['Redmi Note 13 · 128 Go', 'IMEI 862514067330017 · 1 × 110 000', 110000]], [['Espèces', '12:20', 110000, '#2c965d']], 32000],
+    ];
+    const mode = this.props.dataState ?? 'data';
+    const q = this.state.query.trim().toLowerCase();
+    const periodDays = this.state.period;
+    let base = raw.filter((r) => r[1] < periodDays);
+    const byStatus = (s) => (s === 'all' ? base : s === 'returns' ? base.filter((r) => /refund/.test(r[9])) : base.filter((r) => r[9] === s));
+    let list = byStatus(this.state.status).filter((r) => !q || (r[0] + ' ' + r[3] + ' ' + r[10].map((l) => l[1]).join(' ')).toLowerCase().includes(q));
+    if (mode === 'empty') list = [];
+    const rows = list.map((r) => {
+      const due = r[7] - r[8];
+      return {
+        ref: r[0], when: r[2], client: r[3], items: r[5], seller: r[6], net: this.fmt(r[7]), due: due > 0 ? this.fmt(due) : '—',
+        dueMobile: due > 0 ? 'Reste ' + this.fmt(due) : '', dueColor: due > 0 ? '#864900' : '#768384', dueWeight: due > 0 ? 600 : 400,
+        status: ST[r[9]][0], bg: ST[r[9]][1], fg: ST[r[9]][2], rowBg: this.state.sel === r[0] ? '#eff8f9' : 'transparent',
+        open: () => this.setState({ sel: r[0] }),
+      };
+    });
+    const sR = raw.find((r) => r[0] === this.state.sel);
+    let sel = {};
+    if (sR) {
+      const due = sR[7] - sR[8];
+      sel = {
+        ref: sR[0], when: sR[2], seller: sR[6], client: sR[3], phone: sR[4] || 'Vente sans fiche client', clientInitials: sR[3].split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase(),
+        status: ST[sR[9]][0], bg: ST[sR[9]][1], fg: ST[sR[9]][2],
+        lines: sR[10].map(([label, meta, t]) => ({ label, meta, total: this.fmt(t) })),
+        payments: sR[11].map(([method, when, a, color]) => ({ method, when, amount: (a < 0 ? '− ' : '') + this.fmt(Math.abs(a)), color })), noPayment: !sR[11].length,
+        net: this.fmt(sR[7]), paid: this.fmt(sR[8]), due: this.fmt(Math.max(0, due)), hasDue: due > 0, dueColor: due > 0 ? '#864900' : '#0a1a1b',
+        hasMargin: can('analytics.cost_margin_read') && sR[12] > 0, margin: this.fmt(sR[12]),
+      };
+    }
+    const sum = (i) => list.reduce((a, r) => a + r[i], 0);
+    const dueTotal = list.reduce((a, r) => a + Math.max(0, r[7] - r[8]), 0);
+    const summary = [
+      { label: 'Ventes', value: String(list.length), unit: '', color: '#0a1a1b' },
+      { label: 'Montant net', value: this.fmt(sum(7)), unit: 'XOF', color: '#0a1a1b' },
+      { label: 'Encaissé', value: this.fmt(sum(8)), unit: 'XOF', color: '#0a1a1b' },
+      { label: 'Reste dû', value: this.fmt(dueTotal), unit: 'XOF', color: dueTotal > 0 ? '#864900' : '#0a1a1b' },
+    ];
+    const chips = [['all', 'Toutes'], ['paid', 'Payées'], ['credit', 'À crédit'], ['returns', 'Retours']].map(([id, label]) => {
+      const on = this.state.status === id;
+      return { label, count: byStatus(id).length, pressed: on ? 'true' : 'false', onClick: () => this.setState({ status: id }), bg: on ? '#0a1a1b' : '#ffffff', fg: on ? '#f9f9fc' : '#0a1a1b', border: on ? '#0a1a1b' : '#dde3e4' };
+    });
+    const periods = [[1, 'Aujourd’hui'], [7, '7 jours'], [30, '30 jours']].map(([d, label]) => {
+      const on = periodDays === d;
+      return { label, onClick: () => this.setState({ period: d }), bg: on ? '#ffffff' : 'transparent', color: on ? '#0a1a1b' : '#586767', shadow: on ? '0 1px 2px rgba(10,26,27,0.1)' : 'none' };
+    });
+    const compact = this.state.compact;
+    return {
+      rootRef: this.rootRef, nav, compact, notCompact: !compact, railDisplay: compact ? 'none' : 'flex', gutter: compact ? '16px' : '28px',
+      user: { name: users[0], initials: users[1], role: users[2] },
+      annotate: this.props.annotate ?? false,
+      query: this.state.query, onQuery: (e) => this.setState({ query: e.target.value }),
+      periods, chips, summary,
+      canExport: can('exports.create'), exportLabel: 'Exporter',
+      isLoading: mode === 'loading', isError: mode === 'error', isEmpty: mode !== 'loading' && mode !== 'error' && rows.length === 0, showTable: mode !== 'loading' && mode !== 'error' && rows.length > 0,
+      skeleton: [1, 2, 3, 4, 5, 6], rows, pageLabel: rows.length ? '1–' + rows.length + ' sur ' + rows.length + ' ventes' : '',
+      resetFilters: () => this.setState({ query: '', status: 'all', period: 30 }),
+      hasSel: !!sR, sel, close: () => this.setState({ sel: null }),
+      canRefundSel: can('sales.refund') && sR && sR[9] !== 'refunded', canAccounting: can('accounting.read'),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>VORTEX · Sidebar alternative</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;background:#f9f9fc;color:#0a1a1b;font-family:'Geist',ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#007176;text-decoration:none}
+a:hover{color:#04585c;text-decoration:underline}
+button,input{font-family:inherit}
+input::placeholder{color:#657576}
+</style>
+</helmet>
+<div style="min-height:100vh;padding:32px;display:flex;flex-direction:column;gap:24px;max-width:1520px;margin:0 auto">
+  <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px">
+    <div style="display:flex;flex-direction:column;gap:8px;max-width:720px">
+      <span style="display:flex;align-items:center;gap:8px"><span style="height:22px;padding:0 9px;border-radius:999px;background:#007176;color:#fbfbfe;font-family:'Geist Mono',monospace;font-size:11.5px;font-weight:500;display:inline-flex;align-items:center">Proposition B</span><span style="font-size:13px;color:#586767">à comparer avec le rail actuel du <a href="Tableau de bord.dc.html" style="font-weight:600">Tableau de bord</a></span></span>
+      <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:32px;line-height:1.1;letter-spacing:-0.03em">Double rail : sections en icônes, écrans en panneau</h1>
+      <p style="margin:0;font-size:14.5px;line-height:1.55;color:#586767;text-wrap:pretty">Le rail actuel empile 19 entrées. Ici, 4 sections dans une colonne d’icônes ; le panneau ne montre que les écrans de la section active, avec la caisse en cours toujours visible. Cliquez sur les icônes de section.</p>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,320px);gap:24px;align-items:start">
+    <div style="height:780px;display:flex;border:1px solid #dde3e4;border-radius:16px;overflow:hidden;background:#f9f9fc;box-shadow:0 24px 64px rgba(10,26,27,0.10)">
+
+      <div style="width:68px;flex:none;background:#eff6f6;display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:6px;border-right:1px solid #d2ecee">
+        <img src="assets/vortex-logo.png" alt="VORTEX" style="width:38px;height:38px;border-radius:10px;margin-bottom:10px">
+        <button title="Nouvelle vente" aria-label="Nouvelle vente" style="width:44px;height:44px;border-radius:12px;border:1px dashed #90abac;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:10px" style-hover="background:#d2ecee;border-color:#007176">
+          <span style="width:18px;height:18px;background:#007176;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/plus.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/plus.svg) center/contain no-repeat"></span>
+        </button>
+        <sc-for list="{{ sections }}" as="s" hint-placeholder-count="4">
+          <button onClick="{{ s.onClick }}" title="{{ s.label }}" aria-label="{{ s.label }}" aria-pressed="{{ s.pressed }}" style="position:relative;width:52px;min-height:56px;padding:6px 0;border:none;border-radius:12px;background:{{ s.bg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer" style-hover="background:#d2ecee">
+            <span style="position:absolute;left:-8px;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:{{ s.bar }}"></span>
+            <span style="width:20px;height:20px;background:{{ s.fg }};-webkit-mask:url({{ s.icon }}) center/contain no-repeat;mask:url({{ s.icon }}) center/contain no-repeat"></span>
+            <span style="font-size:10px;font-weight:600;color:{{ s.fg }};letter-spacing:0.01em">{{ s.short }}</span>
+            <sc-if value="{{ s.badge }}" hint-placeholder-val="{{ false }}">
+              <span style="position:absolute;top:6px;right:8px;width:8px;height:8px;border-radius:50%;background:#e8a127;box-shadow:0 0 0 2px #eff6f6"></span>
+            </sc-if>
+          </button>
+        </sc-for>
+        <span style="flex:1"></span>
+        <button aria-label="Notifications" style="position:relative;width:44px;height:44px;border:none;border-radius:12px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:#d2ecee">
+          <span style="width:19px;height:19px;background:#566768;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/bell.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/bell.svg) center/contain no-repeat"></span>
+          <span style="position:absolute;top:10px;right:11px;width:8px;height:8px;border-radius:50%;background:#e2585a;box-shadow:0 0 0 2px #eff6f6"></span>
+        </button>
+        <button onClick="{{ togglePanel }}" aria-label="{{ panelToggleLabel }}" style="width:44px;height:44px;border:none;border-radius:12px;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:#d2ecee">
+          <span style="width:19px;height:19px;background:#566768;-webkit-mask:url({{ panelToggleIcon }}) center/contain no-repeat;mask:url({{ panelToggleIcon }}) center/contain no-repeat"></span>
+        </button>
+        <span style="width:36px;height:36px;border-radius:50%;background:#007176;color:#eff6f6;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:6px">{{ user.initials }}</span>
+      </div>
+
+      <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="width:244px;flex:none;background:#f7fbfb;color:#182728;display:flex;flex-direction:column;border-right:1px solid #d7e0e0">
+          <div style="padding:18px 16px 12px;display:flex;flex-direction:column;gap:14px">
+            <button style="min-height:44px;display:flex;align-items:center;gap:10px;padding:6px 10px;background:#d2ecee;border:1px solid #cfdada;border-radius:10px;color:#0d1b1c;cursor:pointer;text-align:left" style-hover="border-color:#90abac">
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                <span style="font-size:13px;font-weight:600">Maison Mobile</span>
+                <span style="font-size:11.5px;color:#566768;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#4dbf74"></span>Cotonou · Principal</span>
+              </span>
+              <span style="width:16px;height:16px;background:#566768;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevrons-up-down.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevrons-up-down.svg) center/contain no-repeat"></span>
+            </button>
+            <label style="position:relative;display:flex">
+              <span style="position:absolute;left:11px;top:11px;width:15px;height:15px;background:#657576;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/search.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/search.svg) center/contain no-repeat"></span>
+              <input aria-label="Rechercher" placeholder="Aller à…" style="width:100%;height:38px;padding:0 44px 0 34px;border:1px solid #cfdada;border-radius:8px;background:#eff6f6;color:#0d1b1c;font-size:13px;outline:none" style-focus="border-color:#007176">
+              <span style="position:absolute;right:8px;top:9px;height:20px;padding:0 6px;border-radius:5px;border:1px solid #cfdada;font-family:'Geist Mono',monospace;font-size:11px;color:#566768;display:inline-flex;align-items:center">⌘K</span>
+            </label>
+          </div>
+          <div style="padding:6px 16px 8px;display:flex;align-items:baseline;justify-content:space-between">
+            <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:19px;letter-spacing:-0.02em;color:#0d1b1c">{{ active.label }}</span>
+            <span style="font-size:11.5px;color:#566768;font-variant-numeric:tabular-nums">{{ active.count }}</span>
+          </div>
+          <nav aria-label="{{ active.label }}" style="flex:1;overflow-y:auto;padding:4px 10px;display:flex;flex-direction:column;gap:2px">
+            <sc-for list="{{ items }}" as="it" hint-placeholder-count="5">
+              <a href="#" onClick="{{ it.onClick }}" style="display:flex;align-items:center;gap:11px;min-height:42px;padding:0 10px;border-radius:8px;font-size:13.5px;font-weight:500;color:{{ it.color }};background:{{ it.bg }};text-decoration:none" style-hover="background:#d2ecee;color:#0d1b1c;text-decoration:none">
+                <span style="width:17px;height:17px;flex:none;background:{{ it.iconColor }};-webkit-mask:url({{ it.icon }}) center/contain no-repeat;mask:url({{ it.icon }}) center/contain no-repeat"></span>
+                <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.label }}</span>
+                <sc-if value="{{ it.badge }}" hint-placeholder-val="{{ false }}">
+                  <span style="min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#e8a127;color:#331b06;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">{{ it.badge }}</span>
+                </sc-if>
+                <sc-if value="{{ it.kbd }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-family:'Geist Mono',monospace;font-size:10.5px;color:#657576">{{ it.kbd }}</span>
+                </sc-if>
+              </a>
+            </sc-for>
+          </nav>
+          <div style="margin:10px;padding:12px;border-radius:12px;background:#eff6f6;border:1px solid #d7e0e0;display:flex;flex-direction:column;gap:10px">
+            <span style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+              <span style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#135c30"><span style="width:7px;height:7px;border-radius:50%;background:#4dbf74;box-shadow:0 0 0 3px rgba(77,191,116,0.18)"></span>Caisse ouverte</span>
+              <span style="font-size:11.5px;color:#566768">depuis 08:12</span>
+            </span>
+            <span style="font-size:18px;font-weight:600;color:#0d1b1c;font-variant-numeric:tabular-nums;letter-spacing:-0.01em">612 500 <span style="font-size:11.5px;font-weight:500;color:#566768">XOF théorique</span></span>
+            <button style="height:34px;border:1px solid #cfdada;background:#f7fbfb;border-radius:8px;font-size:12.5px;font-weight:600;color:#0d1b1c;cursor:pointer" style-hover="border-color:#90abac">Clôturer la caisse</button>
+          </div>
+          <div style="padding:10px 16px 14px;border-top:1px solid #d7e0e0;display:flex;align-items:center;gap:10px">
+            <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+              <span style="font-size:13px;font-weight:600;color:#0d1b1c">{{ user.name }}</span>
+              <span style="font-size:11.5px;color:#566768">{{ user.role }}</span>
+            </span>
+            <span style="width:16px;height:16px;background:#566768;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/log-out.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/log-out.svg) center/contain no-repeat"></span>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="height:64px;display:flex;align-items:center;gap:8px;padding:0 24px;border-bottom:1px solid #dde3e4;font-size:13px">
+          <span style="color:#586767">{{ active.label }}</span><span style="color:#c0c9c9">/</span><span style="font-weight:600">{{ current }}</span>
+        </div>
+        <div style="flex:1;margin:24px;border:1.5px dashed #d9dfe0;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#768384">Contenu de l’écran « {{ current }} »</div>
+      </div>
+    </div>
+
+    <aside style="display:flex;flex-direction:column;gap:16px">
+      <div style="background:#ffffff;border:1px solid #dde3e4;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px">
+        <strong style="font-size:14px;font-weight:600">Ce qui change</strong>
+        <sc-for list="{{ notes }}" as="n" hint-placeholder-count="5">
+          <div style="display:flex;gap:10px;font-size:13px;line-height:1.5">
+            <span style="width:20px;height:20px;flex:none;border-radius:50%;background:#dff2f2;color:#04585c;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ n.n }}</span>
+            <span><strong style="font-weight:600">{{ n.t }}</strong> <span style="color:#586767">{{ n.d }}</span></span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#ffffff;border:1px solid #dde3e4;border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px;font-size:13px;line-height:1.5">
+        <strong style="font-size:14px;font-weight:600">Arbitrage</strong>
+        <span><span style="color:#135c30;font-weight:600">Pour :</span> <span style="color:#586767">rail lisible même pour le propriétaire (19 entrées), état de caisse permanent, repli à 68 px sans perdre les sections.</span></span>
+        <span><span style="color:#9e1618;font-weight:600">Contre :</span> <span style="color:#586767">un clic de plus pour changer de section ; 312 px de large ouvert contre 248 aujourd’hui.</span></span>
+        <span style="color:#586767">Recommandé si l’équipe utilise surtout 1 ou 2 sections par jour (caissier, stock, comptable).</span>
+      </div>
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;role&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;owner&quot;,&quot;manager&quot;,&quot;cashier&quot;],&quot;default&quot;:&quot;owner&quot;,&quot;tsType&quot;:&quot;'owner'|'manager'|'cashier'&quot;},&quot;panelOpen&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { section: null, current: null, panel: null };
+  ic(n) { return 'https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/' + n + '.svg'; }
+  renderVals() {
+    const role = this.props.role ?? 'owner';
+    const P = {
+      owner: ['*'],
+      manager: ['dashboard.read', 'analytics.read', 'sales.read', 'sales.create', 'stock.read', 'trade.create', 'buyback.create', 'purchases.manage', 'cash.open_close', 'finance.read', 'accounting.read'],
+      cashier: ['sales.read', 'sales.create', 'stock.read', 'trade.create', 'buyback.create', 'cash.open_close'],
+    }[role];
+    const can = (p) => P[0] === '*' || P.includes(p);
+    const user = { owner: ['Alex Morgan', 'AM', 'Propriétaire'], manager: ['Sènami H.', 'SH', 'Responsable'], cashier: ['Fiacre A.', 'FA', 'Caissier / vendeur'] }[role];
+    const def = [
+      ['pilot', 'Pilotage', 'Pilotage', 'layout-dashboard', [['Vue d’ensemble', 'layout-dashboard', 'dashboard.read', 0, 'G D'], ['Analyses & rapports', 'chart-column', 'analytics.read']]],
+      ['ops', 'Opérations', 'Ventes', 'shopping-cart', [['Caisse / Vendre', 'shopping-cart', 'sales.create', 0, 'N'], ['Ventes', 'receipt-text', 'sales.read'], ['Stock & catalogue', 'package', 'stock.read', 2], ['Troc & reprise', 'repeat-2', 'trade.create'], ['Rachat client', 'smartphone', 'buyback.create'], ['Achats', 'shopping-bag', 'purchases.manage'], ['Fournisseurs', 'truck', 'purchases.manage'], ['Clients', 'users', 'sales.read']]],
+      ['fin', 'Finance', 'Finance', 'wallet-cards', [['Trésorerie & caisse', 'wallet-cards', 'cash.open_close'], ['Dépenses', 'circle-dollar-sign', 'finance.read'], ['Paiements', 'credit-card', 'finance.read'], ['Comptabilité', 'book-open', 'accounting.read']]],
+      ['admin', 'Administration', 'Admin', 'settings', [['Équipe & rôles', 'users-round', 'team.manage'], ['Historique & audit', 'clock-3', 'audit.read'], ['Paramètres', 'settings', 'settings.manage']]],
+    ].map(([id, label, short, icon, items]) => ({ id, label, short, icon, items: items.filter((x) => can(x[2])) })).filter((s) => s.items.length);
+    const secId = def.find((s) => s.id === this.state.section) ? this.state.section : (role === 'cashier' ? 'ops' : def[0].id);
+    const sec = def.find((s) => s.id === secId);
+    const current = this.state.current && sec.items.some((i) => i[0] === this.state.current) ? this.state.current : sec.items[0][0];
+    const sections = def.map((s) => {
+      const on = s.id === secId;
+      return {
+        label: s.label, short: s.short, icon: this.ic(s.icon), pressed: on ? 'true' : 'false', badge: s.items.some((i) => i[3]),
+        bg: on ? '#d2ecee' : 'transparent', fg: on ? '#04585c' : '#566768', bar: on ? '#007176' : 'transparent',
+        onClick: () => this.setState({ section: s.id, current: null, panel: true }),
+      };
+    });
+    const items = sec.items.map(([label, icon, , badge, kbd]) => {
+      const on = label === current;
+      return {
+        label, icon: this.ic(icon), badge: badge || 0, kbd: kbd || '',
+        color: on ? '#0d1b1c' : '#344344', bg: on ? '#c7e9ea' : 'transparent', iconColor: on ? '#007176' : '#566768',
+        onClick: (e) => { e.preventDefault(); this.setState({ current: label }); },
+      };
+    });
+    const panelOpen = this.state.panel ?? (this.props.panelOpen ?? true);
+    return {
+      sections, items, current, active: { label: sec.label, count: sec.items.length + ' écrans' },
+      panelOpen, togglePanel: () => this.setState({ panel: !panelOpen }),
+      panelToggleIcon: this.ic(panelOpen ? 'panel-left-close' : 'panel-left-open'), panelToggleLabel: panelOpen ? 'Replier le panneau' : 'Déplier le panneau',
+      user: { name: user[0], initials: user[1], role: user[2] },
+      notes: [
+        { n: 1, t: 'Sections en icônes.', d: 'Pilotage, Opérations, Finance, Admin. Un point ambre signale qu’un écran de la section demande une action.' },
+        { n: 2, t: 'Panneau contextuel.', d: 'Seulement les écrans de la section active, avec son titre. Le rôle filtre les sections et les écrans.' },
+        { n: 3, t: '« + » vente rapide.', d: 'Accessible depuis n’importe quel écran, sans prendre la place de l’action primaire de la page.' },
+        { n: 4, t: 'Caisse en pied de panneau.', d: 'État, solde théorique et clôture toujours sous la main : le contexte le plus consulté en boutique.' },
+        { n: 5, t: 'Recherche ⌘K.', d: 'Aller à un écran, une vente ou un IMEI. Raccourcis affichés à côté des écrans fréquents.' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

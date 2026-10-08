@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>VORTEX · Connexion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;background:#f9f9fc;color:#0a1a1b;font-family:'Geist',ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#007176;text-decoration:none;font-weight:600}
+a:hover{color:#04585c;text-decoration:underline}
+button,input,select{font-family:inherit}
+input::placeholder{color:#9ba7a8}
+@keyframes vxspin{to{transform:rotate(360deg)}}
+@keyframes vxrise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" style="min-height:100vh;display:flex;background:#f9f9fc">
+
+  <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+    <aside style="position:relative;flex:0 0 44%;max-width:640px;min-height:100vh;background:#eff6f6;color:#0a1a1b;display:flex;flex-direction:column;justify-content:space-between;gap:40px;padding:40px 48px;overflow:hidden;border-right:1px solid #d7e0e0">
+      <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(10,26,27,0.13) 1px,transparent 1.3px);background-size:22px 22px;pointer-events:none;-webkit-mask-image:linear-gradient(165deg,#000 15%,transparent 75%);mask-image:linear-gradient(165deg,#000 15%,transparent 75%)"></div>
+      <div style="position:absolute;width:620px;height:620px;right:-260px;bottom:-240px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,113,118,0.12),rgba(0,113,118,0) 70%);pointer-events:none"></div>
+      <a href="#" style="position:relative;display:flex;align-items:center;gap:12px;text-decoration:none;color:#0a1a1b;width:max-content">
+        <img src="assets/vortex-logo.png" alt="" style="width:44px;height:44px;border-radius:11px;box-shadow:0 6px 18px rgba(10,26,27,0.18)">
+        <span style="display:flex;flex-direction:column;gap:4px">
+          <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:21px;letter-spacing:-0.02em;line-height:1">VORTEX</span>
+          <span style="font-size:10.5px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#586767;line-height:1">Stock &amp; Finance</span>
+        </span>
+      </a>
+      <div style="position:relative;display:flex;flex-direction:column;gap:36px">
+        <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:clamp(34px,3.4vw,50px);line-height:1.04;letter-spacing:-0.035em;color:#0a1a1b;text-wrap:balance">Chaque vente, <span style="color:#007176">au bon endroit</span> : stock, caisse et compta à jour.</h1>
+        <div style="position:relative;height:350px;max-width:440px">
+          <div style="position:absolute;left:4px;top:6px;width:268px;animation:vxrise .5s ease-out both">
+            <div style="transform:rotate(-2.5deg);filter:drop-shadow(0 18px 28px rgba(10,26,27,0.14)) drop-shadow(0 2px 4px rgba(10,26,27,0.06))">
+              <div style="position:relative;background:#ffffff;border-radius:12px 12px 0 0;padding:18px 20px 14px;display:flex;flex-direction:column;gap:11px">
+                <div style="display:flex;flex-direction:column;gap:3px;align-items:center;text-align:center">
+                  <span style="font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase">Maison Mobile</span>
+                  <span style="font-size:11.5px;color:#586767">Cotonou · Principal</span>
+                </div>
+                <span style="display:flex;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:11px;color:#586767"><span>VTE-0196</span><span>08/10 · 11:42</span></span>
+                <span style="border-top:1.5px dashed #c0c9c9"></span>
+                <div style="display:flex;flex-direction:column;gap:9px;font-size:12.5px">
+                  <div style="display:flex;justify-content:space-between;gap:10px"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">iPhone 15 · 128 Go</span><span style="font-family:'Geist Mono',monospace;font-size:10.5px;color:#586767">IMEI 3569…3809</span></span><span style="font-variant-numeric:tabular-nums;font-weight:500">425 000</span></div>
+                  <div style="display:flex;justify-content:space-between;gap:10px"><span style="font-weight:600">Coque MagSafe</span><span style="font-variant-numeric:tabular-nums;font-weight:500">15 000</span></div>
+                </div>
+                <span style="border-top:1.5px dashed #c0c9c9"></span>
+                <div style="display:flex;justify-content:space-between;align-items:baseline">
+                  <span style="font-size:12.5px;font-weight:600">Total</span>
+                  <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:26px;letter-spacing:-0.03em;font-variant-numeric:tabular-nums;line-height:1">440 000 <span style="font-family:'Geist',sans-serif;font-size:11.5px;font-weight:500;color:#586767;letter-spacing:0">XOF</span></span>
+                </div>
+                <span style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#586767"><span style="width:7px;height:7px;border-radius:50%;background:#d08300"></span>Payé par Mobile Money</span>
+                <span style="position:absolute;right:-22px;top:96px;transform:rotate(9deg);height:28px;padding:0 12px;border-radius:7px;border:1.5px solid #1a763f;background:#e4f9e9;color:#135c30;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px"><span style="width:13px;height:13px;flex:none;background:#135c30;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/check.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/check.svg) center/contain no-repeat"></span>Payée</span>
+              </div>
+              <div style="height:10px;background:radial-gradient(circle at 50% 100%,transparent 5px,#ffffff 5.5px) 0 0/14px 10px repeat-x"></div>
+            </div>
+          </div>
+          <div style="position:absolute;right:0;bottom:6px;width:252px;padding:14px 16px;border-radius:14px;background:#ffffff;border:1px solid #dde3e4;box-shadow:0 16px 36px rgba(10,26,27,0.12);display:flex;align-items:center;gap:12px;animation:vxrise .5s .15s ease-out both">
+            <span style="width:36px;height:36px;border-radius:9px;background:#dff2f2;display:flex;align-items:center;justify-content:center;flex:none"><span style="width:18px;height:18px;flex:none;background:#04585c;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/package-check.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/package-check.svg) center/contain no-repeat"></span></span>
+            <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+              <span style="font-size:13.5px;font-weight:600">Stock mis à jour</span>
+              <span style="font-size:12px;color:#586767">iPhone 15 · 128 Go → 4 restants</span>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div style="position:relative;display:flex;flex-wrap:wrap;gap:8px 20px;font-size:12.5px;color:#586767">
+        <span style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;flex:none;background:#586767;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/shield-check.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/shield-check.svg) center/contain no-repeat"></span>Accès par rôle et par boutique</span>
+        <span style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;flex:none;background:#586767;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/coins.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/coins.svg) center/contain no-repeat"></span>XOF, Mobile Money, espèces</span>
+      </div>
+    </aside>
+  </sc-if>
+
+  <main style="flex:1;min-width:0;min-height:100vh;display:flex;flex-direction:column;padding:28px 32px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px">
+      <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+        <span style="display:flex;align-items:center;gap:10px">
+          <img src="assets/vortex-logo.png" alt="" style="width:32px;height:32px;border-radius:8px">
+          <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:17px;letter-spacing:-0.02em">VORTEX</span>
+        </span>
+      </sc-if>
+      <span style="flex:1"></span>
+      <span style="font-size:13.5px;color:#586767;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">{{ topText }} <a href="#" onClick="{{ topGo }}">{{ topLink }}</a></span>
+    </div>
+
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:32px 0">
+      <div style="width:100%;max-width:400px;display:flex;flex-direction:column;gap:28px">
+
+        <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+              <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <span style="height:4px;border-radius:999px;background:{{ s.bar }}"></span>
+                  <span style="font-size:12px;font-weight:{{ s.weight }};color:{{ s.color }}">{{ s.label }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ heroIcon }}" hint-placeholder-val="{{ false }}">
+          <span style="width:48px;height:48px;border-radius:12px;background:{{ heroBg }};display:flex;align-items:center;justify-content:center">
+            <span style="width:22px;height:22px;background:{{ heroFg }};-webkit-mask:url({{ heroIcon }}) center/contain no-repeat;mask:url({{ heroIcon }}) center/contain no-repeat"></span>
+          </span>
+        </sc-if>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <h2 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:32px;line-height:1.1;letter-spacing:-0.03em;color:#0a1a1b;text-wrap:balance">{{ title }}</h2>
+          <p style="margin:0;font-size:14.5px;line-height:1.5;color:#586767;text-wrap:pretty">{{ subtitle }}</p>
+        </div>
+
+        <sc-if value="{{ isInvite }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:12px;padding:14px;border:1px solid #dde3e4;background:#ffffff;border-radius:12px">
+            <span style="width:40px;height:40px;border-radius:10px;background:#007176;color:#fbfbfe;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:none">MM</span>
+            <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:14px;font-weight:600">Maison Mobile</span>
+              <span style="font-size:12.5px;color:#586767">Invité par Alex Morgan · Cotonou · Principal</span>
+            </span>
+            <span style="height:24px;padding:0 10px;border-radius:999px;background:#dff2f2;color:#04585c;font-size:12px;font-weight:600;display:inline-flex;align-items:center">Caissier</span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:20px">
+            <button type="button" onClick="{{ googleGo }}" style="position:relative;width:100%;height:52px;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 16px;border:1px solid #c0c9c9;background:#ffffff;border-radius:10px;font-size:14.5px;font-weight:600;color:#0a1a1b;cursor:pointer;box-shadow:0 1px 2px rgba(10,26,27,0.06);transition:border-color .12s,box-shadow .12s" style-hover="border-color:#63b2b6;box-shadow:0 2px 10px rgba(0,113,118,0.10)">
+              <sc-if value="{{ googleBusy }}" hint-placeholder-val="{{ false }}">
+                <span style="width:18px;height:18px;border-radius:50%;border:2px solid #dde3e4;border-top-color:#007176;animation:vxspin .7s linear infinite"></span>
+              </sc-if>
+              <sc-if value="{{ googleIdle }}" hint-placeholder-val="{{ true }}">
+                <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#ffc107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"></path><path fill="#ff3d00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"></path><path fill="#4caf50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"></path><path fill="#1976d2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"></path></svg>
+              </sc-if>
+              {{ googleLabel }}
+              <span style="position:absolute;top:-10px;right:12px;height:20px;padding:0 8px;border-radius:999px;background:#007176;color:#fbfbfe;font-size:11px;font-weight:600;display:inline-flex;align-items:center;gap:5px;box-shadow:0 0 0 3px #f9f9fc">
+                <span style="width:11px;height:11px;background:#fbfbfe;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/history.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/history.svg) center/contain no-repeat"></span>Dernière connexion
+              </span>
+            </button>
+            <div style="display:flex;align-items:center;gap:12px;font-size:12.5px;color:#586767"><span style="flex:1;height:1px;background:#dde3e4"></span>ou avec votre e-mail<span style="flex:1;height:1px;background:#dde3e4"></span></div>
+          </div>
+        </sc-if>
+
+        <form onSubmit="{{ submit }}" novalidate="" style="display:flex;flex-direction:column;gap:16px">
+          <sc-for list="{{ fields }}" as="f" hint-placeholder-count="2">
+            <div style="display:flex;flex-direction:column;gap:6px;grid-column:{{ f.span }}">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+                <label for="{{ f.id }}" style="font-size:13.5px;font-weight:500;color:#0a1a1b">{{ f.label }}</label>
+                <sc-if value="{{ f.aside }}" hint-placeholder-val="{{ false }}">
+                  <a href="#" onClick="{{ goForgot }}" style="font-size:13px">{{ f.aside }}</a>
+                </sc-if>
+              </div>
+              <div style="position:relative;display:flex">
+                <input id="{{ f.id }}" type="{{ f.type }}" placeholder="{{ f.ph }}" value="{{ f.value }}" onChange="{{ f.onChange }}" autoComplete="{{ f.ac }}" aria-invalid="{{ f.invalid }}" style="width:100%;height:44px;padding:0 {{ f.padR }} 0 14px;border:1px solid {{ f.border }};border-radius:8px;background:#ffffff;font-size:14.5px;color:#0a1a1b;outline:none;transition:border-color .12s,box-shadow .12s" style-focus="border-color:#007176;box-shadow:0 0 0 3px rgba(0,113,118,0.18)">
+                <sc-if value="{{ f.isPwd }}" hint-placeholder-val="{{ false }}">
+                  <button type="button" onClick="{{ togglePwd }}" aria-label="{{ eyeLabel }}" style="position:absolute;right:4px;top:4px;width:36px;height:36px;border:none;background:transparent;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:#eff4f4">
+                    <span style="width:17px;height:17px;background:#586767;-webkit-mask:url({{ eyeIcon }}) center/contain no-repeat;mask:url({{ eyeIcon }}) center/contain no-repeat"></span>
+                  </button>
+                </sc-if>
+              </div>
+              <sc-if value="{{ f.error }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:12.5px;color:#c51e21;display:flex;align-items:center;gap:6px"><span style="width:13px;height:13px;background:#c51e21;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/circle-alert.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/circle-alert.svg) center/contain no-repeat"></span>{{ f.error }}</span>
+              </sc-if>
+              <sc-if value="{{ f.meter }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:6px;margin-top:2px">
+                  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px">
+                    <sc-for list="{{ meter }}" as="m" hint-placeholder-count="4"><span style="height:4px;border-radius:999px;background:{{ m }}"></span></sc-for>
+                  </div>
+                  <span style="font-size:12px;color:#586767">{{ meterLabel }}</span>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+
+          <sc-if value="{{ isRecap }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;border:1px solid #dde3e4;border-radius:12px;background:#ffffff;overflow:hidden">
+              <sc-for list="{{ recap }}" as="r" hint-placeholder-count="4">
+                <div style="display:flex;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid #eaefef;font-size:13.5px">
+                  <span style="color:#586767">{{ r.k }}</span><span style="font-weight:600;text-align:right">{{ r.v }}</span>
+                </div>
+              </sc-for>
+              <div style="padding:12px 16px;background:#f9f9fc;font-size:13px;color:#586767;line-height:1.5">Ensuite : ajoutez votre stock, invitez votre équipe et réalisez votre première vente.</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showError }}" hint-placeholder-val="{{ false }}">
+            <div role="alert" style="display:flex;gap:10px;padding:12px 14px;border-radius:10px;background:#ffede9;color:#9e1618;font-size:13.5px;line-height:1.45">
+              <span style="width:16px;height:16px;flex:none;margin-top:2px;background:#9e1618;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/circle-alert.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/circle-alert.svg) center/contain no-repeat"></span>
+              <span style="display:flex;flex-direction:column;gap:6px">{{ errorText }}
+                <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+                  <a href="#" style="color:#9e1618;text-decoration:underline">Renvoyer l’email de vérification</a>
+                </sc-if>
+              </span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ showSuccess }}" hint-placeholder-val="{{ false }}">
+            <div role="status" style="display:flex;gap:10px;padding:12px 14px;border-radius:10px;background:#e4f9e9;color:#135c30;font-size:13.5px;line-height:1.45">
+              <span style="width:16px;height:16px;flex:none;margin-top:2px;background:#135c30;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/circle-check.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/circle-check.svg) center/contain no-repeat"></span>
+              <span>{{ successText }}</span>
+            </div>
+          </sc-if>
+
+          <div style="display:flex;gap:10px;margin-top:4px">
+            <sc-if value="{{ showBack }}" hint-placeholder-val="{{ false }}">
+              <button type="button" onClick="{{ back }}" style="height:44px;padding:0 18px;border:1px solid #dde3e4;background:#ffffff;border-radius:8px;font-size:14.5px;font-weight:600;color:#0a1a1b;cursor:pointer" style-hover="border-color:#c0c9c9">Retour</button>
+            </sc-if>
+            <button type="submit" style="flex:1;height:44px;display:flex;align-items:center;justify-content:center;gap:8px;border:none;background:#007176;border-radius:8px;font-size:14.5px;font-weight:600;color:#fbfbfe;cursor:pointer;box-shadow:0 1px 2px rgba(10,26,27,0.12),inset 0 1px 0 rgba(255,255,255,0.14)" style-hover="background:#045c60">
+              <sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}">
+                <span style="width:16px;height:16px;border-radius:50%;border:2px solid rgba(251,251,254,0.35);border-top-color:#fbfbfe;animation:vxspin .7s linear infinite"></span>
+              </sc-if>
+              {{ cta }}
+              <sc-if value="{{ notBusy }}" hint-placeholder-val="{{ true }}">
+                <span style="width:16px;height:16px;background:#fbfbfe;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/arrow-right.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/arrow-right.svg) center/contain no-repeat"></span>
+              </sc-if>
+            </button>
+          </div>
+        </form>
+
+        <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;align-items:center;gap:12px;font-size:12.5px;color:#768384"><span style="flex:1;height:1px;background:#dde3e4"></span>ou<span style="flex:1;height:1px;background:#dde3e4"></span></div>
+            <a href="#" style="display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid #dde3e4;border-radius:12px;background:#ffffff;text-decoration:none;color:#0a1a1b;font-weight:400" style-hover="border-color:#a2ced0;text-decoration:none;box-shadow:0 2px 10px rgba(0,113,118,0.08)">
+              <span style="width:36px;height:36px;border-radius:9px;background:#e4f5ff;display:flex;align-items:center;justify-content:center;flex:none">
+                <span style="width:18px;height:18px;background:#005892;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/flask-conical.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/flask-conical.svg) center/contain no-repeat"></span>
+              </span>
+              <span style="flex:1;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:14px;font-weight:600">Explorer la démonstration</span>
+                <span style="font-size:12.5px;color:#586767">Une boutique fictive, sans inscription.</span>
+              </span>
+              <span style="width:16px;height:16px;background:#586767;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/arrow-up-right.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/arrow-up-right.svg) center/contain no-repeat"></span>
+            </a>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:12px;color:#586767">
+      <span>© 2026 VORTEX · Gestion Stock &amp; Finance</span>
+      <span>Vos données restent les vôtres.</span>
+    </div>
+  </main>
+
+  <nav aria-label="Écrans de la maquette" style="position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:50;display:flex;gap:2px;padding:4px;background:#eff6f6;border-radius:999px;box-shadow:0 10px 30px rgba(10,26,27,0.3);max-width:calc(100vw - 24px);overflow-x:auto">
+    <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="6">
+      <button onClick="{{ t.go }}" style="height:32px;padding:0 12px;border:none;border-radius:999px;font-size:12.5px;font-weight:600;white-space:nowrap;cursor:pointer;background:{{ t.bg }};color:{{ t.fg }}">{{ t.label }}</button>
+    </sc-for>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;login&quot;,&quot;signup&quot;,&quot;forgot&quot;,&quot;invite&quot;,&quot;verify&quot;,&quot;reset&quot;],&quot;default&quot;:&quot;login&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Écran&quot;},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;idle&quot;,&quot;error&quot;,&quot;success&quot;],&quot;default&quot;:&quot;idle&quot;,&quot;tsType&quot;:&quot;'idle'|'error'|'success'&quot;,&quot;section&quot;:&quot;Écran&quot;}}">
+class Component extends DCLogic {
+  state = { screen: null, step: 0, visible: false, status: 'idle', busy: false, values: {}, wide: true };
+  rootRef = React.createRef();
+  componentDidMount() {
+    const el = this.rootRef.current;
+    if (!el) return;
+    this.ro = new ResizeObserver(([e]) => { const w = e.contentRect.width >= 960; if (w !== this.state.wide) this.setState({ wide: w }); });
+    this.ro.observe(el);
+  }
+  componentWillUnmount() { this.ro && this.ro.disconnect(); }
+  ic(n) { return 'https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/' + n + '.svg'; }
+  go(screen) { this.setState({ screen, step: 0, status: 'idle', busy: false, values: {}, visible: false }); }
+  set(k, v) { this.setState((s) => ({ values: { ...s.values, [k]: v }, status: s.status === 'success' ? 'idle' : s.status })); }
+  renderVals() {
+    const screen = this.state.screen ?? this.props.screen ?? 'login';
+    const status = this.state.screen === null && this.props.state && this.props.state !== 'idle' && this.state.status === 'idle' ? this.props.state : this.state.status;
+    const { step, visible, busy, values } = this.state;
+    const ic = (n) => this.ic(n);
+    const isSignup = screen === 'signup';
+    const v = (k, d = '') => values[k] ?? d;
+    const pwdErr = status === 'error' && screen !== 'login' && screen !== 'forgot' && screen !== 'verify';
+    const F = (id, label, type, ph, extra = {}) => ({
+      id, label, type: type === 'password' ? (visible ? 'text' : 'password') : type, ph, value: v(id, extra.def ?? ''),
+      onChange: (e) => this.set(id, e.target.value), ac: extra.ac ?? 'off', isPwd: type === 'password', padR: type === 'password' ? '44px' : '14px',
+      error: extra.error ?? '', invalid: extra.error ? 'true' : 'false', border: extra.error ? '#c51e21' : '#7d898a', aside: extra.aside ?? '', meter: !!extra.meter, span: 'auto',
+    });
+    let title = '', subtitle = '', fields = [], cta = '', heroIcon = '', heroBg = '#dff2f2', heroFg = '#04585c', errorText = '', successText = '';
+    let topText = 'Pas encore de compte ?', topLink = 'Créer mon espace', topTarget = 'signup';
+    if (screen === 'login') {
+      title = 'Accéder à VORTEX'; subtitle = 'Heureux de vous revoir. Retrouvez votre activité là où vous l’avez laissée.'; cta = 'Se connecter par e-mail';
+      fields = [F('email', 'Adresse email', 'email', 'vous@boutique.bj', { ac: 'email', def: 'alex@maisonmobile.bj' }), F('password', 'Mot de passe', 'password', '••••••••••••', { ac: 'current-password', aside: 'Mot de passe oublié ?' })];
+      errorText = 'Vérifiez votre adresse email avant de vous connecter.'; successText = 'Connexion réussie. Ouverture de votre espace…';
+    } else if (isSignup) {
+      topText = 'Déjà un compte ?'; topLink = 'Se connecter'; topTarget = 'login';
+      title = ['Créons votre compte.', 'Votre entreprise.', 'Votre premier point de vente.', 'Tout est prêt.'][step];
+      subtitle = ['Quelques minutes pour organiser votre activité.', 'Ces informations apparaissent sur vos reçus.', 'Vous pourrez en ajouter d’autres plus tard.', 'Vérifiez avant de créer votre espace.'][step];
+      cta = step < 3 ? 'Continuer' : 'Créer mon espace';
+      if (step === 0) fields = [F('name', 'Votre nom', 'text', 'Alex Morgan', { ac: 'name' }), F('email', 'Adresse email', 'email', 'vous@boutique.bj', { ac: 'email' }), F('pwd', 'Mot de passe', 'password', '12 caractères minimum', { ac: 'new-password', meter: true, error: pwdErr ? '12 caractères minimum.' : '' })];
+      if (step === 1) fields = [F('org', 'Nom commercial', 'text', 'Maison Mobile'), F('country', 'Pays', 'text', '', { def: 'Bénin' }), F('currency', 'Devise', 'text', '', { def: 'XOF' }), F('tz', 'Fuseau horaire', 'text', '', { def: 'Africa/Porto-Novo' })];
+      if (step === 2) fields = [F('store', 'Nom du point de vente', 'text', 'Cotonou · Principal'), F('city', 'Ville / adresse', 'text', 'Cotonou, Ganhi')];
+      errorText = 'Cette adresse email est déjà utilisée.'; successText = 'Compte créé. Consultez votre email pour confirmer votre inscription.';
+    } else if (screen === 'forgot') {
+      topText = 'Vous vous souvenez ?'; topLink = 'Se connecter'; topTarget = 'login';
+      heroIcon = ic('key-round'); title = 'Retrouvez votre accès.'; subtitle = 'Un lien vous sera envoyé si un compte correspond à cette adresse.'; cta = 'Envoyer le lien';
+      fields = [F('email', 'Adresse email', 'email', 'vous@boutique.bj', { ac: 'email' })];
+      errorText = 'Service indisponible. Réessayez dans un instant.'; successText = 'Si ce compte existe, un lien de réinitialisation vient d’être envoyé.';
+    } else if (screen === 'invite') {
+      topText = ''; topLink = 'Retour à la connexion'; topTarget = 'login';
+      title = 'Rejoignez votre équipe.'; subtitle = 'Choisissez votre mot de passe pour activer votre accès.'; cta = 'Activer mon compte';
+      fields = [F('pwd', 'Mot de passe', 'password', '12 caractères minimum', { ac: 'new-password', meter: true, error: pwdErr ? 'Invitation expirée. Demandez un nouveau lien au propriétaire.' : '' })];
+      errorText = 'Invitation indisponible ou expirée.'; successText = 'Compte activé. Vous pouvez vous connecter.';
+    } else if (screen === 'verify') {
+      topText = ''; topLink = 'Retour à la connexion'; topTarget = 'login';
+      heroIcon = ic('mail-check'); heroBg = '#e4f5ff'; heroFg = '#005892';
+      title = 'Confirmez votre adresse email.'; subtitle = 'Cette confirmation protège l’accès à votre compte. Le lien ne fonctionne qu’une fois.'; cta = 'Confirmer mon email';
+      errorText = 'Lien incomplet ou expiré. Demandez un nouvel email.'; successText = 'Adresse email confirmée. Vous pouvez vous connecter.';
+    } else if (screen === 'reset') {
+      topText = ''; topLink = 'Retour à la connexion'; topTarget = 'login';
+      heroIcon = ic('lock-keyhole'); title = 'Nouveau mot de passe.'; subtitle = 'Utilisez au moins 12 caractères. Évitez de réutiliser un ancien mot de passe.'; cta = 'Enregistrer';
+      fields = [F('pwd', 'Nouveau mot de passe', 'password', '12 caractères minimum', { ac: 'new-password', meter: true, error: pwdErr ? '12 caractères minimum.' : '' })];
+      errorText = 'Lien expiré. Demandez une nouvelle réinitialisation.'; successText = 'Mot de passe modifié. Vous pouvez vous connecter.';
+    }
+    if (status === 'error' && screen === 'login') fields = fields.map((f) => f);
+    const pwd = v('pwd');
+    let score = 0; if (pwd.length >= 8) score++; if (pwd.length >= 12) score++; if (/[A-Z]/.test(pwd) && /[a-z]/.test(pwd)) score++; if (/[0-9\W]/.test(pwd)) score++;
+    const mc = ['#c51e21', '#e8a127', '#e8a127', '#1a763f'][Math.max(0, score - 1)];
+    const meter = [0, 1, 2, 3].map((i) => (i < score ? mc : '#dde3e4'));
+    const meterLabel = !pwd ? '12 caractères minimum, avec chiffres ou symboles.' : ['Trop court', 'Faible', 'Correct', 'Bon', 'Excellent'][score];
+    const stepNames = ['Compte', 'Entreprise', 'Boutique', 'Récapitulatif'];
+    const steps = stepNames.map((label, i) => ({ label, bar: i <= step ? '#007176' : '#dde3e4', color: i === step ? '#0a1a1b' : i < step ? '#04585c' : '#768384', weight: i === step ? 600 : 500 }));
+    const recap = [['Entreprise', v('org', 'Maison Mobile')], ['Point de vente', v('store', 'Cotonou · Principal')], ['Pays · devise', v('country', 'Bénin') + ' · ' + v('currency', 'XOF')], ['Administrateur', v('email', 'alex@maisonmobile.bj')]].map(([k, val]) => ({ k, v: val }));
+    const submit = (e) => {
+      e.preventDefault();
+      if (isSignup && step < 3) { this.setState({ step: step + 1, status: 'idle' }); return; }
+      this.setState({ busy: true, status: 'idle' });
+      clearTimeout(this.t); this.t = setTimeout(() => this.setState({ busy: false, status: 'success' }), 900);
+    };
+    const tabs = [['login', 'Connexion'], ['signup', 'Inscription'], ['forgot', 'Mot de passe oublié'], ['invite', 'Invitation'], ['verify', 'Vérification'], ['reset', 'Réinitialisation']].map(([id, label]) => ({
+      label, go: () => this.go(id), bg: id === screen ? '#0d1b1c' : 'transparent', fg: id === screen ? '#eff6f6' : '#344344',
+    }));
+    return {
+      googleBusy: !!this.state.gBusy, googleIdle: !this.state.gBusy, googleLabel: this.state.gBusy ? 'Redirection vers Google…' : 'Continuer avec Google',
+      googleGo: () => { this.setState({ gBusy: true, status: 'idle' }); clearTimeout(this.g); this.g = setTimeout(() => this.setState({ gBusy: false, status: 'success' }), 1100); },
+      rootRef: this.rootRef, wide: this.state.wide, narrow: !this.state.wide,
+      isSignup, isLogin: screen === 'login', isInvite: screen === 'invite', isRecap: isSignup && step === 3,
+      steps, title, subtitle, fields, cta: busy ? 'Veuillez patienter…' : cta, busy, notBusy: !busy, heroIcon, heroBg, heroFg,
+      showError: status === 'error', showSuccess: status === 'success', errorText, successText,
+      showBack: isSignup && step > 0, back: () => this.setState({ step: step - 1, status: 'idle' }),
+      submit, togglePwd: () => this.setState({ visible: !visible }), eyeIcon: ic(visible ? 'eye-off' : 'eye'), eyeLabel: visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe',
+      goForgot: (e) => { e.preventDefault(); this.go('forgot'); },
+      topText, topLink, topGo: (e) => { e.preventDefault(); this.go(topTarget); },
+      meter, meterLabel, recap, tabs,
+    };
+  }
+}
+</script>
+</body>
+</html>

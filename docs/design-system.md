@@ -1,3 +1,5 @@
+> **Document historique conservé.** La référence opérationnelle officielle est désormais le [Design System VORTEX](design-system/README.md). Les différences avec Claude et avec le code sont consignées dans son registre des divergences ; le contenu ci-dessous ne doit pas être utilisé pour réintroduire une ancienne direction graphique.
+
 # VORTEX Design System — Phase 1
 
 Ce socle est introduit progressivement afin de préserver le comportement métier du frontend V1.

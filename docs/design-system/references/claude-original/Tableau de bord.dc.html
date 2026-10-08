@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>VORTEX · Tableau de bord</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&amp;family=Geist:wght@400;500;600;700&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;background:#f9f9fc;color:#0a1a1b;font-family:'Geist',ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#007176;text-decoration:none}
+a:hover{color:#04585c;text-decoration:underline}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="display:flex;min-height:100vh;background:#f9f9fc">
+
+  <aside style="width:{{ railW }};flex:none;background:#eff6f6;color:#182728;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;border-right:1px solid #d7e0e0;transition:width .18s ease-out">
+    <div style="height:64px;display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid #d7e0e0">
+      <img src="assets/vortex-logo.png" alt="VORTEX" style="width:36px;height:36px;border-radius:9px;flex:none">
+      <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+          <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:18px;letter-spacing:-0.02em;color:#0d1b1c;line-height:1">VORTEX</span>
+          <span style="font-size:10px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#566768;line-height:1">Stock &amp; Finance</span>
+        </div>
+      </sc-if>
+    </div>
+    <div style="padding:14px 12px 6px">
+      <button style="width:100%;min-height:44px;display:flex;align-items:center;gap:10px;padding:6px 10px;background:#d2ecee;border:1px solid #d7e0e0;border-radius:8px;color:#0d1b1c;cursor:pointer;text-align:left">
+        <span style="width:28px;height:28px;border-radius:6px;background:#007176;color:#eff6f6;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex:none">MM</span>
+        <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+          <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:13px;font-weight:600">Maison Mobile</span>
+            <span style="font-size:11px;color:#566768">Bénin · XOF</span>
+          </span>
+          <span style="width:16px;height:16px;background:#566768;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevrons-up-down.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevrons-up-down.svg) center/contain no-repeat"></span>
+        </sc-if>
+      </button>
+    </div>
+    <nav aria-label="Navigation principale" style="flex:1;overflow-y:auto;padding:10px 12px 16px;display:flex;flex-direction:column;gap:18px">
+      <sc-for list="{{ nav }}" as="sec" hint-placeholder-count="4">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+            <span style="padding:0 10px 6px;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#566768">{{ sec.section }}</span>
+          </sc-if>
+          <sc-for list="{{ sec.items }}" as="it" hint-placeholder-count="3">
+            <a href="#" title="{{ it.label }}" style="position:relative;display:flex;align-items:center;gap:11px;min-height:40px;padding:0 10px;border-radius:8px;font-size:13.5px;font-weight:500;color:{{ it.color }};background:{{ it.bg }};text-decoration:none;box-shadow:{{ it.bar }};justify-content:{{ it.justify }}" style-hover="background:#d2ecee;color:#0d1b1c;text-decoration:none">
+              <span style="width:18px;height:18px;flex:none;background:{{ it.iconColor }};-webkit-mask:url({{ it.icon }}) center/contain no-repeat;mask:url({{ it.icon }}) center/contain no-repeat"></span>
+              <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+                <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.label }}</span>
+                <sc-if value="{{ it.badge }}" hint-placeholder-val="{{ false }}">
+                  <span style="min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#e8a127;color:#331b06;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums">{{ it.badge }}</span>
+                </sc-if>
+              </sc-if>
+            </a>
+          </sc-for>
+        </div>
+      </sc-for>
+    </nav>
+    <div style="border-top:1px solid #d7e0e0;padding:12px;display:flex;align-items:center;gap:10px;justify-content:space-between">
+      <sc-if value="{{ expanded }}" hint-placeholder-val="{{ true }}">
+        <span style="display:flex;align-items:center;gap:8px;font-size:12px;color:#566768;padding-left:6px">
+          <span style="width:7px;height:7px;border-radius:50%;background:#4dbf74"></span>Espace sécurisé · v2.0
+        </span>
+      </sc-if>
+      <button onClick="{{ toggleRail }}" aria-label="Réduire la barre latérale" style="width:36px;height:36px;border-radius:8px;border:1px solid #d7e0e0;background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;margin:0 auto 0 0" style-hover="background:#d2ecee">
+        <span style="width:16px;height:16px;background:#566768;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/panel-left.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/panel-left.svg) center/contain no-repeat"></span>
+      </button>
+    </div>
+  </aside>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <header style="position:sticky;top:0;z-index:20;height:64px;display:flex;align-items:center;gap:12px;padding:0 28px;background:rgba(249,249,252,0.86);backdrop-filter:blur(10px);border-bottom:1px solid #dde3e4">
+      <nav aria-label="Fil d'Ariane" style="display:flex;align-items:center;gap:8px;font-size:13px;flex:1;min-width:0">
+        <span style="color:#586767">Pilotage</span>
+        <span style="color:#c0c9c9">/</span>
+        <span style="color:#0a1a1b;font-weight:600">Vue d’ensemble</span>
+      </nav>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button style="height:40px;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid #dde3e4;background:#ffffff;border-radius:8px;font-size:13px;font-weight:500;color:#0a1a1b;cursor:pointer" style-hover="border-color:#c0c9c9">
+          <span style="width:16px;height:16px;background:#586767;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/store.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/store.svg) center/contain no-repeat"></span>
+          {{ storeName }}
+          <span style="width:14px;height:14px;background:#586767;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevron-down.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevron-down.svg) center/contain no-repeat"></span>
+        </button>
+        <button aria-label="Notifications" style="position:relative;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:1px solid #dde3e4;background:#ffffff;border-radius:8px;cursor:pointer" style-hover="border-color:#c0c9c9">
+          <span style="width:17px;height:17px;background:#0a1a1b;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/bell.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/bell.svg) center/contain no-repeat"></span>
+          <span style="position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:50%;background:#c51e21;border:2px solid #ffffff"></span>
+        </button>
+        <button style="height:40px;display:flex;align-items:center;gap:10px;padding:0 6px 0 4px;border:none;background:transparent;border-radius:8px;cursor:pointer" style-hover="background:#e9f2f2">
+          <span style="width:32px;height:32px;border-radius:50%;background:#dff2f2;color:#04585c;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">AM</span>
+          <span style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.2">
+            <span style="font-size:13px;font-weight:600;color:#0a1a1b">Alex Morgan</span>
+            <span style="font-size:11px;color:#586767">{{ roleLabel }}</span>
+          </span>
+        </button>
+      </div>
+    </header>
+
+    <sc-if value="{{ showDemo }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:8px 28px;background:#e4f5ff;border-bottom:1px solid #cde9fb;color:#005892;font-size:12.5px">
+        <span style="display:flex;align-items:center;gap:8px">
+          <span style="width:15px;height:15px;background:#005892;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/flask-conical.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/flask-conical.svg) center/contain no-repeat"></span>
+          <strong style="font-weight:600">Démonstration</strong> · Données fictives, réinitialisées au rechargement.
+        </span>
+        <span style="display:flex;align-items:center;gap:8px;font-weight:500">Tester le rôle
+          <span style="height:30px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;border:1px solid #9ccdee;border-radius:6px;background:#ffffff;color:#0a1a1b">{{ roleLabel }}
+            <span style="width:12px;height:12px;background:#586767;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevron-down.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/chevron-down.svg) center/contain no-repeat"></span>
+          </span>
+        </span>
+      </div>
+    </sc-if>
+
+    <main style="flex:1;width:100%;max-width:1440px;margin:0 auto;padding:28px 28px 40px;display:flex;flex-direction:column;gap:24px">
+
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <h1 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:30px;line-height:1.1;letter-spacing:-0.025em;color:#0a1a1b">Bonjour Alex</h1>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13.5px;color:#586767">
+            <span>Jeudi 8 octobre</span>
+            <span style="color:#c0c9c9">·</span>
+            <span>{{ storeName }}</span>
+            <span style="color:#c0c9c9">·</span>
+            <div style="display:inline-flex;padding:3px;background:#e9f2f2;border-radius:8px;gap:2px">
+              <sc-for list="{{ periods }}" as="p" hint-placeholder-count="2">
+                <button onClick="{{ p.onClick }}" style="height:28px;padding:0 10px;border:none;border-radius:6px;font-size:12.5px;font-weight:600;cursor:pointer;background:{{ p.bg }};color:{{ p.color }};box-shadow:{{ p.shadow }}">{{ p.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <button style="height:40px;display:flex;align-items:center;gap:8px;padding:0 14px;border:1px solid #dde3e4;background:#ffffff;border-radius:8px;font-size:13.5px;font-weight:600;color:#0a1a1b;cursor:pointer" style-hover="border-color:#c0c9c9;background:#f9f9fc">
+            <span style="width:16px;height:16px;background:#0a1a1b;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/package-plus.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/package-plus.svg) center/contain no-repeat"></span>
+            Entrée de stock
+          </button>
+          <button style="height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;border:none;background:#007176;border-radius:8px;font-size:13.5px;font-weight:600;color:#fbfbfe;cursor:pointer;box-shadow:0 1px 2px rgba(10,26,27,0.12),inset 0 1px 0 rgba(255,255,255,0.14)" style-hover="background:#045c60">
+            <span style="width:16px;height:16px;background:#fbfbfe;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/plus.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/plus.svg) center/contain no-repeat"></span>
+            Nouvelle vente
+          </button>
+        </div>
+      </div>
+
+      <section aria-labelledby="todo-h" style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <h2 id="todo-h" style="margin:0;font-size:15px;font-weight:600;color:#0a1a1b">À traiter</h2>
+          <span style="height:22px;min-width:22px;padding:0 8px;border-radius:999px;background:{{ todoBadgeBg }};color:{{ todoBadgeFg }};font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">{{ attentionCount }}</span>
+        </div>
+        <sc-if value="{{ hasAttention }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px">
+            <sc-for list="{{ attention }}" as="a" hint-placeholder-count="4">
+              <a href="#" style="display:flex;flex-direction:column;gap:14px;padding:16px;background:#ffffff;border:1px solid #dde3e4;border-radius:12px;text-decoration:none;color:#0a1a1b;min-height:132px" style-hover="border-color:#a2ced0;text-decoration:none;box-shadow:0 2px 10px rgba(0,113,118,0.08)">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+                  <span style="width:36px;height:36px;border-radius:9px;background:{{ a.tileBg }};display:flex;align-items:center;justify-content:center">
+                    <span style="width:18px;height:18px;background:{{ a.tileFg }};-webkit-mask:url({{ a.icon }}) center/contain no-repeat;mask:url({{ a.icon }}) center/contain no-repeat"></span>
+                  </span>
+                  <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:28px;line-height:1;letter-spacing:-0.02em;font-variant-numeric:tabular-nums">{{ a.count }}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:3px">
+                  <strong style="font-size:14px;font-weight:600;line-height:1.3">{{ a.label }}</strong>
+                  <span style="font-size:12.5px;color:#586767;line-height:1.4;text-wrap:pretty">{{ a.desc }}</span>
+                </div>
+                <span style="margin-top:auto;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#007176">{{ a.action }}
+                  <span style="width:14px;height:14px;background:#007176;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/arrow-right.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/arrow-right.svg) center/contain no-repeat"></span>
+                </span>
+              </a>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ noAttention }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#ffffff;border:1px solid #dde3e4;border-radius:12px;font-size:13.5px;color:#586767">
+            <span style="width:28px;height:28px;border-radius:50%;background:#e4f9e9;display:flex;align-items:center;justify-content:center">
+              <span style="width:15px;height:15px;background:#135c30;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/check.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/check.svg) center/contain no-repeat"></span>
+            </span>
+            Rien d’urgent sur {{ storeName }}. Bonne journée de vente.
+          </div>
+        </sc-if>
+      </section>
+
+      <section aria-label="Performance" style="background:#ffffff;border:1px solid #dde3e4;border-radius:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));overflow:hidden">
+        <div style="padding:22px 24px;display:flex;flex-direction:column;gap:10px;border-right:1px solid #dde3e4;grid-column:span 1;min-width:0">
+          <span title="Le chiffre d’affaires n’est pas le bénéfice. Les charges sont dans la comptabilité." style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#586767;cursor:help">Chiffre d’affaires
+            <span style="width:14px;height:14px;background:#9ba7a8;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/info.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/info.svg) center/contain no-repeat"></span>
+          </span>
+          <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
+            <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:44px;line-height:1;letter-spacing:-0.035em;font-variant-numeric:tabular-nums;color:#0a1a1b">{{ kpi.revenue }}</span>
+            <span style="font-size:15px;font-weight:500;color:#586767">XOF</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12.5px;color:#586767">
+            <span style="height:22px;padding:0 8px;border-radius:999px;background:#e4f9e9;color:#135c30;font-weight:600;display:inline-flex;align-items:center;gap:4px">
+              <span style="width:12px;height:12px;background:#135c30;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/trending-up.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/trending-up.svg) center/contain no-repeat"></span>{{ kpi.delta }}
+            </span>
+            <span>vs {{ kpi.prev }}</span>
+            <span style="color:#c0c9c9">·</span>
+            <span>{{ kpi.count }} ventes · {{ kpi.units }} unités</span>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));min-width:0">
+          <sc-for list="{{ stats }}" as="s" hint-placeholder-count="3">
+            <a href="#" style="padding:22px 20px;display:flex;flex-direction:column;gap:8px;border-left:1px solid #dde3e4;text-decoration:none;color:#0a1a1b;min-width:0" style-hover="background:#f9f9fc;text-decoration:none">
+              <span style="display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:13px;font-weight:500;color:#586767">{{ s.label }}
+                <span style="width:14px;height:14px;background:#9ba7a8;-webkit-mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/arrow-up-right.svg) center/contain no-repeat;mask:url(https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/arrow-up-right.svg) center/contain no-repeat"></span>
+              </span>
+              <span style="font-size:clamp(18px,1.6vw,22px);font-weight:600;letter-spacing:-0.015em;font-variant-numeric:tabular-nums;line-height:1.15;display:flex;flex-wrap:wrap;align-items:baseline;column-gap:5px"><span style="white-space:nowrap">{{ s.value }}</span><span style="font-size:12px;font-weight:500;color:#586767">XOF</span></span>
+              <span style="font-size:12px;color:#586767">{{ s.sub }}</span>
+            </a>
+          </sc-for>
+        </div>
+      </section>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px;align-items:start">
+        <section aria-labelledby="act-h" style="grid-column:span 2;min-width:0;background:#ffffff;border:1px solid #dde3e4;border-radius:12px;padding:20px 22px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:12px">
+            <div style="display:flex;flex-direction:column;gap:3px">
+              <h2 id="act-h" style="margin:0;font-size:15px;font-weight:600">Activité</h2>
+              <span style="font-size:12.5px;color:#586767">{{ readout.date }} · <strong style="color:#0a1a1b;font-weight:600;font-variant-numeric:tabular-nums">{{ readout.rev }} XOF</strong>{{ readout.margin }}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:14px;font-size:12px;color:#586767">
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:#007176"></span>Chiffre d’affaires</span>
+              <sc-if value="{{ showMargin }}" hint-placeholder-val="{{ true }}">
+                <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:#d72f92"></span>Marge brute</span>
+              </sc-if>
+            </div>
+          </div>
+          <div style="position:relative;height:220px;display:flex;gap:10px">
+            <div style="display:flex;flex-direction:column;justify-content:space-between;font-size:11px;color:#768384;font-variant-numeric:tabular-nums;text-align:right;width:36px;padding-bottom:22px">
+              <sc-for list="{{ yTicks }}" as="t" hint-placeholder-count="4"><span style="line-height:0">{{ t }}</span></sc-for>
+            </div>
+            <div style="flex:1;min-width:0;position:relative;display:flex;flex-direction:column">
+              <div style="position:absolute;inset:0 0 22px 0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none">
+                <span style="border-top:1px dashed #dde3e4"></span><span style="border-top:1px dashed #dde3e4"></span><span style="border-top:1px dashed #dde3e4"></span><span style="border-top:1px solid #d9dfe0"></span>
+              </div>
+              <div onMouseLeave="{{ clearHover }}" style="position:relative;flex:1;display:flex;align-items:flex-end;gap:{{ barGap }}">
+                <sc-for list="{{ bars }}" as="b" hint-placeholder-count="30">
+                  <button onMouseEnter="{{ b.onEnter }}" onFocus="{{ b.onEnter }}" aria-label="{{ b.aria }}" style="flex:1;min-width:0;height:100%;display:flex;align-items:flex-end;padding:0;border:none;background:transparent;cursor:pointer">
+                    <span style="position:relative;width:100%;height:{{ b.h }};background:#007176;opacity:{{ b.op }};border-radius:4px 4px 1px 1px;transition:opacity .12s ease-out;display:block">
+                      <span style="position:absolute;left:0;right:0;bottom:0;height:{{ b.mh }};background:#d72f92;border-radius:0 0 1px 1px;display:block"></span>
+                    </span>
+                  </button>
+                </sc-for>
+              </div>
+              <div style="height:22px;display:flex;justify-content:space-between;align-items:flex-end;font-size:11px;color:#768384">
+                <sc-for list="{{ xTicks }}" as="x" hint-placeholder-count="5"><span>{{ x }}</span></sc-for>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="cash-h" style="min-width:0;background:#ffffff;border:1px solid #dde3e4;border-radius:12px;padding:20px 22px;display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <h2 id="cash-h" style="margin:0;font-size:15px;font-weight:600">Caisses</h2>
+            <a href="#" style="font-size:13px;font-weight:600">Trésorerie</a>
+          </div>
+          <div style="display:flex;flex-direction:column;border:1px solid #dde3e4;border-radius:10px;overflow:hidden">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #dde3e4">
+              <span style="width:8px;height:8px;border-radius:50%;background:#1a763f;box-shadow:0 0 0 3px #e4f9e9;flex:none"></span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13.5px;font-weight:600">Cotonou · Principal</span>
+                <span style="font-size:12px;color:#586767">Ouverte depuis 08:12 · Fiacre A.</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+                <span style="font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">612 500</span>
+                <span style="font-size:11px;color:#586767">solde théorique</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px">
+              <span style="width:8px;height:8px;border-radius:50%;background:#9ba7a8;flex:none;margin:0 3px"></span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:13.5px;font-weight:600">Porto-Novo</span>
+                <span style="font-size:12px;color:#586767">Clôturée hier à 19:40 · écart 0</span>
+              </div>
+              <span style="height:22px;padding:0 8px;border-radius:999px;background:#eff4f4;color:#586767;font-size:11.5px;font-weight:600;display:inline-flex;align-items:center">Fermée</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <span style="font-size:13px;font-weight:500;color:#586767">Encaissements par moyen</span>
+            <div style="display:flex;height:10px;border-radius:999px;overflow:hidden;gap:2px">
+              <span style="width:46%;background:#2c965d"></span><span style="width:38%;background:#d08300"></span><span style="width:16%;background:#3673cb"></span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:13px">
+              <sc-for list="{{ methods }}" as="m" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="width:8px;height:8px;border-radius:2px;background:{{ m.color }}"></span>
+                  <span style="flex:1">{{ m.label }}</span>
+                  <span style="font-variant-numeric:tabular-nums;font-weight:600">{{ m.amount }}</span>
+                  <span style="width:38px;text-align:right;color:#586767;font-variant-numeric:tabular-nums">{{ m.pct }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <button style="height:40px;border:1px solid #dde3e4;background:#ffffff;border-radius:8px;font-size:13.5px;font-weight:600;color:#0a1a1b;cursor:pointer" style-hover="border-color:#c0c9c9;background:#f9f9fc">Clôturer la caisse de Cotonou</button>
+        </section>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px;align-items:start">
+        <section aria-labelledby="sales-h" style="grid-column:span 2;min-width:0;background:#ffffff;border:1px solid #dde3e4;border-radius:12px;overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 22px">
+            <h2 id="sales-h" style="margin:0;font-size:15px;font-weight:600">Dernières ventes</h2>
+            <a href="#" style="font-size:13px;font-weight:600">Voir l’historique</a>
+          </div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px">
+              <thead>
+                <tr style="background:#f9f9fc">
+                  <th style="text-align:left;padding:10px 22px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767;border-top:1px solid #dde3e4;border-bottom:1px solid #dde3e4">Référence</th>
+                  <th style="text-align:left;padding:10px 12px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767;border-top:1px solid #dde3e4;border-bottom:1px solid #dde3e4">Article</th>
+                  <th style="text-align:left;padding:10px 12px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767;border-top:1px solid #dde3e4;border-bottom:1px solid #dde3e4">Vendeur</th>
+                  <th style="text-align:left;padding:10px 12px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767;border-top:1px solid #dde3e4;border-bottom:1px solid #dde3e4">Statut</th>
+                  <th style="text-align:right;padding:10px 22px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:#586767;border-top:1px solid #dde3e4;border-bottom:1px solid #dde3e4">Montant</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ sales }}" as="s" hint-placeholder-count="5">
+                  <tr style="height:52px" style-hover="background:#f9f9fc">
+                    <td style="padding:8px 22px;border-bottom:1px solid #eaefef">
+                      <div style="display:flex;flex-direction:column;gap:2px">
+                        <a href="#" style="font-family:'Geist Mono',monospace;font-size:12.5px;font-weight:500;color:#0a1a1b">{{ s.ref }}</a>
+                        <span style="font-size:12px;color:#586767">{{ s.when }}</span>
+                      </div>
+                    </td>
+                    <td style="padding:8px 12px;border-bottom:1px solid #eaefef">{{ s.item }}</td>
+                    <td style="padding:8px 12px;border-bottom:1px solid #eaefef;color:#586767">{{ s.seller }}</td>
+                    <td style="padding:8px 12px;border-bottom:1px solid #eaefef">
+                      <span style="height:22px;padding:0 9px;border-radius:999px;background:{{ s.bg }};color:{{ s.fg }};font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:{{ s.fg }}"></span>{{ s.status }}</span>
+                    </td>
+                    <td style="padding:8px 22px;border-bottom:1px solid #eaefef;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap">{{ s.amount }}</td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section aria-labelledby="stock-h" style="min-width:0;background:#ffffff;border:1px solid #dde3e4;border-radius:12px;padding:18px 22px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <h2 id="stock-h" style="margin:0;font-size:15px;font-weight:600">Stock critique</h2>
+            <a href="#" style="font-size:13px;font-weight:600">Réapprovisionner</a>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <sc-for list="{{ lowStock }}" as="p" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;gap:7px">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
+                  <span style="display:flex;flex-direction:column;gap:1px;min-width:0">
+                    <span style="font-size:13.5px;font-weight:600">{{ p.name }}</span>
+                    <span style="font-size:12px;color:#586767">{{ p.variant }}</span>
+                  </span>
+                  <span style="font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap"><strong style="font-weight:700;color:{{ p.fg }}">{{ p.qty }}</strong><span style="color:#586767"> / seuil {{ p.th }}</span></span>
+                </div>
+                <div style="height:6px;border-radius:999px;background:#eff4f4;overflow:hidden"><div style="height:100%;width:{{ p.w }};background:{{ p.bar }};border-radius:999px"></div></div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </div>
+
+      <sc-if value="{{ showSetup }}" hint-placeholder-val="{{ true }}">
+        <section aria-labelledby="setup-h" style="background:#ffffff;border:1px solid #dde3e4;border-radius:12px;padding:16px 22px;display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px">
+          <div style="display:flex;align-items:center;gap:12px;min-width:220px">
+            <span style="position:relative;width:40px;height:40px;border-radius:50%;background:conic-gradient(#007176 0 75%,#dff2f2 75% 100%);display:flex;align-items:center;justify-content:center">
+              <span style="width:30px;height:30px;border-radius:50%;background:#ffffff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#04585c">3/4</span>
+            </span>
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <h2 id="setup-h" style="margin:0;font-size:14px;font-weight:600">Mise en route</h2>
+              <span style="font-size:12.5px;color:#586767">Une étape avant d’être complet.</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;flex:1">
+            <sc-for list="{{ setup }}" as="st" hint-placeholder-count="4">
+              <a href="#" style="height:34px;display:inline-flex;align-items:center;gap:8px;padding:0 12px;border-radius:999px;border:1px solid {{ st.border }};background:{{ st.bg }};color:{{ st.fg }};font-size:13px;font-weight:500;text-decoration:none" style-hover="text-decoration:none;border-color:#63b2b6">
+                <span style="width:14px;height:14px;background:{{ st.fg }};-webkit-mask:url({{ st.icon }}) center/contain no-repeat;mask:url({{ st.icon }}) center/contain no-repeat"></span>{{ st.label }}
+              </a>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+    </main>
+
+    <footer style="border-top:1px solid #dde3e4;padding:16px 28px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px;font-size:12px;color:#586767">
+      <span>VORTEX · Votre activité, en toute clarté.</span>
+      <span>XOF · Africa/Porto-Novo</span>
+    </footer>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;role&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;owner&quot;,&quot;manager&quot;],&quot;default&quot;:&quot;owner&quot;,&quot;tsType&quot;:&quot;'owner'|'manager'&quot;,&quot;section&quot;:&quot;Contexte&quot;},&quot;showDemo&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Contexte&quot;},&quot;attentionEmpty&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;États&quot;},&quot;showSetup&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;États&quot;},&quot;railCollapsed&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Shell&quot;}}">
+class Component extends DCLogic {
+  state = { hover: null, period: 30, collapsed: null };
+  ic(n) { return 'https://cdn.jsdelivr.net/npm/lucide-static@0.469.0/icons/' + n + '.svg'; }
+  fmt(n) { return Math.round(n).toLocaleString('fr-FR').replace(/\u202f|\u00a0/g, ' '); }
+  data() {
+    if (this._d) return this._d;
+    const out = [], base = new Date(2026, 9, 8);
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(base); d.setDate(d.getDate() - i);
+      const dow = d.getDay(), s = Math.sin((i + 3) * 12.9898) * 43758.5453, r = s - Math.floor(s);
+      const rev = Math.round((380000 + r * 620000) * (dow === 0 ? 0.3 : dow === 6 ? 1.3 : 1) / 5000) * 5000;
+      out.push({ d, rev, margin: Math.round(rev * (0.22 + r * 0.08) / 5000) * 5000 });
+    }
+    return (this._d = out);
+  }
+  renderVals() {
+    const role = this.props.role ?? 'owner';
+    const owner = role === 'owner';
+    const collapsed = this.state.collapsed ?? (this.props.railCollapsed ?? false);
+    const expanded = !collapsed;
+    const ic = (n) => this.ic(n);
+    const lowCount = 2;
+    const navDef = [
+      ['Pilotage', [['Vue d’ensemble', 'layout-dashboard', 1], ['Analyses & rapports', 'chart-column']]],
+      ['Opérations', [['Caisse / Vendre', 'shopping-cart'], ['Ventes', 'receipt-text'], ['Stock & catalogue', 'package', 0, lowCount], ['Troc & reprise', 'repeat-2'], ['Rachat client', 'smartphone'], ['Achats', 'shopping-bag'], ['Fournisseurs', 'truck'], ['Clients', 'users']]],
+      ['Finance', [['Trésorerie & caisse', 'wallet-cards'], ['Dépenses', 'circle-dollar-sign'], ['Paiements', 'credit-card'], ['Comptabilité', 'book-open', 0, 0, 1]]],
+      ['Administration', [['Équipe & rôles', 'users-round', 0, 0, 1], ['Historique & audit', 'clock-3', 0, 0, 1], ['Paramètres', 'settings', 0, 0, 1]]],
+    ];
+    const nav = navDef.map(([section, items]) => ({
+      section,
+      items: items.filter((x) => owner || !x[4]).map(([label, icon, active, badge]) => ({
+        label, icon: ic(icon), badge: badge || 0,
+        color: active ? '#0d1b1c' : '#344344', bg: active ? '#d2ecee' : 'transparent',
+        iconColor: active ? '#007176' : '#566768', bar: active ? 'inset 3px 0 0 #007176' : 'none',
+        justify: expanded ? 'flex-start' : 'center',
+      })),
+    })).filter((s) => s.items.length);
+
+    const all = this.data(), n = this.state.period, days = all.slice(-n);
+    const sum = (k) => days.reduce((a, b) => a + b[k], 0);
+    const rev = sum('rev'), margin = sum('margin');
+    const max = Math.max(...days.map((d) => d.rev));
+    const top = Math.ceil(max / 400000) * 400000;
+    const dLabel = (d) => d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+    const showMargin = owner;
+    const hv = this.state.hover;
+    const bars = days.map((d, i) => ({
+      h: (d.rev / top * 100).toFixed(1) + '%',
+      mh: showMargin ? (d.margin / d.rev * 100).toFixed(1) + '%' : '0%',
+      op: hv === null || hv === i ? 1 : 0.35,
+      aria: dLabel(d.d) + ' : ' + this.fmt(d.rev) + ' XOF',
+      onEnter: () => this.setState({ hover: i }),
+    }));
+    const rd = hv !== null && days[hv] ? days[hv] : null;
+    const readout = rd
+      ? { date: dLabel(rd.d), rev: this.fmt(rd.rev), margin: showMargin ? ' · marge ' + this.fmt(rd.margin) : '' }
+      : { date: 'Total ' + n + ' jours', rev: this.fmt(rev), margin: showMargin ? ' · marge ' + this.fmt(margin) : '' };
+    const step = n === 30 ? 6 : 1;
+    const xTicks = days.filter((_, i) => (n - 1 - i) % step === 0).map((d) => d.d.toLocaleDateString('fr-FR', { day: 'numeric', month: n === 30 ? 'short' : undefined, weekday: n === 7 ? 'short' : undefined }));
+    const yTicks = [3, 2, 1, 0].map((k) => { const v = top / 3 * k; return v === 0 ? '0' : v >= 1e6 ? (v / 1e6).toFixed(1).replace('.', ',').replace(',0', '') + ' M' : Math.round(v / 1000) + ' k'; });
+
+    const count = n === 30 ? 96 : 24, units = n === 30 ? 128 : 31;
+    const incoming = rev * 0.962, cashflow = rev * 0.67;
+    const stats = [
+      { label: 'Encaissements', value: this.fmt(incoming), sub: '96 % du chiffre d’affaires' },
+      { label: 'Cashflow net', value: this.fmt(cashflow), sub: 'après dépenses et achats' },
+    ];
+    if (owner) stats.push({ label: 'Marge brute', value: this.fmt(margin), sub: Math.round(margin / rev * 100) + ' % du chiffre d’affaires' });
+
+    const empty = this.props.attentionEmpty ?? false;
+    let attention = [
+      { count: '2', label: 'Références sous le seuil', desc: 'Infinix Note 40 et iPhone 13 bientôt en rupture.', action: 'Réapprovisionner', icon: ic('package-search'), tileBg: '#fff2d6', tileFg: '#864900' },
+      { count: '3', label: 'Crédits clients échus', desc: '185 000 XOF à relancer depuis plus de 7 jours.', action: 'Relancer', icon: ic('hand-coins'), tileBg: '#ffede9', tileFg: '#9e1618' },
+      { count: '1', label: 'Caisse encore ouverte', desc: 'Cotonou · Principal, à clôturer en fin de journée.', action: 'Voir la caisse', icon: ic('wallet-cards'), tileBg: '#e4f5ff', tileFg: '#005892' },
+      { count: '1', label: 'Invitation en attente', desc: 'Grâce K. n’a pas encore activé son accès.', action: 'Renvoyer', icon: ic('user-plus'), tileBg: '#dff2f2', tileFg: '#04585c', ownerOnly: 1 },
+    ].filter((a) => owner || !a.ownerOnly);
+    if (empty) attention = [];
+
+    const st = {
+      'Payée': ['#e4f9e9', '#135c30'], 'À crédit': ['#fff2d6', '#864900'], 'Retour partiel': ['#e4f5ff', '#005892'], 'Remboursée': ['#eff4f4', '#435454'],
+    };
+    const sales = [
+      ['VTE-0196', 'Aujourd’hui · 11:42', 'iPhone 15 · 128 Go', 'Fiacre A.', 'Payée', 425000],
+      ['VTE-0195', 'Aujourd’hui · 10:08', 'Redmi Note 13 + AirPods Pro', 'Grâce K.', 'À crédit', 205000],
+      ['VTE-0194', 'Hier · 18:21', 'Galaxy S24 · 256 Go', 'Fiacre A.', 'À crédit', 395000],
+      ['VTE-0193', 'Hier · 16:03', 'Camon 30 · 256 Go', 'Sènami H.', 'Payée', 125000],
+      ['VTE-0192', 'Hier · 11:47', 'Galaxy A55 · 128 Go', 'Grâce K.', 'Remboursée', 0],
+    ].map(([ref, when, item, seller, status, amt]) => ({ ref, when, item, seller, status, amount: this.fmt(amt), bg: st[status][0], fg: st[status][1] }));
+
+    const lowStock = [
+      ['Infinix Note 40', '256 Go · Vert', 2, 5], ['iPhone 13', '128 Go · Bleu', 3, 5], ['Galaxy A55', '128 Go · Lilas', 7, 5], ['AirPods Pro', '2e génération', 14, 5],
+    ].slice(0, 3).map(([name, variant, qty, th]) => ({
+      name, variant, qty, th, w: Math.min(100, qty / (th * 2) * 100) + '%',
+      bar: qty <= th / 2 ? '#c51e21' : qty <= th ? '#e8a127' : '#9ba7a8',
+      fg: qty <= th / 2 ? '#9e1618' : qty <= th ? '#864900' : '#0a1a1b',
+    }));
+
+    const setup = [['Organisation et boutiques', 1], ['Catalogue et stock', 1], ['Ouvrir la caisse', 1], ['Inviter votre équipe', 0]].map(([label, done]) => ({
+      label, icon: ic(done ? 'check' : 'arrow-right'),
+      bg: done ? '#f9f9fc' : '#dff2f2', fg: done ? '#586767' : '#04585c', border: done ? '#dde3e4' : '#c9e2e3',
+    }));
+
+    const periods = [7, 30].map((p) => ({
+      label: p + ' derniers jours', onClick: () => this.setState({ period: p, hover: null }),
+      bg: n === p ? '#ffffff' : 'transparent', color: n === p ? '#0a1a1b' : '#586767', shadow: n === p ? '0 1px 2px rgba(10,26,27,0.1)' : 'none',
+    }));
+
+    return {
+      expanded, railW: expanded ? '248px' : '72px', nav,
+      toggleRail: () => this.setState({ collapsed: !collapsed }),
+      storeName: 'Cotonou · Principal', roleLabel: owner ? 'Propriétaire' : 'Responsable de boutique',
+      showDemo: this.props.showDemo ?? true, periods,
+      attention, attentionCount: attention.length, hasAttention: attention.length > 0, noAttention: attention.length === 0,
+      todoBadgeBg: attention.length ? '#fff2d6' : '#e4f9e9', todoBadgeFg: attention.length ? '#864900' : '#135c30',
+      kpi: { revenue: this.fmt(rev), delta: n === 30 ? '+8,6 %' : '+12,4 %', prev: n === 30 ? '30 jours précédents' : '7 jours précédents', count, units },
+      stats, bars, barGap: n === 30 ? '4px' : '14px', readout, xTicks, yTicks, showMargin,
+      clearHover: () => this.setState({ hover: null }),
+      methods: [['Espèces', 0.46, '#2c965d'], ['Mobile Money', 0.38, '#d08300'], ['Carte', 0.16, '#3673cb']].map(([label, p, color]) => ({ label, color, amount: this.fmt(incoming * p), pct: Math.round(p * 100) + ' %' })),
+      sales, lowStock, setup, showSetup: owner && (this.props.showSetup ?? true),
+    };
+  }
+}
+</script>
+</body>
+</html>

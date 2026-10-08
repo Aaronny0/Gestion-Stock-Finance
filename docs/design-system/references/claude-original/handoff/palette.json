@@ -1,0 +1,835 @@
+{
+ "light": {
+  "background": {
+   "oklch": "oklch(0.984 0.003 200)",
+   "hex": "#f8fafa"
+  },
+  "foreground": {
+   "oklch": "oklch(0.2 0.022 200)",
+   "hex": "#09191a"
+  },
+  "card": {
+   "oklch": "oklch(1 0 0)",
+   "hex": "#ffffff"
+  },
+  "card-foreground": {
+   "oklch": "oklch(0.2 0.022 200)",
+   "hex": "#09191a"
+  },
+  "popover": {
+   "oklch": "oklch(1 0 0)",
+   "hex": "#ffffff"
+  },
+  "popover-foreground": {
+   "oklch": "oklch(0.2 0.022 200)",
+   "hex": "#09191a"
+  },
+  "primary": {
+   "oklch": "oklch(0.5 0.084 200)",
+   "hex": "#057176"
+  },
+  "primary-foreground": {
+   "oklch": "oklch(0.99 0.003 200)",
+   "hex": "#fafcfc"
+  },
+  "secondary": {
+   "oklch": "oklch(0.955 0.01 200)",
+   "hex": "#e9f2f3"
+  },
+  "secondary-foreground": {
+   "oklch": "oklch(0.3 0.03 200)",
+   "hex": "#1b3234"
+  },
+  "muted": {
+   "oklch": "oklch(0.962 0.006 200)",
+   "hex": "#eef4f4"
+  },
+  "muted-foreground": {
+   "oklch": "oklch(0.5 0.02 200)",
+   "hex": "#566768"
+  },
+  "accent": {
+   "oklch": "oklch(0.948 0.025 200)",
+   "hex": "#dbf3f4"
+  },
+  "accent-foreground": {
+   "oklch": "oklch(0.42 0.07 200)",
+   "hex": "#04585c"
+  },
+  "border": {
+   "oklch": "oklch(0.912 0.007 200)",
+   "hex": "#dde3e4"
+  },
+  "input": {
+   "oklch": "oklch(0.62 0.015 200)",
+   "hex": "#7c898a"
+  },
+  "ring": {
+   "oklch": "oklch(0.5 0.084 200)",
+   "hex": "#057176"
+  },
+  "destructive": {
+   "oklch": "oklch(0.53 0.2 27)",
+   "hex": "#c51e21"
+  },
+  "destructive-foreground": {
+   "oklch": "oklch(0.99 0 0)",
+   "hex": "#fcfcfc"
+  },
+  "destructive-muted": {
+   "oklch": "oklch(0.962 0.017 27)",
+   "hex": "#feeeec"
+  },
+  "destructive-muted-foreground": {
+   "oklch": "oklch(0.45 0.17 27)",
+   "hex": "#9e1618"
+  },
+  "success": {
+   "oklch": "oklch(0.5 0.12 152)",
+   "hex": "#1a763f"
+  },
+  "success-foreground": {
+   "oklch": "oklch(0.99 0 0)",
+   "hex": "#fcfcfc"
+  },
+  "success-muted": {
+   "oklch": "oklch(0.962 0.03 152)",
+   "hex": "#e4f9e9"
+  },
+  "success-muted-foreground": {
+   "oklch": "oklch(0.42 0.1 152)",
+   "hex": "#135c30"
+  },
+  "warning": {
+   "oklch": "oklch(0.76 0.15 75)",
+   "hex": "#e8a127"
+  },
+  "warning-foreground": {
+   "oklch": "oklch(0.25 0.05 60)",
+   "hex": "#331b06"
+  },
+  "warning-muted": {
+   "oklch": "oklch(0.965 0.036 85)",
+   "hex": "#fff2d9"
+  },
+  "warning-muted-foreground": {
+   "oklch": "oklch(0.47 0.11 60)",
+   "hex": "#864900"
+  },
+  "info": {
+   "oklch": "oklch(0.52 0.118 240)",
+   "hex": "#0470a5"
+  },
+  "info-foreground": {
+   "oklch": "oklch(0.99 0 0)",
+   "hex": "#fcfcfc"
+  },
+  "info-muted": {
+   "oklch": "oklch(0.962 0.019 240)",
+   "hex": "#e8f5fe"
+  },
+  "info-muted-foreground": {
+   "oklch": "oklch(0.44 0.1 240)",
+   "hex": "#025884"
+  },
+  "chart-1": {
+   "oklch": "oklch(0.5 0.084 200)",
+   "hex": "#057176"
+  },
+  "chart-2": {
+   "oklch": "oklch(0.6 0.22 350)",
+   "hex": "#d72f92"
+  },
+  "chart-3": {
+   "oklch": "oklch(0.675 0.15 70)",
+   "hex": "#d08300"
+  },
+  "chart-4": {
+   "oklch": "oklch(0.6 0.13 155)",
+   "hex": "#2c965d"
+  },
+  "chart-5": {
+   "oklch": "oklch(0.56 0.15 258)",
+   "hex": "#3673cb"
+  },
+  "sidebar": {
+   "oklch": "oklch(0.968 0.008 200)",
+   "hex": "#eff6f6"
+  },
+  "sidebar-foreground": {
+   "oklch": "oklch(0.26 0.02 200)",
+   "hex": "#182728"
+  },
+  "sidebar-primary": {
+   "oklch": "oklch(0.5 0.084 200)",
+   "hex": "#057176"
+  },
+  "sidebar-primary-foreground": {
+   "oklch": "oklch(0.99 0.003 200)",
+   "hex": "#fafcfc"
+  },
+  "sidebar-accent": {
+   "oklch": "oklch(0.925 0.028 200)",
+   "hex": "#d2ecee"
+  },
+  "sidebar-accent-foreground": {
+   "oklch": "oklch(0.21 0.02 200)",
+   "hex": "#0d1b1c"
+  },
+  "sidebar-border": {
+   "oklch": "oklch(0.9 0.01 200)",
+   "hex": "#d7e0e0"
+  },
+  "sidebar-muted-foreground": {
+   "oklch": "oklch(0.5 0.02 200)",
+   "hex": "#566768"
+  }
+ },
+ "dark": {
+  "background": {
+   "oklch": "oklch(0.165 0.012 200)",
+   "hex": "#081010"
+  },
+  "foreground": {
+   "oklch": "oklch(0.965 0.004 200)",
+   "hex": "#f0f4f4"
+  },
+  "card": {
+   "oklch": "oklch(0.205 0.014 200)",
+   "hex": "#10191a"
+  },
+  "card-foreground": {
+   "oklch": "oklch(0.965 0.004 200)",
+   "hex": "#f0f4f4"
+  },
+  "popover": {
+   "oklch": "oklch(0.225 0.016 200)",
+   "hex": "#131e1f"
+  },
+  "popover-foreground": {
+   "oklch": "oklch(0.965 0.004 200)",
+   "hex": "#f0f4f4"
+  },
+  "primary": {
+   "oklch": "oklch(0.74 0.11 200)",
+   "hex": "#3ebfc6"
+  },
+  "primary-foreground": {
+   "oklch": "oklch(0.17 0.02 200)",
+   "hex": "#051213"
+  },
+  "secondary": {
+   "oklch": "oklch(0.26 0.016 200)",
+   "hex": "#1b2627"
+  },
+  "secondary-foreground": {
+   "oklch": "oklch(0.92 0.008 200)",
+   "hex": "#dfe6e7"
+  },
+  "muted": {
+   "oklch": "oklch(0.24 0.014 200)",
+   "hex": "#182122"
+  },
+  "muted-foreground": {
+   "oklch": "oklch(0.72 0.016 200)",
+   "hex": "#9aa8a8"
+  },
+  "accent": {
+   "oklch": "oklch(0.29 0.04 200)",
+   "hex": "#0e3133"
+  },
+  "accent-foreground": {
+   "oklch": "oklch(0.88 0.06 200)",
+   "hex": "#a9e4e7"
+  },
+  "border": {
+   "oklch": "oklch(0.29 0.014 200)",
+   "hex": "#232e2e"
+  },
+  "input": {
+   "oklch": "oklch(0.52 0.02 200)",
+   "hex": "#5c6d6d"
+  },
+  "ring": {
+   "oklch": "oklch(0.74 0.11 200)",
+   "hex": "#3ebfc6"
+  },
+  "destructive": {
+   "oklch": "oklch(0.68 0.19 25)",
+   "hex": "#f75d59"
+  },
+  "destructive-foreground": {
+   "oklch": "oklch(0.16 0.03 25)",
+   "hex": "#180807"
+  },
+  "destructive-muted": {
+   "oklch": "oklch(0.27 0.06 25)",
+   "hex": "#3f1917"
+  },
+  "destructive-muted-foreground": {
+   "oklch": "oklch(0.84 0.086 25)",
+   "hex": "#feb5ae"
+  },
+  "success": {
+   "oklch": "oklch(0.72 0.15 152)",
+   "hex": "#4dbf74"
+  },
+  "success-foreground": {
+   "oklch": "oklch(0.16 0.03 152)",
+   "hex": "#041107"
+  },
+  "success-muted": {
+   "oklch": "oklch(0.26 0.05 152)",
+   "hex": "#0e2b18"
+  },
+  "success-muted-foreground": {
+   "oklch": "oklch(0.84 0.1 152)",
+   "hex": "#98deaa"
+  },
+  "warning": {
+   "oklch": "oklch(0.8 0.15 78)",
+   "hex": "#f2b036"
+  },
+  "warning-foreground": {
+   "oklch": "oklch(0.2 0.04 60)",
+   "hex": "#231103"
+  },
+  "warning-muted": {
+   "oklch": "oklch(0.28 0.05 70)",
+   "hex": "#382409"
+  },
+  "warning-muted-foreground": {
+   "oklch": "oklch(0.86 0.1 80)",
+   "hex": "#f4ca84"
+  },
+  "info": {
+   "oklch": "oklch(0.72 0.13 240)",
+   "hex": "#4baeed"
+  },
+  "info-foreground": {
+   "oklch": "oklch(0.16 0.03 240)",
+   "hex": "#020f19"
+  },
+  "info-muted": {
+   "oklch": "oklch(0.26 0.05 240)",
+   "hex": "#08273a"
+  },
+  "info-muted-foreground": {
+   "oklch": "oklch(0.84 0.08 240)",
+   "hex": "#9bd2fa"
+  },
+  "chart-1": {
+   "oklch": "oklch(0.74 0.11 200)",
+   "hex": "#3ebfc6"
+  },
+  "chart-2": {
+   "oklch": "oklch(0.72 0.18 350)",
+   "hex": "#f46eb4"
+  },
+  "chart-3": {
+   "oklch": "oklch(0.8 0.14 72)",
+   "hex": "#f5ae4b"
+  },
+  "chart-4": {
+   "oklch": "oklch(0.74 0.14 155)",
+   "hex": "#55c483"
+  },
+  "chart-5": {
+   "oklch": "oklch(0.72 0.13 258)",
+   "hex": "#70a6f5"
+  },
+  "sidebar": {
+   "oklch": "oklch(0.145 0.012 200)",
+   "hex": "#050c0c"
+  },
+  "sidebar-foreground": {
+   "oklch": "oklch(0.93 0.008 200)",
+   "hex": "#e2eaea"
+  },
+  "sidebar-primary": {
+   "oklch": "oklch(0.74 0.11 200)",
+   "hex": "#3ebfc6"
+  },
+  "sidebar-primary-foreground": {
+   "oklch": "oklch(0.145 0.012 200)",
+   "hex": "#050c0c"
+  },
+  "sidebar-accent": {
+   "oklch": "oklch(0.23 0.025 200)",
+   "hex": "#0d2022"
+  },
+  "sidebar-accent-foreground": {
+   "oklch": "oklch(0.98 0.004 200)",
+   "hex": "#f5f9f9"
+  },
+  "sidebar-border": {
+   "oklch": "oklch(0.25 0.014 200)",
+   "hex": "#1a2424"
+  },
+  "sidebar-muted-foreground": {
+   "oklch": "oklch(0.72 0.016 200)",
+   "hex": "#9aa8a8"
+  }
+ },
+ "contrast": {
+  "light": [
+   [
+    "foreground",
+    "background",
+    4.5,
+    17.22
+   ],
+   [
+    "card-foreground",
+    "card",
+    4.5,
+    18.01
+   ],
+   [
+    "primary-foreground",
+    "primary",
+    4.5,
+    5.61
+   ],
+   [
+    "secondary-foreground",
+    "secondary",
+    4.5,
+    11.86
+   ],
+   [
+    "muted-foreground",
+    "muted",
+    4.5,
+    5.33
+   ],
+   [
+    "muted-foreground",
+    "background",
+    4.5,
+    5.68
+   ],
+   [
+    "muted-foreground",
+    "card",
+    4.5,
+    5.94
+   ],
+   [
+    "accent-foreground",
+    "accent",
+    4.5,
+    7.09
+   ],
+   [
+    "primary",
+    "card",
+    4.5,
+    5.77
+   ],
+   [
+    "input",
+    "card",
+    3,
+    3.62
+   ],
+   [
+    "ring",
+    "background",
+    3,
+    5.51
+   ],
+   [
+    "destructive-foreground",
+    "destructive",
+    4.5,
+    5.69
+   ],
+   [
+    "destructive-muted-foreground",
+    "destructive-muted",
+    4.5,
+    7.24
+   ],
+   [
+    "destructive",
+    "card",
+    3,
+    5.85
+   ],
+   [
+    "success-foreground",
+    "success",
+    4.5,
+    5.51
+   ],
+   [
+    "success-muted-foreground",
+    "success-muted",
+    4.5,
+    7.3
+   ],
+   [
+    "success",
+    "card",
+    3,
+    5.67
+   ],
+   [
+    "warning-foreground",
+    "warning",
+    4.5,
+    7.36
+   ],
+   [
+    "warning-muted-foreground",
+    "warning-muted",
+    4.5,
+    6.38
+   ],
+   [
+    "info-foreground",
+    "info",
+    4.5,
+    5.27
+   ],
+   [
+    "info-muted-foreground",
+    "info-muted",
+    4.5,
+    6.89
+   ],
+   [
+    "info",
+    "card",
+    3,
+    5.43
+   ],
+   [
+    "chart-1",
+    "card",
+    3,
+    5.77
+   ],
+   [
+    "chart-2",
+    "card",
+    3,
+    4.45
+   ],
+   [
+    "chart-3",
+    "card",
+    3,
+    3.02
+   ],
+   [
+    "chart-4",
+    "card",
+    3,
+    3.72
+   ],
+   [
+    "chart-5",
+    "card",
+    3,
+    4.71
+   ],
+   [
+    "sidebar-foreground",
+    "sidebar",
+    4.5,
+    14.1
+   ],
+   [
+    "sidebar-muted-foreground",
+    "sidebar",
+    4.5,
+    5.43
+   ],
+   [
+    "sidebar-primary",
+    "sidebar",
+    3,
+    5.27
+   ],
+   [
+    "sidebar-accent-foreground",
+    "sidebar-accent",
+    4.5,
+    14.27
+   ],
+   [
+    "sidebar-primary-foreground",
+    "sidebar-primary",
+    4.5,
+    5.61
+   ]
+  ],
+  "dark": [
+   [
+    "foreground",
+    "background",
+    4.5,
+    17.4
+   ],
+   [
+    "card-foreground",
+    "card",
+    4.5,
+    16.15
+   ],
+   [
+    "primary-foreground",
+    "primary",
+    4.5,
+    8.63
+   ],
+   [
+    "secondary-foreground",
+    "secondary",
+    4.5,
+    12.23
+   ],
+   [
+    "muted-foreground",
+    "muted",
+    4.5,
+    6.65
+   ],
+   [
+    "muted-foreground",
+    "background",
+    4.5,
+    7.8
+   ],
+   [
+    "muted-foreground",
+    "card",
+    4.5,
+    7.24
+   ],
+   [
+    "accent-foreground",
+    "accent",
+    4.5,
+    9.89
+   ],
+   [
+    "primary",
+    "card",
+    4.5,
+    8.09
+   ],
+   [
+    "input",
+    "card",
+    3,
+    3.27
+   ],
+   [
+    "ring",
+    "background",
+    3,
+    8.71
+   ],
+   [
+    "destructive-foreground",
+    "destructive",
+    4.5,
+    6.21
+   ],
+   [
+    "destructive-muted-foreground",
+    "destructive-muted",
+    4.5,
+    9.13
+   ],
+   [
+    "destructive",
+    "card",
+    3,
+    5.68
+   ],
+   [
+    "success-foreground",
+    "success",
+    4.5,
+    8.28
+   ],
+   [
+    "success-muted-foreground",
+    "success-muted",
+    4.5,
+    9.71
+   ],
+   [
+    "success",
+    "card",
+    3,
+    7.65
+   ],
+   [
+    "warning-foreground",
+    "warning",
+    4.5,
+    9.58
+   ],
+   [
+    "warning-muted-foreground",
+    "warning-muted",
+    4.5,
+    9.54
+   ],
+   [
+    "info-foreground",
+    "info",
+    4.5,
+    7.94
+   ],
+   [
+    "info-muted-foreground",
+    "info-muted",
+    4.5,
+    9.57
+   ],
+   [
+    "info",
+    "card",
+    3,
+    7.32
+   ],
+   [
+    "chart-1",
+    "card",
+    3,
+    8.09
+   ],
+   [
+    "chart-2",
+    "card",
+    3,
+    6.59
+   ],
+   [
+    "chart-3",
+    "card",
+    3,
+    9.35
+   ],
+   [
+    "chart-4",
+    "card",
+    3,
+    8.2
+   ],
+   [
+    "chart-5",
+    "card",
+    3,
+    7.17
+   ],
+   [
+    "sidebar-foreground",
+    "sidebar",
+    4.5,
+    16.12
+   ],
+   [
+    "sidebar-muted-foreground",
+    "sidebar",
+    4.5,
+    8.02
+   ],
+   [
+    "sidebar-primary",
+    "sidebar",
+    3,
+    8.95
+   ],
+   [
+    "sidebar-accent-foreground",
+    "sidebar-accent",
+    4.5,
+    15.85
+   ],
+   [
+    "sidebar-primary-foreground",
+    "sidebar-primary",
+    4.5,
+    8.95
+   ]
+  ]
+ },
+ "fixes": [
+  "light chart-3/card 2.75→3.02"
+ ],
+ "scale": [
+  {
+   "k": "50",
+   "b": "#eef9fa",
+   "bo": "oklch(0.975 0.012 200)",
+   "n": "#f5f7f7"
+  },
+  {
+   "k": "100",
+   "b": "#dbf3f4",
+   "bo": "oklch(0.948 0.025 200)",
+   "n": "#eaefef"
+  },
+  {
+   "k": "200",
+   "b": "#bce8ea",
+   "bo": "oklch(0.9 0.045 200)",
+   "n": "#d9dfe0"
+  },
+  {
+   "k": "300",
+   "b": "#90d6d9",
+   "bo": "oklch(0.83 0.07 200)",
+   "n": "#c1c9c9"
+  },
+  {
+   "k": "400",
+   "b": "#48b7bd",
+   "bo": "oklch(0.72 0.1 200)",
+   "n": "#9ca7a8"
+  },
+  {
+   "k": "500",
+   "b": "#009298",
+   "bo": "oklch(0.6 0.102 200)",
+   "n": "#768384"
+  },
+  {
+   "k": "600",
+   "b": "#057176",
+   "bo": "oklch(0.5 0.084 200)",
+   "n": "#576767"
+  },
+  {
+   "k": "700",
+   "b": "#045b5f",
+   "bo": "oklch(0.43 0.072 200)",
+   "n": "#435354"
+  },
+  {
+   "k": "800",
+   "b": "#00464a",
+   "bo": "oklch(0.36 0.061 200)",
+   "n": "#304142"
+  },
+  {
+   "k": "900",
+   "b": "#003335",
+   "bo": "oklch(0.29 0.05 200)",
+   "n": "#1e2f30"
+  },
+  {
+   "k": "950",
+   "b": "#011d1f",
+   "bo": "oklch(0.21 0.035 200)",
+   "n": "#0e1b1c"
+  }
+ ]
+}
