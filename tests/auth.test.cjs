@@ -109,18 +109,19 @@ test('API propagates onboarding, membership, forbidden and unavailable distinctl
 });
 function authForm(path, sdk, values = {}, identity = null, action = async () => ({})) {
   const calls = [], navigation = [];
-  const state = [values, false, false, '', '', { organization: { name: 'Team' } }];
-  const React = { ...require('react'), useState: () => [state.shift(), () => {}], useEffect: () => {} };
+  const state = [values, path === '/signup' ? 3 : 0, false, '', '', {}, { organization: { name: 'Team' } }, true, '', false, false, false];
+  const React = { ...require('react'), useState: () => [state.shift(), () => {}], useEffect: () => {}, useRef: value => ({current:value}) };
   const form = load('src/frontend/auth-page.tsx', {
     react: React, 'react/jsx-runtime': require('react/jsx-runtime'), 'next/link': { default: 'a' }, 'next/navigation': { usePathname: () => path, useRouter: () => ({replace: value => navigation.push(value)}) },
     '@/components/layout/app-logo': { AppLogo:'a' },
     'lucide-react': new Proxy({}, { get: () => 'svg' }), './ui': { Alert: 'aside', Field: 'label' },
+    './auth-shell': { AuthShell: 'main' }, './auth-fields': { AuthField: 'label', AuthNotice: 'aside' }, './auth-design.module.css': {default:{}}, './types': {roleLabels:{}}, '@/lib/supabase/config': { supabaseConfig: () => null },
     './api': { api: { auth: async (...args) => { calls.push(args); return action(...args); } } },
-    './auth-provider': { useAuth: () => ({ user: identity, loading: false }) },
+    './auth-provider': { useAuth: () => ({ user: identity, loading: false, signOut: async () => { if (sdk.signOut) await sdk.signOut(); } }) },
     '@/lib/supabase/client': { getSupabase: () => ({ auth: sdk }) },
     './auth-flow': { authError: e => e.code, businessDestination: async () => '/app/dashboard', saveOnboarding: () => ({ payload: { organizationName: 'Shop' }, idempotencyKey: 'stable' }), readOnboarding: () => null },
-  }, { location: { origin: 'https://vortex.test', search: '?token=invitation', assign: value => navigation.push(value) }, URLSearchParams });
-  const tree = form.default();
+  }, { location: { origin: 'https://vortex.test', search: '?token=invitation', protocol: 'https:', assign: value => navigation.push(value) }, URLSearchParams, sessionStorage: {setItem(){}}, document: { cookie: '' }, requestAnimationFrame: () => {} });
+  const tree = form.AuthScreen({path});
   function find(node, predicate) {
     if (!node || typeof node !== 'object') return null;
     if (predicate(node)) return node;
@@ -141,10 +142,11 @@ test('email login accepts session, rejects invalid and unconfirmed identities', 
 test('signup separates Supabase identity from business onboarding and awaits confirmation', async () => {
   for (const session of [null, {}]) {
     let options;
-    const form = authForm('/signup', { signUp: async input => { options = input.options; return { data: { session }, error: null }; } }, { email: 'user@example.com', password: 'password', name: 'Owner' });
+    const form = authForm('/signup', { signUp: async input => { options = input.options; return { data: { session }, error: null }; } }, { email: 'user@example.com', password: 'password-12345', name: 'Owner', organizationName: 'Shop', country: 'Bénin', currency: 'XOF', timezone: 'Africa/Porto-Novo', storeName: 'Main', city: 'Cotonou' });
     await form.submit(); assert.equal(form.calls.length, 0);
     assert.equal(options.data.vortex_access_request, true);
-    assert.equal(options.data.vortex_onboarding, undefined);
+    assert.equal(options.data.vortex_onboarding.payload.organizationName, 'Shop');
+    assert.equal(options.data.vortex_onboarding.payload.password, undefined);
     assert.equal(form.navigation[0], session ? '/access-pending' : '/verify-email');
   }
 });
@@ -159,7 +161,7 @@ test('forgot password uses Supabase recovery callback and Google uses OAuth', as
 test('invitation accepts only after identity; existing and new identities are separate', async () => {
   for (const [identity, newAccount] of [[{ email: 'user@example.com' }, 'no'], [null, 'no'], [null, 'yes']]) {
     const auth = async () => ({ data: { session: {} }, error: null });
-    const form = authForm('/invite/activate', { signInWithPassword: auth, signUp: auth }, { email: 'user@example.com', password: 'private', newAccount }, identity);
+    const form = authForm('/invite/activate', { signInWithPassword: auth, signUp: auth }, { email: 'user@example.com', password: 'private-123456', newAccount }, identity);
     await form.submit();
     assert.deepEqual(form.calls[0][0], 'activate');
     assert.equal(form.calls[0][1].token, 'invitation');
@@ -171,17 +173,9 @@ test('invitation accepts only after identity; existing and new identities are se
 });
 test('reset submits the new password through Supabase and signs out after success', async () => {
   for (const failed of [false, true]) {
-    const state = ['new-password-123', 'new-password-123', false, false, '', false];
     let updated, signedOut = 0;
-    const page = load('src/app/reset-password/page.tsx', {
-      react: { ...require('react'), useState: () => [state.shift(), () => {}], useEffect: () => {} },
-      'react/jsx-runtime': require('react/jsx-runtime'), 'next/link': { default: 'a' },
-      '@/frontend/auth-provider': { useAuth: () => ({ loading: false, user: {}, signOut: async () => { signedOut++; } }) },
-      '@/lib/supabase/client': { getSupabase: () => ({ auth: { updateUser: async input => { updated = input; return { error: failed ? {} : null }; } } }) },
-      '@/frontend/ui': { Alert: 'aside', Field: 'label' },
-    });
-    const form = page.default().props.children.props.children[1];
-    await form.props.onSubmit({ preventDefault() {} });
+    const form = authForm('/reset-password', { updateUser: async input => { updated = input; return {error: failed ? {} : null}; }, signOut: async () => { signedOut++; } }, {password:'new-password-123',confirmation:'new-password-123'}, {});
+    await form.submit();
     assert.equal(updated.password, 'new-password-123');
     assert.equal(signedOut, failed ? 0 : 1);
   }
