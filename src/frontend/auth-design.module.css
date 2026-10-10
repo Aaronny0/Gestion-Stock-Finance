@@ -610,6 +610,8 @@
 
 .page .primary:hover {
   background:#045b5f;
+  color:#fafcfc;
+  text-decoration:none;
 }
 
 .page .secondary {
