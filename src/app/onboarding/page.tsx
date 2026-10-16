@@ -1,11 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { LoaderCircle, Store } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/frontend/auth-provider";
 import { request } from "@/frontend/api";
 import { businessDestination, draftKey, parseOnboarding, readOnboarding, saveOnboarding } from "@/frontend/auth-flow";
-import { Alert, Field } from "@/frontend/ui";
+import { AuthShell } from "@/frontend/auth-shell";
+import { AuthField, AuthNotice } from "@/frontend/auth-fields";
+import styles from "@/frontend/auth-design.module.css";
 export default function Onboarding() {
   const auth = useAuth();
   const router = useRouter();
@@ -26,8 +29,16 @@ export default function Onboarding() {
     }).catch(e => { if (active) { setError(e.message); setBusy(false); } });
     return () => { active = false; };
   }, [auth.loading, auth.user]);
-  return <main className="access-layout onboarding-layout"><div className="access-content"><Link href="/" className="onboarding-brand">VORTEX</Link><span className="onboarding-step">{approved ? "Accès validé · Configuration de votre entreprise" : "Configuration de votre entreprise"}</span><h1>{noMembership ? "Aucune équipe accessible" : "Créer votre espace VORTEX"}</h1>
-    {!approved ? <p role="status">{error ? "Votre autorisation n’a pas pu être vérifiée. Réessayez." : "Vérification de votre autorisation…"}</p> : noMembership ? <p>Demandez une invitation ou la réactivation de votre accès à votre administrateur.</p> : <form className="onboarding-form" onSubmit={async e => {
+  const fields: [string, string, boolean][] = [["name", "Votre nom", true], ["organizationName", "Entreprise", true], ["country", "Pays", false], ["currency", "Devise", false], ["timezone", "Fuseau horaire", false], ["storeName", "Boutique", false], ["city", "Ville", true]];
+  const refresh = () => { setBusy(true); void businessDestination().then(destination => location.assign(destination)).catch(e => { setError(e.message); setBusy(false); }); };
+  return <AuthShell>
+    <span className={styles.heroIcon}><Store size={22} /></span>
+    <div className={styles.heading}>
+      <span className={styles.eyebrow}>{approved ? "Accès validé · Configuration" : "Configuration"}</span>
+      <h1>{noMembership ? "Aucune équipe accessible" : "Créer votre espace VORTEX"}</h1>
+      <p>{noMembership ? "Demandez une invitation ou la réactivation de votre accès à votre administrateur." : approved ? "Renseignez votre entreprise et votre premier point de vente. Vous pourrez les modifier ensuite." : error ? "Votre autorisation n’a pas pu être vérifiée. Réessayez." : "Vérification de votre autorisation…"}</p>
+    </div>
+    {approved && !noMembership && <form className={styles.form} aria-busy={busy} onSubmit={async e => {
       e.preventDefault(); if (busy || !auth.user || !approved) return; setBusy(true); setError("");
       try {
         const draft = saveOnboarding({ ...values, email: auth.user.email ?? "" });
@@ -36,9 +47,17 @@ export default function Onboarding() {
         if (destination !== "/app/dashboard") throw new Error("Votre espace n’est pas encore accessible. Réessayez.");
         sessionStorage.removeItem(draftKey); router.replace("/app/dashboard");
       } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
-    }}>{[["name", "Votre nom"], ["organizationName", "Entreprise"], ["country", "Pays"], ["currency", "Devise"], ["timezone", "Fuseau horaire"], ["storeName", "Boutique"], ["city", "Ville"]].map(([key, label]) => <Field key={key} label={label}><input required value={values[key] ?? ""} onChange={e => setValues({ ...values, [key]: e.target.value })} /></Field>)}<button className="button primary" disabled={busy || auth.loading}>Créer mon espace</button></form>}
-    {error && <Alert error>{error}</Alert>}
-    <button className="button secondary" onClick={() => { setBusy(true); void businessDestination().then(destination => location.assign(destination)).catch(e => { setError(e.message); setBusy(false); }); }} disabled={busy}>Actualiser mon accès</button>
-    <button className="button secondary" onClick={() => void auth.signOut().then(() => router.replace("/login")).catch(e => setError(e.message))}>Se déconnecter</button><Link href="/demo">Explorer la démonstration</Link>
-  </div></main>;
+    }}>
+      <div className={styles.formGrid}>
+        {fields.map(([key, label, wide]) => <div key={key} className={wide ? styles.wide : undefined}><AuthField name={key} label={label} value={values[key] ?? ""} onChange={value => setValues({ ...values, [key]: value })} disabled={busy} /></div>)}
+      </div>
+      <button className={styles.primary} disabled={busy || auth.loading}>{busy ? <><LoaderCircle size={16} className={styles.spinner} />Création en cours…</> : "Créer mon espace"}</button>
+    </form>}
+    {error && <AuthNotice error>{error}</AuthNotice>}
+    <div className={styles.stack}>
+      <button className={styles.secondary} onClick={refresh} disabled={busy}>Actualiser mon accès</button>
+      <button className={styles.secondary} onClick={() => void auth.signOut().then(() => router.replace("/login")).catch(e => setError(e.message))}>Se déconnecter</button>
+      <Link className={styles.textLink} href="/demo">Explorer la démonstration</Link>
+    </div>
+  </AuthShell>;
 }
