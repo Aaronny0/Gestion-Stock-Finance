@@ -3,7 +3,7 @@ import { createSupabaseServer } from "@/lib/supabase/server";
 
 // Transport only: NestJS owns authorization, decisions and all privileged keys.
 async function forward(req: NextRequest) {
-  if (req.method === "POST" && req.headers.get("origin") !== req.nextUrl.origin)
+  if (req.method === "POST" && req.headers.get("origin") !== (process.env.APP_URL || req.nextUrl.origin))
     return NextResponse.json({ error: "Origine refusée." }, { status: 403 });
   try {
     const client = await createSupabaseServer();
@@ -15,7 +15,7 @@ async function forward(req: NextRequest) {
     const target = new URL("admin/access-requests", base.endsWith("/") ? base : base + "/");
     target.search = req.nextUrl.search;
     const response = await fetch(target, {
-      method: req.method, headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", Origin: req.nextUrl.origin },
+      method: req.method, headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", Origin: (process.env.APP_URL || req.nextUrl.origin) },
       ...(req.method === "POST" ? { body: JSON.stringify(await req.json()) } : {}),
       cache: "no-store", redirect: "error", signal: AbortSignal.timeout(18000),
     });

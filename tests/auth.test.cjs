@@ -6,7 +6,7 @@ const assert = require('node:assert/strict');
 function load(file, mocks = {}, globals = {}) {
   const module = { exports: {} };
   const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText;
-  vm.runInNewContext(code, { module, exports: module.exports, require: name => { if (name in mocks) return mocks[name]; throw Error(name); }, URL, Headers, AbortSignal, TextEncoder, ...globals });
+  vm.runInNewContext(code, { module, exports: module.exports, require: name => { if (name in mocks) return mocks[name]; throw Error(name); }, URL, Headers, AbortSignal, TextEncoder, process: { env: {} }, ...globals });
   return module.exports;
 }
 const redirects = load('src/lib/supabase/redirect.ts');
@@ -336,4 +336,17 @@ test('recent login preference is recorded only after a successful callback', asy
       assert.equal(saved[0][2].secure, true);
     }
   }
+});
+
+test('callback uses the configured public HTTPS origin behind a container proxy', async () => {
+  const saved = [];
+  const fakeClient = { auth: { exchangeCodeForSession: async () => ({ data: { user: { app_metadata: {} } }, error: null }) } };
+  const route = load('src/app/auth/callback/route.ts', {
+    'next/server': { NextResponse: { redirect: url => ({ url: String(url), cookies: { set: (...args) => saved.push(args) } }) } },
+    '@/lib/supabase/redirect': redirects,
+    '@/lib/supabase/server': { createSupabaseServer: async () => fakeClient },
+  }, { process: { env: { APP_URL: 'https://talentlistx.com' } } });
+  const result = await route.GET({ nextUrl: new URL('http://web:3000/auth/callback?code=test') });
+  assert.equal(result.url, 'https://talentlistx.com/access-pending');
+  assert.equal(saved[0][2].secure, true);
 });

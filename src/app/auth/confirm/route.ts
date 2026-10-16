@@ -5,13 +5,13 @@ export async function GET(request: NextRequest) {
   const token_hash = request.nextUrl.searchParams.get("token_hash");
   const type = request.nextUrl.searchParams.get("type");
   const recovery = type === "recovery";
-  const next = recovery ? "/reset-password" : authDestination(request.nextUrl.searchParams.get("next"), request.nextUrl.origin);
+  const next = recovery ? "/reset-password" : authDestination(request.nextUrl.searchParams.get("next"), (process.env.APP_URL || request.nextUrl.origin));
   if (token_hash && (type === "email" || type === "signup" || recovery)) {
     try {
       const client = await createSupabaseServer();
       const { error } = await client.auth.verifyOtp({ token_hash, type });
-      if (!error) return NextResponse.redirect(new URL(next, request.nextUrl.origin), { headers: { "Cache-Control": "no-store" } });
+      if (!error) return NextResponse.redirect(new URL(next, (process.env.APP_URL || request.nextUrl.origin)), { headers: { "Cache-Control": "no-store" } });
     } catch { /* Safe error below. */ }
   }
-  return NextResponse.redirect(new URL(authFailureDestination(next), request.nextUrl.origin), { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.redirect(new URL(authFailureDestination(next), (process.env.APP_URL || request.nextUrl.origin)), { headers: { "Cache-Control": "no-store" } });
 }

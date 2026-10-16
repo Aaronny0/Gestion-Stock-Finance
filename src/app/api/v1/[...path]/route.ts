@@ -23,7 +23,7 @@ async function forward(
   const path = (await params).path.join("/");
   if (!allowed.has(path))
     return NextResponse.json({ error: "Route introuvable." }, { status: 404 });
-  if (req.method !== "GET" && req.headers.get("origin") !== req.nextUrl.origin)
+  if (req.method !== "GET" && req.headers.get("origin") !== (process.env.APP_URL || req.nextUrl.origin))
     return NextResponse.json({ error: "Origine refusée." }, { status: 403 });
   // Public invitation inspection remains public; all business reads and writes require approval.
   if (!["auth/invitation", "auth/activate", "auth/accept-invitation", "telemetry"].includes(path)) {

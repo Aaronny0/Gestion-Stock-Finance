@@ -1,11 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { supabaseConfig } from "./config";
+import { supabaseConfig, authCookieOptions } from "./config";
 export async function refreshSession(request: NextRequest) {
   let response = NextResponse.next({ request });
   const config = supabaseConfig();
   if (!config || request.nextUrl.pathname.startsWith("/demo")) return response;
-  const client = createServerClient(config.url, config.key, { cookies: {
+  const client = createServerClient(process.env.SUPABASE_INTERNAL_URL || config.url, config.key, { cookieOptions: authCookieOptions(), cookies: {
     getAll: () => request.cookies.getAll(),
     setAll: (items) => {
       for (const { name, value } of items) request.cookies.set(name, value);

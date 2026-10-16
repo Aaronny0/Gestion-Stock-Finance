@@ -9,15 +9,15 @@ export async function GET(request: NextRequest) {
       const client = await createSupabaseServer();
       const { data, error } = await client.auth.exchangeCodeForSession(code);
       if (!error) {
-        const response = NextResponse.redirect(new URL(next, request.nextUrl.origin), { headers: { "Cache-Control": "no-store" } });
+        const response = NextResponse.redirect(new URL(next, (process.env.APP_URL || request.nextUrl.origin)), { headers: { "Cache-Control": "no-store" } });
         // Display preference only; never used to grant product access.
         if (data?.user) response.cookies.set("vortex_last_login", data.user.app_metadata?.provider === "google" ? "google" : "email", {
-          path: "/", maxAge: 60 * 60 * 24 * 180, sameSite: "lax", secure: request.nextUrl.protocol === "https:", httpOnly: false,
+          path: "/", maxAge: 60 * 60 * 24 * 180, sameSite: "lax", secure: (process.env.APP_URL || request.nextUrl.origin).startsWith("https:"), httpOnly: false,
         });
         return response;
       }
     } catch { /* Configuration/network errors use the same safe public message. */ }
   }
   const failure = authFailureDestination(next);
-  return NextResponse.redirect(new URL(failure, request.nextUrl.origin), { headers: { "Cache-Control": "no-store" } });
+  return NextResponse.redirect(new URL(failure, (process.env.APP_URL || request.nextUrl.origin)), { headers: { "Cache-Control": "no-store" } });
 }

@@ -62,3 +62,7 @@ Le bilan du 17 septembre 2026, les choix de palette, les nouveaux parcours et le
 Le bilan de stabilisation, les corrections et les résultats de validation sont détaillés dans [docs/FINAL_STABILIZATION.md](docs/FINAL_STABILIZATION.md).
 
 Intégration identité et configuration des redirects : [rapport Supabase Auth](docs/supabase-auth-frontend-implementation-report.md).
+
+## Déploiement Dokploy
+
+Utiliser `compose.yaml` et `.env.compose.example` de ce dépôt. La procédure complète est dans le dépôt voisin `vortex-backend/docs/dokploy-compose.md` : secrets, domaines, réseau commun, Supabase Auth/PostgreSQL auto-hébergés, migration et sauvegardes. Ne pas ajouter `compose.local.yaml` sur le VPS.

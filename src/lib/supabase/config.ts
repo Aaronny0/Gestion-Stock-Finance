@@ -8,3 +8,8 @@ export function requireConfig() {
   if (!config) throw new Error("Authentification non configurée. Contactez l’administrateur.");
   return config;
 }
+
+// Keep the same cookie identity for the public URL and internal Docker URL.
+export function authCookieOptions() {
+  return { name: "vortex-product-auth", path: "/", sameSite: "lax" as const, secure: process.env.NODE_ENV === "production" };
+}
