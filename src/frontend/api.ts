@@ -1,5 +1,3 @@
-import { getSupabase } from "@/lib/supabase/client";
-import { supabaseConfig } from "@/lib/supabase/config";
 import type { Command, Snapshot, Sale, Organization } from "./types";
 export class ApiError extends Error {
   constructor(
@@ -26,12 +24,6 @@ export async function request<T>(
     if (!/^[a-z][a-z0-9/-]*(?:\?.*)?$/.test(path) || path.includes("..")) throw new ApiError(400, "Route invalide.");
     const headers = new Headers(init.headers);
     headers.set("Content-Type", "application/json");
-    if (supabaseConfig()) {
-      const { data, error } = await getSupabase().auth.getSession();
-      if (error) throw new ApiError(401, messages[401]);
-      if (data.session) headers.set("Authorization", `Bearer ${data.session.access_token}`);
-      else headers.delete("Authorization");
-    }
     const response = await fetch(`/api/v1/${path}`, {
       ...init,
       cache: "no-store",

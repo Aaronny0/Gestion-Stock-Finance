@@ -36,15 +36,15 @@ Le dashboard et la BI non filtrée utilisent `reporting`, calculé sur la totali
 
 ## Authentification
 
-Supabase gère l’identité. Le client transmet `Authorization: Bearer <access_token>` vers NestJS via le proxy Next.js. NestJS valide le JWT (signature, expiration, issuer/audience) et résout le User VORTEX par `sub`. Le backend de production exige Bearer sans repli sur les cookies historiques.
+Better Auth (hébergé par NestJS sous `/api/auth/*`) gère l’identité. Le navigateur transmet son cookie de session (`vortex.session_token`) ; le proxy Next.js `/api/v1/*` le relaie à NestJS, qui résout la session et le statut d’accès (`user.accessStatus`, jamais modifiable par le navigateur). `GET /access` renvoie `{status,destination}` (401 `UNAUTHENTICATED`, 503 `ACCESS_UNAVAILABLE`). Aucun jeton Bearer n’est utilisé.
 
 `GET /session` et `GET /workspace` restent les contrats métier existants. Erreurs structurées attendues : `ONBOARDING_REQUIRED` pour une identité sans User VORTEX, `NO_MEMBERSHIP` pour un compte sans périmètre accessible, `FORBIDDEN` pour une permission refusée. Ne pas retourner un 401 pour une identité valide nécessitant un onboarding.
 
-`POST /onboarding` reçoit `{name,email,organizationName,country,currency,timezone,storeName,city}` et `Idempotency-Key`. L’identité vient exclusivement du Bearer ; le backend ne doit pas faire confiance à l’email envoyé. Créer atomiquement User VORTEX, organization, store et membership, avec unicité du `sub` et déduplication durable. Une reprise après réponse incertaine conserve la clé. Une identité déjà initialisée retrouve son contexte sans duplication. Aucune transaction commune avec Supabase.
+`POST /onboarding` reçoit `{name,email,organizationName,country,currency,timezone,storeName,city}` et `Idempotency-Key`. L’identité vient exclusivement de la session (cookie) ; le backend ne doit pas faire confiance à l’email envoyé. Créer atomiquement User VORTEX, organization, store et membership, avec unicité du `sub` et déduplication durable. Une reprise après réponse incertaine conserve la clé. Une identité déjà initialisée retrouve son contexte sans duplication. Aucune transaction commune avec Supabase.
 
-`POST /auth/invitation` conserve `{token}` et retourne `{organization,role}` après validation, sans exposer de données sensibles. `POST /auth/activate` reçoit désormais `{token}` et le Bearer Supabase : vérifier expiration, email de l’identité, état et rattachement autorisé, puis accepter idempotemment. Le token d’invitation ne prouve pas l’identité. Aucun mot de passe envoyé à NestJS.
+`POST /auth/invitation` conserve `{token}` et retourne `{organization,role}` après validation, sans exposer de données sensibles. `POST /auth/activate` reçoit désormais `{token}` et le cookie de session : vérifier expiration, email de l’identité, état et rattachement autorisé, puis accepter idempotemment. Le token d’invitation ne prouve pas l’identité. Aucun mot de passe envoyé à NestJS.
 
-Les endpoints d’identité historiques sont retirés de l’allowlist du proxy et du runtime NestJS ; login/signup/logout/reset/Google passent exclusivement par Supabase. L’entreprise retournée par l’inspection d’invitation est un objet `Organization`, affiché via son `name`.
+Les endpoints d’identité historiques sont retirés de l’allowlist du proxy et du runtime NestJS ; login/signup/logout/reset/Google passent exclusivement par Better Auth (`/api/auth/*`). L’entreprise retournée par l’inspection d’invitation est un objet `Organization`, affiché via son `name`.
 
 ## Commandes métier
 

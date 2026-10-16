@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { resolveAccess, AccessFailure } from "@/lib/supabase/access";
+import { resolveAccess, AccessFailure } from "@/lib/auth/access";
 const allowed = new Set([
   "access",
   "onboarding",
@@ -50,8 +50,6 @@ async function forward(
     });
     const origin = req.headers.get("Origin");
     if (origin) headers.set("Origin", origin);
-    const authorization = req.headers.get("Authorization");
-    if (authorization) headers.set("Authorization", authorization);
     headers.set("Content-Type", req.headers.get("Content-Type") ?? "application/json");
     const cookie = req.headers.get("cookie");
     if (cookie) headers.set("Cookie", cookie);

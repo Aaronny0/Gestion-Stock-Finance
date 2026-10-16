@@ -3,10 +3,6 @@ services:
     build:
       context: .
       target: runtime
-      args:
-        # Public variables are compiled into browser JS; rebuild when changing them.
-        NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_PUBLIC_URL:?Set the public HTTPS auth domain}
-        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${ANON_KEY:?}
     restart: unless-stopped
     init: true
     environment:
@@ -14,9 +10,8 @@ services:
       PORT: "3000"
       HOSTNAME: 0.0.0.0
       APP_URL: ${APP_URL:?Set the public HTTPS application domain}
-      NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_PUBLIC_URL:?}
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${ANON_KEY:?}
-      SUPABASE_INTERNAL_URL: ${SUPABASE_INTERNAL_URL:-http://vortex-auth:8000}
+      # Better Auth runs in the NestJS API; /api/auth/* is relayed there (no secret in this service).
+      AUTH_API_URL: http://vortex-api:3001
       FRONTEND_API_URL: http://vortex-api:3001/api/v1
     networks: [apps, dokploy]
     expose: ["3000"]

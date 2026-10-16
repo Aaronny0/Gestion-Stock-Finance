@@ -6,7 +6,7 @@ import { Check, Clock3, Mail, ArrowRight, ShieldCheck } from "lucide-react";
 import { AppLogo } from "@/components/layout/app-logo";
 import { useAuth } from "./auth-provider";
 import { request } from "./api";
-import { getSupabase } from "@/lib/supabase/client";
+import { getAuthClient } from "@/lib/auth/client";
 import type { AccessDecision } from "@/lib/access-policy";
 export default function AccessPage({ verify = false }: { verify?: boolean }) {
   const auth = useAuth();
@@ -20,7 +20,7 @@ export default function AccessPage({ verify = false }: { verify?: boolean }) {
   const needsRequest =
     !!auth.user &&
     !verify &&
-    !auth.user.user_metadata.vortex_access_request &&
+    !auth.user.accessRequest &&
     decision?.status === "PENDING_APPROVAL" &&
     !submitted;
   async function check() {
@@ -126,13 +126,11 @@ export default function AccessPage({ verify = false }: { verify?: boolean }) {
               setBusy(true);
               setError("");
               try {
-                const { error: failure } = await getSupabase().auth.updateUser({
-                  data: {
-                    name: String(fields.get("name")).trim(),
-                    company: String(fields.get("company")).trim(),
-                    phone: String(fields.get("phone")).trim(),
-                    vortex_access_request: true,
-                  },
+                const { error: failure } = await getAuthClient().updateUser({
+                  name: String(fields.get("name")).trim(),
+                  company: String(fields.get("company")).trim(),
+                  phone: String(fields.get("phone")).trim(),
+                  accessRequest: true,
                 });
                 if (failure)
                   throw new Error(
@@ -160,7 +158,7 @@ export default function AccessPage({ verify = false }: { verify?: boolean }) {
                 autoComplete="name"
                 required
                 maxLength={120}
-                defaultValue={auth.user?.user_metadata.full_name ?? ""}
+                defaultValue={auth.user?.name ?? ""}
               />
             </label>
             <label>
@@ -199,12 +197,9 @@ export default function AccessPage({ verify = false }: { verify?: boolean }) {
               setBusy(true);
               setError("");
               try {
-                const { error } = await getSupabase().auth.resend({
-                  type: "signup",
+                const { error } = await getAuthClient().sendVerificationEmail({
                   email,
-                  options: {
-                    emailRedirectTo: `${location.origin}/auth/callback?next=/access-pending`,
-                  },
+                  callbackURL: "/access-pending",
                 });
                 if (error)
                   throw Error(

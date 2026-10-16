@@ -1,4 +1,4 @@
-/** Access decisions only consume server-controlled app_metadata, never user_metadata. */
+/** Access decisions only consume the status computed by the backend (user.accessStatus, never writable by the browser). */
 export const accessStatuses = [
   "PENDING_EMAIL",
   "PENDING_APPROVAL",
@@ -12,11 +12,8 @@ export type AccessDecision = {
   status: AccessStatus;
   destination: string;
 };
-export function declaredAccess(
-  metadata: Record<string, unknown> | undefined,
-): AccessStatus | undefined {
-  const value = metadata?.vortex_access_status;
-  return value === undefined
+export function parseAccessStatus(value: unknown): AccessStatus | undefined {
+  return value === undefined || value === null
     ? undefined
     : accessStatuses.includes(value as AccessStatus)
       ? (value as AccessStatus)

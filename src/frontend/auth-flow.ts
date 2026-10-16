@@ -19,13 +19,25 @@ export async function businessDestination() {
   const decision = await request<AccessDecision>("access");
   return decision.destination;
 }
-export function authError(error: { code?: string; message?: string }) {
-  switch (error.code) {
-    case "invalid_credentials": return "Email ou mot de passe incorrect.";
-    case "email_not_confirmed": return "Confirmez votre adresse email avant de vous connecter.";
-    case "user_already_exists": return "Un compte existe déjà. Connectez-vous ou réinitialisez votre mot de passe.";
-    case "weak_password": return "Choisissez un mot de passe plus robuste.";
-    case "over_email_send_rate_limit": return "Veuillez patienter avant de demander un nouveau lien.";
-    default: return "Connexion indisponible ou demande refusée. Réessayez.";
+/** Maps Better Auth error codes (and the HTTP status for rate limits) to safe French messages. */
+export function authError(error: { code?: string; message?: string; status?: number }) {
+  const code = error.code ?? "";
+  if (error.status === 429) return "Veuillez patienter avant de demander un nouveau lien.";
+  switch (code) {
+    case "INVALID_EMAIL_OR_PASSWORD": return "Email ou mot de passe incorrect.";
+    case "EMAIL_NOT_VERIFIED": return "Confirmez votre adresse email avant de vous connecter.";
+    case "PASSWORD_TOO_SHORT": case "PASSWORD_TOO_LONG": return "Choisissez un mot de passe plus robuste.";
+    default:
+      if (code.startsWith("USER_ALREADY_EXISTS")) return "Un compte existe déjà. Connectez-vous ou réinitialisez votre mot de passe.";
+      return "Connexion indisponible ou demande refusée. Réessayez.";
   }
+}
+/** Better Auth refuses unverified logins with 403 EMAIL_NOT_VERIFIED. */
+export const emailNotVerified = (error: { code?: string; status?: number }) => error.code === "EMAIL_NOT_VERIFIED";
+/** The onboarding draft stored on the user at sign-up is a JSON string. */
+export function parseOnboarding(value: string | null | undefined): { payload: Record<string, string>; idempotencyKey: string } | null {
+  try {
+    const draft = JSON.parse(value || "null");
+    return draft && typeof draft.idempotencyKey === "string" && draft.payload && typeof draft.payload === "object" ? draft : null;
+  } catch { return null; }
 }

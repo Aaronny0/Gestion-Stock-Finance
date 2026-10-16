@@ -1,3 +1,5 @@
+> **Historique** : Supabase Auth a été remplacé par Better Auth (hébergé par `vortex-backend`). Ce document décrit l’ancienne intégration et n’est plus applicable.
+
 > État global actuel et limites backend : [audit final](final-project-audit.md). Les résultats de ce document concernent sa tranche/date, pas une certification du projet complet.
 
 # Intégration Supabase Auth — frontend VORTEX

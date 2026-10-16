@@ -1,3 +1,5 @@
+> **Historique** : Supabase Auth a été remplacé par Better Auth (hébergé par `vortex-backend`). Ce document décrit l’ancienne intégration et n’est plus applicable.
+
 # Déployer l’architecture Supabase Auth / VORTEX
 
 6 octobre 2026. Aucun déploiement distant n’a été exécuté pendant le développement.

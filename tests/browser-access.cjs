@@ -1,12 +1,13 @@
 const {chromium} = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const assert = require('node:assert/strict');
-const {installBrowserIdentity} = require('./browser-auth-fixture.cjs');
+const {installBrowserIdentity, installSignedOut} = require('./browser-auth-fixture.cjs');
 const base = process.env.TEST_BASE_URL || 'http://localhost:3000';
 (async()=>{
   const browser = await chromium.launch({headless:true,executablePath:process.env.CHROME_PATH || '/usr/bin/google-chrome',args:['--no-sandbox']});
   try {
     const page = await browser.newPage({viewport:{width:1280,height:900}});
-    const calls=[];page.on('request',r=>{if(/\/api\/v1\/|\/auth\/v1\//.test(r.url()))calls.push(r.url());});
+    const calls=[];page.on('request',r=>{if(/\/api\/v1\/|\/api\/auth\//.test(r.url()))calls.push(r.url());});
+    await installSignedOut(page);
     await page.goto(base+'/demo');await page.getByRole('heading',{name:/Bonjour/}).waitFor();
     await page.locator('[data-qa="workspace-sidebar"]').getByRole('button',{name:'Opérations',exact:true}).click();
     await page.getByRole('link',{name:'Caisse / Vendre',exact:true}).click();

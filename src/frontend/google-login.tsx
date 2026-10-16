@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, LoaderCircle, ArrowUpRight } from "lucide-react";
-import { getSupabase } from "@/lib/supabase/client";
-import { useAuth } from "./auth-provider";
-import { authError, businessDestination } from "./auth-flow";
+import { getAuthClient } from "@/lib/auth/client";
+import { useAuth, pendingLoginKey } from "./auth-provider";
+import { authError, businessDestination, emailNotVerified } from "./auth-flow";
 import styles from "./google-login.module.css";
 
 export default function GoogleLogin() {
@@ -38,9 +38,11 @@ export default function GoogleLogin() {
     setMethod("google");
     setError("");
     try {
-      const { error } = await getSupabase().auth.signInWithOAuth({
+      sessionStorage.setItem(pendingLoginKey, "google");
+      const { error } = await getAuthClient().signIn.social({
         provider: "google",
-        options: { redirectTo: `${location.origin}/auth/callback?next=/access-pending` },
+        callbackURL: "/access-pending",
+        errorCallbackURL: "/login",
       });
       if (error) throw new Error(authError(error));
     } catch (e) {
@@ -54,12 +56,12 @@ export default function GoogleLogin() {
     if (busy) return;
     setBusy(true); setMethod("email"); setError("");
     try {
-      const { data, error } = await getSupabase().auth.signInWithPassword({ email, password });
+      const { data, error } = await getAuthClient().signIn.email({ email, password });
       if (error) {
-        if (error.code === "email_not_confirmed") { location.assign("/verify-email"); return; }
+        if (emailNotVerified(error)) { location.assign("/verify-email"); return; }
         throw new Error(authError(error));
       }
-      if (!data.session) throw new Error("Session indisponible. Réessayez.");
+      if (!data?.user) throw new Error("Session indisponible. Réessayez.");
       document.cookie = `vortex_last_login=email; Path=/; Max-Age=15552000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
       setLastUsed("email");
       location.assign(await businessDestination());

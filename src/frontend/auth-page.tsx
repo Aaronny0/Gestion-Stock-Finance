@@ -5,18 +5,15 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ArrowRight, KeyRound, LoaderCircle, LockKeyhole, MailCheck } from "lucide-react";
 import { api } from "./api";
-import { useAuth } from "./auth-provider";
-import { getSupabase } from "@/lib/supabase/client";
-import { supabaseConfig } from "@/lib/supabase/config";
-import { authError, businessDestination, saveOnboarding, readOnboarding } from "./auth-flow";
+import { getAuthClient } from "@/lib/auth/client";
+import { authError, businessDestination, emailNotVerified, saveOnboarding, readOnboarding } from "./auth-flow";
+import { useAuth, pendingLoginKey } from "./auth-provider";
 import { roleLabels, type Role } from "./types";
 import { AuthShell } from "./auth-shell";
 import { AuthField, AuthNotice } from "./auth-fields";
 import styles from "./auth-design.module.css";
 
 type Invitation = { organization?: { name: string }; role?: string };
-// Client-only notification survives the workspace remount on sign-out. No credentials retained.
-let passwordUpdatedAt = 0;
 const passwordUpdatedMessage = "Mot de passe enregistré. Reconnectez-vous.";
 const steps = ["Compte", "Entreprise", "Boutique", "Récapitulatif"];
 const accountFields = ["name", "email", "password"];
@@ -39,10 +36,8 @@ export function AuthScreen({ path }: { path: string }) {
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [success, setSuccess] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [invitation, setInvitation] = useState<Invitation | null>(null);
-  const [googleEnabled, setGoogleEnabled] = useState(false);
   const [lastUsed, setLastUsed] = useState("");
   const [invalidLink, setInvalidLink] = useState(false);
-  const [resolvingLink, setResolvingLink] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const [busyAction, setBusyAction] = useState<"form" | "google" | null>(null);
   const submitting = useRef(false);
@@ -56,43 +51,14 @@ export function AuthScreen({ path }: { path: string }) {
       setError(reset || verify ? "Lien invalide ou expiré. Demandez un nouveau lien." : "La connexion n’a pas abouti. Veuillez réessayer.");
       return;
     }
-    // The workspace shell remounts public pages when the identity changes on sign-out.
-    // Consume a short-lived, memory-only notice; storage availability cannot block password changes.
-    if (reset && passwordUpdatedAt && Date.now() - passwordUpdatedAt < 60_000) {
-      passwordUpdatedAt = 0;
-      setSuccess(passwordUpdatedMessage);
-    }
     if (verify) {
       const draft = readOnboarding();
       if (draft?.payload.email) setValues(v => ({ ...v, email: draft.payload.email }));
     }
-    // Supabase's existing server handlers validate tokens and write secure session cookies.
-    if (reset || verify) {
-      const hash = params.get("token_hash");
-      const code = params.get("code");
-      if (hash) {
-        setResolvingLink(true);
-        location.replace(`/auth/confirm?${new URLSearchParams({ token_hash: hash, type: reset ? "recovery" : params.get("type") === "email" ? "email" : "signup", next: reset ? "/reset-password" : "/verify-email" })}`);
-      } else if (code) {
-        setResolvingLink(true);
-        location.replace(`/auth/callback?${new URLSearchParams({ code, next: reset ? "/reset-password" : "/verify-email" })}`);
-      }
-    }
+    // Better Auth redirects here with ?token=... (reset) or ?error=... (invalid link).
+    if (reset && !params.get("token")) setInvalidLink(true);
     setLastUsed(document.cookie.split("; ").find(v => v.startsWith("vortex_last_login="))?.split("=")[1] ?? "");
   }, [reset, verify]);
-
-  useEffect(() => {
-    if (!login) return;
-    const config = supabaseConfig();
-    if (!config) return;
-    const controller = new AbortController();
-    // Public Auth settings are the source of truth; no optimistic Google button.
-    fetch(`${config.url}/auth/v1/settings`, { headers: { apikey: config.key }, signal: controller.signal })
-      .then(response => response.ok ? response.json() : null)
-      .then(settings => { if (!controller.signal.aborted) setGoogleEnabled(settings?.external?.google === true); })
-      .catch(() => { /* Email remains available if provider discovery fails. */ });
-    return () => controller.abort();
-  }, [login]);
 
   useEffect(() => {
     if (!invite) return;
@@ -104,12 +70,12 @@ export function AuthScreen({ path }: { path: string }) {
   }, [invite]);
 
   useEffect(() => {
-    if (auth.loading || !auth.user || busy || resolvingLink) return;
+    if (auth.loading || !auth.user || busy) return;
     let active = true;
     if (login) void businessDestination().then(destination => { if (active) location.replace(destination); }).catch(e => { if (active) setError(e.message); });
-    if (verify && !invalidLink && auth.user.email_confirmed_at) setConfirmed(true);
+    if (verify && !invalidLink && auth.user.emailVerified) setConfirmed(true);
     return () => { active = false; };
-  }, [auth.loading, auth.user, login, verify, busy, invalidLink, resolvingLink]);
+  }, [auth.loading, auth.user, login, verify, busy, invalidLink]);
 
   function validate() {
     const next: Record<string, string> = {};
@@ -132,66 +98,71 @@ export function AuthScreen({ path }: { path: string }) {
   }
 
   async function google() {
-    if (submitting.current || !googleEnabled) return;
+    if (submitting.current) return;
     submitting.current = true; setBusyAction("google"); setBusy(true); setError("");
     try {
-      const { error } = await getSupabase().auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${location.origin}/auth/callback?next=/access-pending` } });
+      sessionStorage.setItem(pendingLoginKey, "google");
+      const { error } = await getAuthClient().signIn.social({ provider: "google", callbackURL: "/access-pending", errorCallbackURL: "/login" });
       if (error) throw new Error(authError(error));
     } catch (e) { setError((e as Error).message); setBusy(false); setBusyAction(null); submitting.current = false; }
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (submitting.current || resolvingLink) return;
+    if (submitting.current) return;
     setError(""); setSuccess("");
     if (!validate()) return;
     if (signup && step < 3) { setStep(s => s + 1); requestAnimationFrame(() => heading.current?.focus()); return; }
     if (invite && !invitation) return;
-    if (reset && (invalidLink || !auth.user)) return;
+    if (reset && invalidLink) return;
     submitting.current = true; setBusyAction("form"); setBusy(true);
     try {
-      const client = getSupabase();
+      const client = getAuthClient();
       const email = values.email?.trim();
       if (forgot) {
-        const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}/auth/callback?next=/reset-password` });
+        const { error } = await client.requestPasswordReset({ email, redirectTo: "/reset-password" });
         if (error) throw new Error(authError(error));
         setSuccess("Si ce compte existe, un lien de réinitialisation a été envoyé.");
       } else if (signup) {
         // This is a draft, never an authorization claim or premature workspace creation.
         const draft = saveOnboarding({ ...values, email, name: values.name.trim(), organizationName: values.organizationName.trim() });
-        const { data, error } = await client.auth.signUp({ email, password: values.password, options: {
-          data: { name: values.name.trim(), company: values.organizationName.trim(), phone: values.phone?.trim() ?? "", vortex_access_request: true, vortex_onboarding: draft },
-          emailRedirectTo: `${location.origin}/auth/callback?next=/verify-email`,
-        } });
+        const { error } = await client.signUp.email({ email, password: values.password, name: values.name.trim(), company: values.organizationName.trim(), phone: values.phone?.trim() ?? "", accessRequest: true, onboarding: JSON.stringify(draft), callbackURL: "/verify-email" });
         if (error) throw new Error(authError(error));
-        location.assign(data.session ? "/access-pending" : "/verify-email");
+        // No session exists before the email is verified (Better Auth refuses the login).
+        location.assign("/verify-email");
       } else if (verify) {
-        const { error } = await client.auth.resend({ type: "signup", email, options: { emailRedirectTo: `${location.origin}/auth/callback?next=/verify-email` } });
+        const { error } = await client.sendVerificationEmail({ email, callbackURL: "/verify-email" });
         if (error) throw new Error(authError(error));
         setSuccess("Si une confirmation est en attente, un nouveau lien vous a été envoyé.");
       } else if (reset) {
-        const { error } = await client.auth.updateUser({ password: values.password });
+        const { error } = await client.resetPassword({ newPassword: values.password, token: new URLSearchParams(location.search).get("token") ?? "" });
         if (error) throw new Error("Lien expiré ou mot de passe refusé. Demandez un nouveau lien.");
-        passwordUpdatedAt = Date.now();
-        await auth.signOut();
         setSuccess(passwordUpdatedMessage);
       } else if (invite) {
         const token = new URLSearchParams(location.search).get("token");
         if (!auth.user) {
           const next = `/invite/activate?token=${encodeURIComponent(token ?? "")}`;
-          const result = values.newAccount === "yes" ? await client.auth.signUp({ email, password: values.password, options: { emailRedirectTo: `${location.origin}/auth/callback?next=${encodeURIComponent(next)}` } }) : await client.auth.signInWithPassword({ email, password: values.password });
-          if (result.error) throw new Error(authError(result.error));
-          if (!result.data.session) { setSuccess("Confirmez votre adresse email pour reprendre cette invitation."); return; }
+          if (values.newAccount === "yes") {
+            const result = await client.signUp.email({ email, password: values.password, name: values.name?.trim() || email.split("@")[0], callbackURL: next });
+            if (result.error) throw new Error(authError(result.error));
+            // No session before the email is verified; the verification link returns to this invitation.
+            setSuccess("Confirmez votre adresse email pour reprendre cette invitation."); return;
+          }
+          const result = await client.signIn.email({ email, password: values.password });
+          if (result.error) {
+            if (emailNotVerified(result.error)) { setSuccess("Confirmez votre adresse email pour reprendre cette invitation."); return; }
+            throw new Error(authError(result.error));
+          }
         }
         await api.auth("activate", { token });
         location.assign(await businessDestination());
       } else {
-        const { data, error } = await client.auth.signInWithPassword({ email, password: values.password });
+        const { data, error } = await client.signIn.email({ email, password: values.password });
         if (error) {
-          if (error.code === "email_not_confirmed") { router.replace("/verify-email"); return; }
+          if (emailNotVerified(error)) { router.replace("/verify-email"); return; }
           throw new Error(authError(error));
         }
-        if (!data.session) throw new Error("Session indisponible. Réessayez.");
+        if (!data?.user) throw new Error("Session indisponible. Réessayez.");
         document.cookie = `vortex_last_login=email; Path=/; Max-Age=15552000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
         location.assign(await businessDestination());
       }
@@ -203,9 +174,9 @@ export function AuthScreen({ path }: { path: string }) {
   const passwordOptions = { type: "password", autoComplete: signup || reset || (invite && values.newAccount === "yes") ? "new-password" : "current-password", minLength: signup || reset || (invite && values.newAccount === "yes") ? 12 : undefined, maxLength: 128, strength: signup || reset || (invite && values.newAccount === "yes"), placeholder: signup || reset ? "12 caractères minimum" : undefined };
   const title = signup ? ["Créons votre compte.", "Votre entreprise.", "Votre premier point de vente.", "Vérifiez votre demande."][step] : forgot ? "Retrouvez votre accès." : invite ? "Rejoignez votre équipe." : reset ? "Nouveau mot de passe." : verify ? "Confirmez votre adresse email." : "Accéder à VORTEX";
   const subtitle = signup ? ["Quelques minutes pour organiser votre activité.", "Préparez les informations de votre entreprise.", "Vous pourrez en ajouter d’autres après validation.", "Votre espace sera configuré après approbation de votre accès."][step] : forgot ? "Un lien vous sera envoyé si un compte correspond à cette adresse." : invite ? "Connectez-vous ou créez votre compte pour accepter l’invitation." : reset ? "Utilisez au moins 12 caractères. Évitez de réutiliser un ancien mot de passe." : verify ? "Ouvrez le lien reçu par email. Votre demande sera ensuite examinée par notre équipe." : "Heureux de vous revoir. Retrouvez votre activité là où vous l’avez laissée.";
-  const resetInvalid = reset && !success && (invalidLink || (!auth.loading && !auth.user && !resolvingLink));
+  const resetInvalid = reset && !success && invalidLink;
   const verified = confirmed && !invalidLink;
-  const showForm = !resolvingLink && !resetInvalid && !(reset && success) && !(verify && verified);
+  const showForm = !resetInvalid && !(reset && success) && !(verify && verified);
   const label = signup ? step < 3 ? "Continuer" : "Envoyer ma demande" : forgot ? "Envoyer le lien" : reset ? "Enregistrer le mot de passe" : verify ? "Renvoyer le lien" : invite ? "Activer mon compte" : "Se connecter par e-mail";
 
   return <AuthShell login={login} signup={signup} forgot={forgot}>
@@ -214,9 +185,8 @@ export function AuthScreen({ path }: { path: string }) {
     <div className={styles.heading}><h1 ref={heading} tabIndex={-1}>{title}</h1><p>{subtitle}</p></div>
     {invite && invitation && <div className={styles.invitation}><div><strong>{invitation.organization?.name ?? "Votre entreprise"}</strong><small>Invitation à rejoindre cette équipe</small></div>{invitation.role && <span>{roleLabels[invitation.role as Role] ?? invitation.role}</span>}</div>}
     {invite && !invitation && !error && <p role="status">Chargement de votre invitation…</p>}
-    {login && googleEnabled && <><button type="button" className={`${styles.secondary} ${styles.google}`} disabled={busy || auth.loading || !!auth.user} onClick={google} aria-busy={busyAction === "google"}>{busyAction !== "google" && <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285f4" d="M44 24c0-1.4-.1-2.7-.4-4H24v8h11.3a10 10 0 0 1-4.1 5.6l6.2 4.8C41.6 34.5 44 29.6 44 24Z"/><path fill="#34a853" d="M24 44c5.4 0 10-1.8 13.4-5.6l-6.2-4.8C29.3 35.1 26.9 36 24 36c-5.2 0-9.6-3.3-11.3-7.9L6.2 33C9.5 39.5 16.2 44 24 44Z"/><path fill="#fbbc05" d="M12.7 28.1a12 12 0 0 1 0-8.2L6.2 15a20 20 0 0 0 0 18Z"/><path fill="#ea4335" d="M24 12c3.2 0 6.1 1.1 8.3 3.3l6-6A20 20 0 0 0 6.2 15l6.5 4.9A12 12 0 0 1 24 12Z"/></svg>}{busyAction === "google" ? <><LoaderCircle size={16} className={styles.spinner} />Redirection vers Google…</> : "Continuer avec Google"}{lastUsed === "google" && <span className={styles.lastUsed}>Dernière connexion</span>}</button><div className={styles.divider}>ou avec votre e-mail</div></>}
+    {login && <><button type="button" className={`${styles.secondary} ${styles.google}`} disabled={busy || auth.loading || !!auth.user} onClick={google} aria-busy={busyAction === "google"}>{busyAction !== "google" && <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285f4" d="M44 24c0-1.4-.1-2.7-.4-4H24v8h11.3a10 10 0 0 1-4.1 5.6l6.2 4.8C41.6 34.5 44 29.6 44 24Z"/><path fill="#34a853" d="M24 44c5.4 0 10-1.8 13.4-5.6l-6.2-4.8C29.3 35.1 26.9 36 24 36c-5.2 0-9.6-3.3-11.3-7.9L6.2 33C9.5 39.5 16.2 44 24 44Z"/><path fill="#fbbc05" d="M12.7 28.1a12 12 0 0 1 0-8.2L6.2 15a20 20 0 0 0 0 18Z"/><path fill="#ea4335" d="M24 12c3.2 0 6.1 1.1 8.3 3.3l6-6A20 20 0 0 0 6.2 15l6.5 4.9A12 12 0 0 1 24 12Z"/></svg>}{busyAction === "google" ? <><LoaderCircle size={16} className={styles.spinner} />Redirection vers Google…</> : "Continuer avec Google"}{lastUsed === "google" && <span className={styles.lastUsed}>Dernière connexion</span>}</button><div className={styles.divider}>ou avec votre e-mail</div></>}
     {login && auth.user && <p role="status">Ouverture de votre espace…</p>}
-    {resolvingLink && <p role="status">Vérification du lien…</p>}
     {resetInvalid && <AuthNotice error>Lien invalide ou expiré. Demandez un nouveau lien.</AuthNotice>}
     {verify && verified && <><AuthNotice>Adresse email confirmée. L’accès reste soumis à l’approbation de notre équipe.</AuthNotice><Link className={styles.primary} href="/access-pending">Consulter mon accès<ArrowRight size={16} /></Link></>}
     {showForm && <form key={signup ? step : path} className={styles.form} onSubmit={submit} noValidate aria-busy={busy}>

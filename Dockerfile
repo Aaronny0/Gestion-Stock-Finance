@@ -7,9 +7,6 @@ COPY vendor ./vendor
 RUN --mount=type=cache,id=Gestion-Stock-Finance-pnpm,target=/root/.local/share/pnpm/store pnpm install --frozen-lockfile
 FROM dependencies AS builder
 ENV NEXT_TELEMETRY_DISABLED=1
-ARG NEXT_PUBLIC_SUPABASE_URL
-ARG NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 COPY . .
 RUN pnpm build
 FROM node:22.23.0-bookworm-slim AS runtime

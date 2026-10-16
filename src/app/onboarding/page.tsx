@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/frontend/auth-provider";
 import { request } from "@/frontend/api";
-import { businessDestination, draftKey, readOnboarding, saveOnboarding } from "@/frontend/auth-flow";
+import { businessDestination, draftKey, parseOnboarding, readOnboarding, saveOnboarding } from "@/frontend/auth-flow";
 import { Alert, Field } from "@/frontend/ui";
 export default function Onboarding() {
   const auth = useAuth();
@@ -15,14 +15,14 @@ export default function Onboarding() {
   useEffect(() => {
     if (auth.loading) return;
     if (!auth.user) { location.replace("/login"); return; }
-    const draft = readOnboarding() ?? auth.user.user_metadata.vortex_onboarding;
+    const draft = readOnboarding() ?? parseOnboarding(auth.user.onboarding);
     const email = auth.user.email;
     let active = true;
     void businessDestination().then(destination => {
       if (!active) return;
       if (draft?.payload && draft.payload.email === email) setValues(draft.payload);
       if (!destination.startsWith("/onboarding")) { location.replace(destination); return; }
-      else { setApproved(true); setValues(v => ({...v, name: auth.user?.user_metadata.name ?? v.name ?? "", organizationName: auth.user?.user_metadata.company ?? v.organizationName ?? ""})); setNoMembership(destination.includes("no_membership")); setBusy(false); }
+      else { setApproved(true); setValues(v => ({...v, name: auth.user?.name ?? v.name ?? "", organizationName: auth.user?.company ?? v.organizationName ?? ""})); setNoMembership(destination.includes("no_membership")); setBusy(false); }
     }).catch(e => { if (active) { setError(e.message); setBusy(false); } });
     return () => { active = false; };
   }, [auth.loading, auth.user]);

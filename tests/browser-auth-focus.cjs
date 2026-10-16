@@ -1,19 +1,18 @@
 // Isolated visual regression: no form submissions or real Auth requests.
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const assert = require('node:assert/strict');
-const { installBrowserIdentity, user } = require('./browser-auth-fixture.cjs');
+const { installBrowserIdentity, installSignedOut } = require('./browser-auth-fixture.cjs');
 const base = process.env.TEST_BASE_URL || 'http://localhost:3100';
 
 (async () => {
   const browser = await chromium.launch({
     headless: true,
-    executablePath: process.env.CHROMIUM_EXECUTABLE || '/usr/bin/google-chrome',
+    executablePath: process.env.CHROME_PATH || process.env.CHROMIUM_EXECUTABLE || '/usr/bin/google-chrome',
     args: ['--no-sandbox'],
   });
   try {
     const page = await browser.newPage();
-    await page.route('**/auth/v1/settings', r => r.fulfill({ json: { external: { google: true } } }));
-    await page.route('**/auth/v1/user', r => r.fulfill({ json: user }));
+    await installSignedOut(page);
     await page.route('**/api/v1/access', r => r.fulfill({ json: { status: 'PENDING_APPROVAL', destination: '/access-pending' } }));
     await page.route('**/api/v1/auth/invitation', r => r.fulfill({ json: { organization: { name: 'Équipe QA' }, role: 'cashier' } }));
     let checked = 0;
@@ -55,10 +54,10 @@ const base = process.env.TEST_BASE_URL || 'http://localhost:3100';
       }
     }
     await installBrowserIdentity(page, base);
-    for (const route of ['/verify-email', '/reset-password', '/invite/activate?token=qa']) {
+    for (const route of ['/verify-email', '/reset-password?token=qa', '/invite/activate?token=qa']) {
       await page.goto(base + route);
       if (route === '/verify-email') await page.getByRole('link', { name: 'Consulter mon accès' }).waitFor();
-      if (route === '/reset-password') await page.getByLabel('Nouveau mot de passe', { exact: true }).waitFor();
+      if (route.startsWith('/reset-password?token')) await page.getByLabel('Nouveau mot de passe', { exact: true }).waitFor();
       if (route.startsWith('/invite')) await page.getByRole('button', { name: 'Utiliser un autre compte' }).waitFor();
       await checkActions(route);
     }

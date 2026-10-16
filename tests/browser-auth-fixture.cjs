@@ -1,16 +1,20 @@
-// Supabase identity fixture for UI tests only. No application authentication bypass.
-const user = { id: '00000000-0000-4000-8000-000000000001', aud: 'authenticated', role: 'authenticated', email: 'qa@example.test', email_confirmed_at: '2026-01-01T00:00:00Z', app_metadata: {}, user_metadata: {}, created_at: '2026-01-01T00:00:00Z' };
-function createBrowserSession(url) {
-  const expires = Math.floor(Date.now() / 1000) + 3600;
-  const encode = data => Buffer.from(JSON.stringify(data)).toString('base64url');
-  const token = `${encode({ alg: 'HS256', typ: 'JWT' })}.${encode({ sub: user.id, aud: 'authenticated', role: 'authenticated', iss: `${url}/auth/v1`, exp: expires, iat: expires - 3600 })}.${Buffer.from('test-only-signature').toString('base64url')}`;
-  return { access_token: token, refresh_token: 'test-only-refresh', token_type: 'bearer', expires_in: 3600, expires_at: expires, user };
+// Better Auth identity fixture for UI tests only: /api/auth/get-session is answered in the browser.
+// No application authentication bypass: the server never sees this identity.
+const user = { id: '00000000-0000-4000-8000-000000000001', email: 'qa@example.test', emailVerified: true, name: 'QA', company: null, phone: null, accessRequest: false, accessStatus: 'PENDING_APPROVAL', onboarding: null, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' };
+const handlers = new WeakMap();
+const sessionBody = () => ({ session: { id: 'qa-session', userId: user.id, token: 'qa-token', expiresAt: new Date(Date.now() + 3600_000).toISOString(), createdAt: user.createdAt, updatedAt: user.updatedAt }, user });
+/** Signed-out default: Better Auth answers 200 with a null body. */
+async function installSignedOut(page) {
+  await page.route('**/api/auth/get-session', route => route.fulfill({ json: null }));
 }
-async function installBrowserIdentity(page, base) {
-  const url = process.env.QA_SUPABASE_URL;
-  if (!url) throw new Error('Run this test via pnpm test:browser:isolated to use a private Auth fixture.');
-  const session = createBrowserSession(url);
-  const encode = data => Buffer.from(JSON.stringify(data)).toString('base64url');
-  await page.context().addCookies([{ name: `sb-${new URL(url).hostname.split('.')[0]}-auth-token`, value: `base64-${encode(session)}`, url: base, sameSite: 'Lax' }]);
+async function removeBrowserIdentity(page) {
+  const handler = handlers.get(page);
+  if (handler) { handlers.delete(page); await page.unroute('**/api/auth/get-session', handler); }
 }
-module.exports = { installBrowserIdentity, createBrowserSession, user };
+async function installBrowserIdentity(page) {
+  await removeBrowserIdentity(page);
+  const handler = route => route.fulfill({ json: sessionBody() });
+  handlers.set(page, handler);
+  await page.route('**/api/auth/get-session', handler);
+}
+module.exports = { installBrowserIdentity, removeBrowserIdentity, installSignedOut, user };

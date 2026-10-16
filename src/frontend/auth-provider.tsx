@@ -1,40 +1,44 @@
 "use client";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import type { Session, User } from "@supabase/supabase-js";
 import { usePathname } from "next/navigation";
-import { getSupabase } from "@/lib/supabase/client";
-import { supabaseConfig } from "@/lib/supabase/config";
-type Identity = { session: Session | null; user: User | null; accessToken: string | null; loading: boolean; error: string; signOut: () => Promise<void> };
+import { getAuthClient, type AuthUser } from "@/lib/auth/client";
+type Identity = { user: AuthUser | null; loading: boolean; error: string; signOut: () => Promise<void> };
 const Context = createContext<Identity | null>(null);
+export const pendingLoginKey = "vortex:pending-login";
+// Display preference only; never used to grant product access.
+function rememberLogin() {
+  try {
+    const provider = sessionStorage.getItem(pendingLoginKey);
+    if (!provider) return;
+    sessionStorage.removeItem(pendingLoginKey);
+    document.cookie = `vortex_last_login=${provider}; Path=/; Max-Age=15552000; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
+  } catch { /* Storage can be unavailable; the preference is optional. */ }
+}
 export function AuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const demo = pathname === "/demo" || pathname.startsWith("/demo/");
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   useEffect(() => {
-    if (demo) { setSession(null); setLoading(false); setError(""); return; }
-    if (!supabaseConfig()) { setError("Authentification non configurée."); setLoading(false); return; }
-    const client = getSupabase();
-    let active = true, eventSeen = false;
-    const { data } = client.auth.onAuthStateChange((_event, next) => {
-      eventSeen = true;
-      if (active) { setSession(next); setLoading(false); setError(""); }
-    });
-    void client.auth.getSession().then(({ data, error }) => {
-      if (!active || eventSeen) return;
-      setSession(data.session); setLoading(false);
-      if (error) setError("Impossible de charger votre session.");
+    if (demo) { setUser(null); setLoading(false); setError(""); return; }
+    let active = true;
+    getAuthClient().getSession().then(({ data, error: failure }) => {
+      if (!active) return;
+      setUser((data?.user as AuthUser | undefined) ?? null);
+      setLoading(false);
+      setError(failure && failure.status !== 401 ? "Impossible de charger votre session." : "");
+      if (data?.user) rememberLogin();
     }).catch(() => { if (active) { setLoading(false); setError("Connexion indisponible."); } });
-    return () => { active = false; data.subscription.unsubscribe(); };
+    return () => { active = false; };
   }, [demo]);
   async function signOut() {
-    const { error } = await getSupabase().auth.signOut();
-    if (error) throw new Error("Déconnexion impossible. Réessayez.");
-    setSession(null);
+    const { error: failure } = await getAuthClient().signOut();
+    if (failure) throw new Error("Déconnexion impossible. Réessayez.");
+    setUser(null);
     sessionStorage.removeItem("vortex:onboarding");
   }
-  return <Context.Provider value={{ session, user: session?.user ?? null, accessToken: session?.access_token ?? null, loading, error, signOut }}>{children}</Context.Provider>;
+  return <Context.Provider value={{ user, loading, error, signOut }}>{children}</Context.Provider>;
 }
 export function useAuth() {
   const value = useContext(Context);
