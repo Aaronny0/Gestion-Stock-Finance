@@ -296,6 +296,18 @@ test('access matrix: verified email alone never authorizes onboarding', () => {
  assert.equal(policy.accessDecision(true,'SUSPENDED',true).destination,'/access-pending');
  assert.equal(policy.declaredAccess({vortex_access_status:'nonsense'}),'PENDING_APPROVAL');
 });
+test('access distinguishes an Auth outage from an invalid user session', async () => {
+ for(const status of [0,400,401,403,429,500,503]) {
+  const access=load('src/lib/supabase/access.ts', {
+   'server-only':{},
+   './server':{createSupabaseServer:async()=>({auth:{getUser:async()=>({data:{user:null},error:{status}})}})},
+   '@/lib/access-policy':load('src/lib/access-policy.ts'),
+  });
+  const credentialsError=[400,401,403].includes(status);
+  await assert.rejects(access.resolveAccess({headers:new Headers({authorization:'Bearer fixture'})}),
+   error=>error.status===(credentialsError?401:503) && error.code===(credentialsError?'UNAUTHENTICATED':'ACCESS_UNAVAILABLE'));
+ }
+});
 test('proxy refuses pending onboarding and business access before forwarding', async()=>{
  for(const status of ['PENDING_EMAIL','PENDING_APPROVAL','CONTACTED','REJECTED','SUSPENDED']) {
   let calls=0;

@@ -18,7 +18,13 @@ export async function resolveAccess(req: NextRequest): Promise<AccessDecision> {
   const client = await createSupabaseServer();
   const token = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
   const { data, error } = await client.auth.getUser(token);
-  if (error || !data.user) throw new AccessFailure(401, "UNAUTHENTICATED");
+  if (error) {
+    // A provider outage or broken Auth schema does not invalidate the user's credentials.
+    if (![400, 401, 403].includes(error.status ?? 0))
+      throw new AccessFailure(503, "ACCESS_UNAVAILABLE");
+    throw new AccessFailure(401, "UNAUTHENTICATED");
+  }
+  if (!data.user) throw new AccessFailure(401, "UNAUTHENTICATED");
   const user = data.user;
   const declared = declaredAccess(user.app_metadata);
   if (!user.email_confirmed_at || declared !== "APPROVED")
