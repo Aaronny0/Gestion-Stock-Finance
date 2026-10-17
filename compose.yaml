@@ -10,7 +10,7 @@ services:
       PORT: "3000"
       HOSTNAME: 0.0.0.0
       APP_URL: ${APP_URL:?Set the public HTTPS application domain}
-      # Better Auth runs in the NestJS API; /api/auth/* is relayed there (no secret in this service).
+      # Better Auth runs in the Elysia API; /api/auth/* is relayed there (no secret in this service).
       AUTH_API_URL: http://vortex-api:3001
       FRONTEND_API_URL: http://vortex-api:3001/api/v1
     networks: [apps, dokploy]
