@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/accounting.test.cjs tests/auth.test.cjs tests/history.test.cjs tests/contracts-drift.test.cjs tests/forms-zod.test.cjs tests/onboarding-payload.test.cjs",
+    "test": "node --test tests/accounting.test.cjs tests/auth.test.cjs tests/history.test.cjs tests/contracts-drift.test.cjs tests/forms-zod.test.cjs tests/onboarding-payload.test.cjs tests/onboarding-modal.test.cjs",
     "test:browser": "node tests/browser-smoke.cjs && node tests/browser-ux.cjs && node tests/navigation-responsive.cjs && node tests/responsive-matrix.cjs && node tests/responsive-workflows.cjs && node tests/design-system-regressions.cjs && node tests/browser-access.cjs",
     "test:browser:isolated": "node scripts/test-browser-isolated.cjs",
     "test:auth-e2e": "node scripts/test-auth-e2e.cjs"

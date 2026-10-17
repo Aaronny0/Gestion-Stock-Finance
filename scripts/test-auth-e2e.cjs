@@ -94,9 +94,11 @@ const freePort = () => new Promise(resolve => { const s = net.createServer(); s.
     assert.ok(found && found.status === 'PENDING_APPROVAL');
     assert.equal((await user.call('/api/admin/access-requests')).status, 403, 'applicant cannot list requests via the Next admin proxy');
     r = await admin.call('/api/v1/admin/access-requests', { method: 'POST', body: { id: found.id, decisionId: randomUUID(), expectedStatus: 'PENDING_APPROVAL', status: 'APPROVED', reason: '' } }); assert.equal(r.status, 200, JSON.stringify(r.json));
+    // The applicant is told by email, with a link to the login page.
+    const approval = await stack.waitForMail(); assert.ok(approval.includes(app + '/login'), 'approval email links to the login page');
     r = await user.call('/api/auth/sign-in/email', { method: 'POST', body: { email, password: newPassword } }); assert.equal(r.status, 200);
-    r = await user.call('/api/v1/access'); assert.deepEqual(r.json, { status: 'APPROVED', destination: '/onboarding' });
-    // 8. Onboarding through the relay: approved identity without a company is sent to /onboarding, then to the dashboard.
+    r = await user.call('/api/v1/access'); assert.deepEqual(r.json, { status: 'APPROVED', destination: '/app/dashboard' }, 'approved access lands on the dashboard, where the onboarding modal opens');
+    // 8. Onboarding through the relay: an approved identity without a company reaches the dashboard, whose modal creates the space.
     assert.equal((await user.call('/api/v1/session')).json.code, 'ONBOARDING_REQUIRED', 'approved account without company');
     const key = randomUUID();
     const company = { name: 'Test Applicant', organizationName: 'Entreprise E2E', country: 'Bénin', currency: 'XOF', timezone: 'Africa/Porto-Novo', storeName: 'Boutique E2E', city: 'Cotonou' };

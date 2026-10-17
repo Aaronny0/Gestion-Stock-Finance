@@ -11,6 +11,7 @@ function load(file, mocks = {}, globals = {}) {
   const real = name => {
     if (name === 'zod') return require('zod');
     if (name === '@/contracts' || name === '../contracts') return shared('src/contracts/index.ts');
+    if (name === './onboarding-gate') return shared('src/frontend/onboarding-gate.ts');
     if (name.startsWith('./') && file.startsWith('src/contracts/')) return shared(`src/contracts/${name.slice(2)}.ts`);
     return undefined;
   };
@@ -327,13 +328,12 @@ test('business validation displays the precise French form error', async()=>{
 test('access matrix: verified email alone never authorizes onboarding', () => {
  const policy=load('src/lib/access-policy.ts');
  for(const status of [undefined,'PENDING_APPROVAL','CONTACTED','REJECTED','SUSPENDED']) {
-  assert.equal(policy.accessDecision(true,status,false).destination,'/access-pending');
+  assert.equal(policy.accessDecision(true,status).destination,'/access-pending');
  }
- assert.equal(policy.accessDecision(false,'APPROVED',true).destination,'/verify-email');
- assert.equal(policy.accessDecision(true,'APPROVED',false).destination,'/onboarding');
- assert.equal(policy.accessDecision(true,'APPROVED',true).destination,'/app/dashboard');
- assert.equal(policy.accessDecision(true,undefined,true).status,"PENDING_APPROVAL");
- assert.equal(policy.accessDecision(true,'SUSPENDED',true).destination,'/access-pending');
+ assert.equal(policy.accessDecision(false,'APPROVED').destination,'/verify-email');
+ assert.equal(policy.accessDecision(true,'APPROVED').destination,'/app/dashboard', 'an approved access always lands on the dashboard (the onboarding modal opens there)');
+ assert.equal(policy.accessDecision(true,undefined).status,"PENDING_APPROVAL");
+ assert.equal(policy.accessDecision(true,'SUSPENDED').destination,'/access-pending');
  assert.equal(policy.parseAccessStatus('nonsense'),'PENDING_APPROVAL');
  assert.equal(policy.parseAccessStatus(undefined),undefined);
  assert.equal(policy.parseAccessStatus('APPROVED'),'APPROVED');
@@ -367,8 +367,8 @@ test('resolveAccess maps backend statuses and relays the session cookie (PENDING
  }
  const approved = { status: 200, body: { status: 'APPROVED' } };
  const outcomes = [
-  [{ status: 200, body: { stores: [{ id: 'one' }] } }, '/app/dashboard'], [{ status: 200, body: { stores: [] } }, '/onboarding'],
-  [{ status: 403, body: { code: 'ONBOARDING_REQUIRED' } }, '/onboarding'], [{ status: 403, body: { code: 'NO_MEMBERSHIP' } }, '/onboarding?state=no_membership'],
+  [{ status: 200, body: { stores: [{ id: 'one' }] } }, '/app/dashboard'], [{ status: 200, body: { stores: [] } }, '/app/dashboard'],
+  [{ status: 403, body: { code: 'ONBOARDING_REQUIRED' } }, '/app/dashboard'], [{ status: 403, body: { code: 'NO_MEMBERSHIP' } }, '/onboarding?state=no_membership'],
   [{ status: 403, body: { code: 'FORBIDDEN' } }, '/access-pending'],
  ];
  for (const [session, destination] of outcomes) {

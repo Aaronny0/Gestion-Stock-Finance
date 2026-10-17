@@ -22,15 +22,12 @@ export function parseAccessStatus(value: unknown): AccessStatus | undefined {
 export function accessDecision(
   verified: boolean,
   status: AccessStatus | undefined,
-  hasWorkspace: boolean,
 ): AccessDecision {
   if (!verified)
     return { status: "PENDING_EMAIL", destination: "/verify-email" };
   if (status === "APPROVED")
-    return {
-      status,
-      destination: hasWorkspace ? "/app/dashboard" : "/onboarding",
-    };
+    // Sans entreprise, le dashboard ouvre lui-même le modal de création d'espace.
+    return { status, destination: "/app/dashboard" };
   return {
     status:
       status === "PENDING_EMAIL"

@@ -12,6 +12,7 @@ import { Topbar } from "@/components/layout/topbar";
 import type { ShellNotification } from "@/components/layout/notifications-menu";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { OnboardingModal } from "@/features/onboarding/onboarding-modal";
 import { WorkspaceProvider, useWorkspace, publicRoutes } from "./provider";
 import { canonical, routePermission } from "./navigation";
 import { Alert, Skeleton } from "./ui";
@@ -35,6 +36,7 @@ function Shell({ children }: { children: ReactNode }) {
     storeId,
     setStoreId,
     reload,
+    onboardingRequired,
     setRole,
     notice,
     setNotice,
@@ -291,7 +293,7 @@ function Shell({ children }: { children: ReactNode }) {
                   </nav>
                 )}
 
-              {loading ? (
+              {loading || onboardingRequired ? (
                 path === "/" ? (
                   <div
                     className={dashboardStyles.skeleton}
@@ -374,6 +376,8 @@ function Shell({ children }: { children: ReactNode }) {
           </div>
         </footer>
       </div>
+
+      {onboardingRequired && <OnboardingModal />}
 
       {notice && (
         <div

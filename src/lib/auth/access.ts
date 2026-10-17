@@ -39,25 +39,21 @@ export async function resolveAccess(req: NextRequest): Promise<AccessDecision> {
   const declared = (await access.json().catch(() => ({}))) as { status?: unknown };
   const status = parseAccessStatus(declared.status);
   if (status !== "APPROVED")
-    return accessDecision(status !== "PENDING_EMAIL", status, false);
+    return accessDecision(status !== "PENDING_EMAIL", status);
   const session = await call("session", cookie);
   const body = await session.json().catch(() => ({}));
   if (session.ok)
-    return accessDecision(
-      true,
-      status,
-      Array.isArray(body.stores) && body.stores.length > 0,
-    );
+    return accessDecision(true, status);
   if (
     session.status === 403 &&
     ["ONBOARDING_REQUIRED", "NO_MEMBERSHIP"].includes(body.code)
   ) {
-    const decision = accessDecision(true, status, false);
+    const decision = accessDecision(true, status);
     return body.code === "NO_MEMBERSHIP" && decision.status === "APPROVED"
       ? { ...decision, destination: "/onboarding?state=no_membership" }
       : decision;
   }
   if (session.status === 401) throw new AccessFailure(401, "UNAUTHENTICATED");
-  if (session.status === 403) return accessDecision(true, "SUSPENDED", false);
+  if (session.status === 403) return accessDecision(true, "SUSPENDED");
   throw new AccessFailure(503, "ACCESS_UNAVAILABLE");
 }

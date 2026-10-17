@@ -15,6 +15,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { installHistoryGuard } from "./history";
 import { canonical, parentRoute, routePermission } from "./navigation";
 import { useAuth } from "./auth-provider";
+import { workspaceFailureAction } from "./onboarding-gate";
 import { api, request } from "./api";
 import { createDemo, executeDemo } from "./demo";
 import {
@@ -47,6 +48,8 @@ interface Workspace {
     payload: Record<string, unknown>,
   ) => Promise<{ reference: string; sale?: Sale }>;
   reload: () => void;
+  /** Accès approuvé mais aucune entreprise : le dashboard affiche le modal de création d'espace. */
+  onboardingRequired: boolean;
   setRole: (role: Role) => void;
   href: (path: string) => string;
   notice: string;
@@ -116,7 +119,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     [storeId, setStore] = useState(demo ? "s1" : ""),
     [organizationId, setOrganizationId] = useState(""),
     [version, setVersion] = useState(0),
-    [notice, setNotice] = useState("");
+    [notice, setNotice] = useState(""),
+    [onboardingRequired, setOnboardingRequired] = useState(false);
   const viewCache = useRef(new Map<string, unknown>());
   const readView = useCallback(
     <T,>(key: string, initial: T): T =>
@@ -250,6 +254,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         .then((data) => {
           if (abort.signal.aborted) return;
           if (!data.session.stores.length) { router.replace("/onboarding?state=no_membership"); return; }
+          setOnboardingRequired(false);
           setSnapshot(data);
           if (
             !data.session.stores.some((s) => s.id === storeId) &&
@@ -260,12 +265,10 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         .catch((e) => {
           if (abort.signal.aborted) return;
           setSnapshot(null);
-          if (["PENDING_APPROVAL", "CONTACTED", "REJECTED", "SUSPENDED"].includes(e.code)) router.replace("/access-pending");
-          else if (e.code === "PENDING_EMAIL") router.replace("/verify-email");
-          else if (e.code === "ONBOARDING_REQUIRED") router.replace("/onboarding");
-          else if (e.code === "NO_MEMBERSHIP") router.replace("/onboarding?state=no_membership");
-          else if (e.status === 401) router.replace("/login?expired=1");
-          else if (e.name !== "AbortError") setError(e.message);
+          const action = workspaceFailureAction(e);
+          if (action.type === "redirect") router.replace(action.to);
+          else if (action.type === "onboarding-modal") setOnboardingRequired(true);
+          else if (action.type === "error") setError(action.message);
         })
         .finally(() => {
           if (!abort.signal.aborted) setLoading(false);
@@ -284,6 +287,8 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       request<UserSession>(`session${selectedOrganization ? `?organizationId=${encodeURIComponent(selectedOrganization)}` : ""}`)
         .then((session) => {
           if (!active) return;
+          // The space was created elsewhere (another tab): leave the onboarding modal and load it.
+          if (onboardingRequired) { setOnboardingRequired(false); setVersion((v) => v + 1); return; }
           // Never attach a new set of rights to data loaded with old rights.
           // A reload removes costs and data from stores whose access was revoked.
           if (snapshot && JSON.stringify(snapshot.session) !== JSON.stringify(session)) {
@@ -297,19 +302,16 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         })
         .catch((error) => {
           if (!active) return;
-          if (["PENDING_EMAIL", "PENDING_APPROVAL", "CONTACTED", "REJECTED", "SUSPENDED"].includes(error.code)) {
+          const action = workspaceFailureAction(error);
+          if (action.type === "redirect") {
             setSnapshot(null); viewCache.current.clear();
-            router.replace(error.code === "PENDING_EMAIL" ? "/verify-email" : "/access-pending"); return;
-          }
-          if (error.code === "ONBOARDING_REQUIRED" || error.code === "NO_MEMBERSHIP") {
+            router.replace(action.to);
+          } else if (action.type === "onboarding-modal") {
             setSnapshot(null);
-            router.replace(error.code === "NO_MEMBERSHIP" ? "/onboarding?state=no_membership" : "/onboarding");
-            return;
-          }
-          if (error.status === 401 || error.status === 403) {
+            setOnboardingRequired(true);
+          } else if (action.type === "error" && error.status === 403) {
             setSnapshot(null);
-            setError(error.message);
-            if (error.status === 401) router.replace("/login?expired=1");
+            setError(action.message);
           }
         })
         .finally(() => { checking = false; });
@@ -321,7 +323,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       clearInterval(timer);
       window.removeEventListener("focus", check);
     };
-  }, [demo, isPublic, auth.loading, auth.user, router, organizationId, storeId, snapshot]);
+  }, [demo, isPublic, auth.loading, auth.user, router, organizationId, storeId, snapshot, onboardingRequired]);
   const setStoreId = (id: string) => {
     if (id === storeId || !confirmDiscard()) return;
     if (!demo) setSnapshot(null);
@@ -445,6 +447,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
         can,
         command,
         reload: () => setVersion((v) => v + 1),
+        onboardingRequired,
         setRole,
         href: (path) => (demo ? `/demo${path === "/" ? "" : path}` : `/app${path === "/" ? "/dashboard" : path}`),
         notice,
