@@ -7,6 +7,7 @@ import { ArrowRight, KeyRound, LoaderCircle, LockKeyhole, MailCheck } from "luci
 import { api } from "./api";
 import { getAuthClient } from "@/lib/auth/client";
 import { authError, businessDestination, emailNotVerified, saveOnboarding, readOnboarding } from "./auth-flow";
+import { authFormSchema, fieldErrors } from "./form-schemas";
 import { useAuth, pendingLoginKey } from "./auth-provider";
 import { roleLabels, type Role } from "./types";
 import { AuthShell } from "./auth-shell";
@@ -16,9 +17,6 @@ import styles from "./auth-design.module.css";
 type Invitation = { organization?: { name: string }; role?: string };
 const passwordUpdatedMessage = "Mot de passe enregistré. Reconnectez-vous.";
 const steps = ["Compte", "Entreprise", "Boutique", "Récapitulatif"];
-const accountFields = ["name", "email", "password"];
-const companyFields = ["organizationName", "country", "currency", "timezone"];
-const storeFields = ["storeName", "city"];
 
 export default function AuthPage() {
   const path = usePathname();
@@ -78,16 +76,9 @@ export function AuthScreen({ path }: { path: string }) {
   }, [auth.loading, auth.user, login, verify, busy, invalidLink]);
 
   function validate() {
-    const next: Record<string, string> = {};
-    const fields = signup ? step === 0 ? accountFields : step === 1 ? companyFields : step === 2 ? storeFields : [...accountFields, ...companyFields, ...storeFields] : reset ? ["password", "confirmation"] : invite && auth.user ? [] : forgot || verify ? ["email"] : ["email", "password"];
-    for (const key of fields) if (!values[key]?.trim()) next[key] = "Ce champ est requis.";
-    if (fields.includes("email") && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email ?? "")) next.email = "Saisissez une adresse email valide.";
-    if ((signup || reset || (invite && values.newAccount === "yes" && !auth.user)) && (values.password?.length ?? 0) < 12) next.password = "Utilisez au moins 12 caractères.";
-    if (reset && values.password !== values.confirmation) next.confirmation = "Les mots de passe ne correspondent pas.";
-    if (signup && step >= 1) {
-      if (!/^[A-Z]{3}$/.test(values.currency ?? "")) next.currency = "Utilisez un code de devise de 3 lettres (ex. XOF).";
-      try { new Intl.DateTimeFormat("fr", { timeZone: values.timezone }); } catch { next.timezone = "Indiquez un fuseau valide (ex. Africa/Porto-Novo)."; }
-    }
+    const mode = signup ? "signup" : forgot ? "forgot" : invite ? "invite" : reset ? "reset" : verify ? "verify" : "login";
+    const schema = authFormSchema({ mode, step, newAccount: values.newAccount === "yes", signedIn: !!auth.user });
+    const next = schema ? fieldErrors(schema, values) : {};
     setErrors(next);
     if (Object.keys(next).length) {
       setError("Vérifiez les champs du formulaire.");

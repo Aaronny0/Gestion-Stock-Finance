@@ -8,6 +8,8 @@ import { request } from "@/frontend/api";
 import { businessDestination, draftKey, parseOnboarding, readOnboarding, saveOnboarding } from "@/frontend/auth-flow";
 import { AuthShell } from "@/frontend/auth-shell";
 import { AuthField, AuthNotice } from "@/frontend/auth-fields";
+import { onboardingFieldsSchema } from "@/contracts";
+import { buildOnboardingBody, fieldErrors } from "@/frontend/form-schemas";
 import styles from "@/frontend/auth-design.module.css";
 export default function Onboarding() {
   const auth = useAuth();
@@ -15,6 +17,7 @@ export default function Onboarding() {
   const [values, setValues] = useState<Record<string, string>>({ country: "Bénin", currency: "XOF", timezone: "Africa/Porto-Novo" });
   const [approved, setApproved] = useState(false);
   const [busy, setBusy] = useState(true), [error, setError] = useState(""), [noMembership, setNoMembership] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   useEffect(() => {
     if (auth.loading) return;
     if (!auth.user) { location.replace("/login"); return; }
@@ -39,17 +42,22 @@ export default function Onboarding() {
       <p>{noMembership ? "Demandez une invitation ou la réactivation de votre accès à votre administrateur." : approved ? "Renseignez votre entreprise et votre premier point de vente. Vous pourrez les modifier ensuite." : error ? "Votre autorisation n’a pas pu être vérifiée. Réessayez." : "Vérification de votre autorisation…"}</p>
     </div>
     {approved && !noMembership && <form className={styles.form} aria-busy={busy} onSubmit={async e => {
-      e.preventDefault(); if (busy || !auth.user || !approved) return; setBusy(true); setError("");
+      e.preventDefault(); if (busy || !auth.user || !approved) return; setError("");
+      const invalid = fieldErrors(onboardingFieldsSchema, values);
+      setErrors(invalid);
+      if (Object.keys(invalid).length) { setError("Vérifiez les champs du formulaire."); requestAnimationFrame(() => document.getElementById(`auth-${Object.keys(invalid)[0]}`)?.focus()); return; }
+      setBusy(true);
       try {
+        // The draft keeps the email locally to recognise the account; the request body never carries it.
         const draft = saveOnboarding({ ...values, email: auth.user.email ?? "" });
-        await request("onboarding", { method: "POST", headers: { "Idempotency-Key": draft.idempotencyKey }, body: JSON.stringify(draft.payload) });
+        await request("onboarding", { method: "POST", headers: { "Idempotency-Key": draft.idempotencyKey }, body: JSON.stringify(buildOnboardingBody(draft.payload)) });
         const destination = await businessDestination();
         if (destination !== "/app/dashboard") throw new Error("Votre espace n’est pas encore accessible. Réessayez.");
         sessionStorage.removeItem(draftKey); router.replace("/app/dashboard");
       } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
     }}>
       <div className={styles.formGrid}>
-        {fields.map(([key, label, wide]) => <div key={key} className={wide ? styles.wide : undefined}><AuthField name={key} label={label} value={values[key] ?? ""} onChange={value => setValues({ ...values, [key]: value })} disabled={busy} /></div>)}
+        {fields.map(([key, label, wide]) => <div key={key} className={wide ? styles.wide : undefined}><AuthField name={key} label={label} value={values[key] ?? ""} onChange={value => { setValues({ ...values, [key]: value }); setErrors(e => ({ ...e, [key]: "" })); }} error={errors[key]} disabled={busy} /></div>)}
       </div>
       <button className={styles.primary} disabled={busy || auth.loading}>{busy ? <><LoaderCircle size={16} className={styles.spinner} />Création en cours…</> : "Créer mon espace"}</button>
     </form>}

@@ -3,11 +3,23 @@ const vm = require('node:vm');
 const ts = require('typescript');
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
+const cache = new Map();
+/** Loads a TypeScript source in a sandbox. Shared contracts and zod are real; everything else must be mocked. */
 function load(file, mocks = {}, globals = {}) {
   const module = { exports: {} };
   const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText;
-  vm.runInNewContext(code, { module, exports: module.exports, require: name => { if (name in mocks) return mocks[name]; throw Error(name); }, URL, Headers, AbortSignal, TextEncoder, process: { env: {} }, ...globals });
+  const real = name => {
+    if (name === 'zod') return require('zod');
+    if (name === '@/contracts' || name === '../contracts') return shared('src/contracts/index.ts');
+    if (name.startsWith('./') && file.startsWith('src/contracts/')) return shared(`src/contracts/${name.slice(2)}.ts`);
+    return undefined;
+  };
+  vm.runInNewContext(code, { module, exports: module.exports, require: name => { if (name in mocks) return mocks[name]; const found = real(name); if (found) return found; throw Error(name); }, URL, Headers, AbortSignal, TextEncoder, process: { env: {} }, ...globals });
   return module.exports;
+}
+function shared(file) {
+  if (!cache.has(file)) cache.set(file, load(file));
+  return cache.get(file);
 }
 const redirects = load('src/lib/auth/redirect.ts');
 test('OAuth destinations reject external, protocol-relative and unknown routes', () => {
@@ -102,16 +114,18 @@ test('proxy body limit uses UTF-8 bytes, including multibyte JSON payloads', asy
 });
 test('onboarding retains retry key and excludes password; VORTEX states are distinguished', async () => {
   const storage = new Map();
-  let outcome = { destination: '/access-pending' };
+  let outcome = { status: 'PENDING_APPROVAL', destination: '/access-pending' };
   class ApiError extends Error { constructor(code) { super(); this.code = code; } }
   const flow = load('src/frontend/auth-flow.ts', { './api': { ApiError, request: async () => { if (outcome instanceof Error) throw outcome; return outcome; } } }, { crypto: require('node:crypto').webcrypto, sessionStorage: { getItem: key => storage.get(key), setItem: (key, value) => storage.set(key, value) } });
   const first = flow.saveOnboarding({ email: 'test@example.com', password: 'private', organizationName: 'shop' });
   assert.equal(flow.saveOnboarding({ email: 'test@example.com', password: 'private', organizationName: 'shop' }).idempotencyKey, first.idempotencyKey);
   assert.equal(JSON.stringify(flow.readOnboarding()).includes('private'), false);
   assert.equal(await flow.businessDestination(), '/access-pending');
-  outcome = { destination: '/onboarding' }; assert.equal(await flow.businessDestination(), '/onboarding');
+  outcome = { status: 'APPROVED', destination: '/onboarding' }; assert.equal(await flow.businessDestination(), '/onboarding');
+  outcome = { destination: '/app/dashboard' }; await assert.rejects(flow.businessDestination(), /inattendue/);
+  outcome = { status: 'ROOT', destination: '/app/dashboard' }; await assert.rejects(flow.businessDestination(), /inattendue/);
   outcome = new ApiError('FORBIDDEN'); await assert.rejects(flow.businessDestination());
-  outcome = { destination: '/app/dashboard' }; assert.equal(await flow.businessDestination(), '/app/dashboard');
+  outcome = { status: 'APPROVED', destination: '/app/dashboard' }; assert.equal(await flow.businessDestination(), '/app/dashboard');
   assert.match(flow.authError({ code: 'EMAIL_NOT_VERIFIED' }), /Confirmez/);
   assert.match(flow.authError({ code: 'INVALID_EMAIL_OR_PASSWORD' }), /incorrect/);
   assert.match(flow.authError({ code: 'USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL' }), /existe/);
@@ -138,7 +152,7 @@ function authForm(path, sdk, values = {}, identity = null, action = async () => 
     './api': { api: { auth: async (...args) => { calls.push(args); return action(...args); } } },
     './auth-provider': { pendingLoginKey: 'vortex:pending-login', useAuth: () => ({ user: identity, loading: false, signOut: async () => { if (sdk.signOut) await sdk.signOut(); } }) },
     '@/lib/auth/client': { getAuthClient: () => sdk },
-    './auth-flow': { authError: e => e.code, emailNotVerified: e => e.code === 'EMAIL_NOT_VERIFIED', businessDestination: async () => '/app/dashboard', saveOnboarding: () => ({ payload: { organizationName: 'Shop' }, idempotencyKey: 'stable' }), readOnboarding: () => null },
+    './form-schemas': shared('src/frontend/form-schemas.ts'), './auth-flow': { authError: e => e.code, emailNotVerified: e => e.code === 'EMAIL_NOT_VERIFIED', businessDestination: async () => '/app/dashboard', saveOnboarding: () => ({ payload: { organizationName: 'Shop' }, idempotencyKey: 'stable' }), readOnboarding: () => null },
   }, { location: { origin: 'https://vortex.test', search: '?token=invitation', protocol: 'https:', assign: value => navigation.push(value) }, URLSearchParams, sessionStorage: {setItem(calls_key, value){ storage.push([calls_key, value]); }}, document: { cookie: '' }, requestAnimationFrame: () => {} });
   const tree = form.AuthScreen({path});
   function find(node, predicate) {

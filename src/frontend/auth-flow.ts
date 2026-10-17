@@ -1,5 +1,6 @@
 import { request } from "./api";
 import type { AccessDecision } from "@/lib/access-policy";
+import { accessResponseSchema } from "@/contracts";
 export const draftKey = "vortex:onboarding";
 export function saveOnboarding(values: Record<string, string>) {
   const fields = ["name", "email", "organizationName", "country", "currency", "timezone", "storeName", "city"];
@@ -16,8 +17,9 @@ export function readOnboarding(): { payload: Record<string, string>; idempotency
   } catch { return null; }
 }
 export async function businessDestination() {
-  const decision = await request<AccessDecision>("access");
-  return decision.destination;
+  const decision = accessResponseSchema.safeParse(await request<AccessDecision>("access"));
+  if (!decision.success) throw new Error("Réponse d’accès inattendue. Réessayez.");
+  return decision.data.destination;
 }
 /** Maps Better Auth error codes (and the HTTP status for rate limits) to safe French messages. */
 export function authError(error: { code?: string; message?: string; status?: number }) {
