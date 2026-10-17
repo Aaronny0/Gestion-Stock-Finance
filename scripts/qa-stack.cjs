@@ -2,7 +2,7 @@
 // Nothing leaves the machine: generated secrets, example.test recipients only, containers removed on stop.
 const net = require('node:net');
 const path = require('node:path');
-const { spawn, execFileSync } = require('node:child_process');
+const { execFileSync } = require('node:child_process');
 const { randomBytes } = require('node:crypto');
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -44,8 +44,8 @@ async function startStack({ appPort, backendDir = process.env.VORTEX_BACKEND_DIR
   const appUrl = `http://localhost:${appPort}`;
   const mails = [];
   const smtp = await startSmtpSink(mails);
-  let api;
-  const stop = () => { api?.kill(); try { execFileSync('docker', ['rm', '-f', name], { stdio: 'ignore' }); } catch {} smtp.close(); };
+  let apiName;
+  const stop = () => { for (const container of [apiName, name]) if (container) try { execFileSync('docker', ['rm', '-f', container], { stdio: 'ignore' }); } catch {} smtp.close(); };
   try {
     execFileSync('docker', ['run', '-d', '--name', name, '-e', 'POSTGRES_PASSWORD=' + dbPassword, '-e', 'POSTGRES_DB=vortex', '-p', `127.0.0.1:${pgPort}:5432`, 'postgres:17.6-bookworm'], { stdio: 'ignore' });
     for (let i = 0; ; i++) {
@@ -53,21 +53,27 @@ async function startStack({ appPort, backendDir = process.env.VORTEX_BACKEND_DIR
       catch { if (i > 60) throw new Error('PostgreSQL did not start.'); await delay(1000); }
     }
     const direct = `postgresql://postgres:${dbPassword}@127.0.0.1:${pgPort}/vortex`;
+    const identity = randomBytes(32).toString('hex');
+    // The backend runs on Bun: use the official image with the backend checkout mounted (installed with `bun install`).
+    const bun = (extra, command) => ['run', ...extra, '--network', 'host', '--user', `${process.getuid()}:${process.getgid()}`, '-e', 'HOME=/tmp', '-v', `${backendDir}:/app`, '-w', '/app', 'oven/bun:1', ...command];
     // The Docker entrypoint restarts PostgreSQL once after initialisation: retry the migration briefly.
     for (let i = 0; ; i++) {
-      try { execFileSync(process.execPath, ['deploy/scripts/migrate.mjs'], { cwd: backendDir, env: { ...process.env, DIRECT_DATABASE_URL: direct, RUNTIME_DB_PASSWORD: runtime }, stdio: 'ignore' }); break; }
-      catch { if (i > 5) throw new Error('Backend migration failed (is ' + backendDir + ' built and installed?).'); await delay(2000); }
+      try { execFileSync('docker', bun(['--rm', '-e', 'DIRECT_DATABASE_URL=' + direct, '-e', 'RUNTIME_DB_PASSWORD=' + runtime, '-e', 'IDENTITY_DB_PASSWORD=' + identity], ['bun', 'deploy/scripts/migrate.mjs']), { stdio: 'ignore' }); break; }
+      catch { if (i > 5) throw new Error('Backend migration failed (is ' + backendDir + ' installed with bun install and prisma generate?).'); await delay(2000); }
     }
-    api = spawn(process.execPath, ['dist/main.js'], { cwd: backendDir, env: {
-      PATH: process.env.PATH, NODE_ENV: 'production', PORT: String(apiPort),
-      DATABASE_URL: `postgresql://vortex_runtime:${runtime}@127.0.0.1:${pgPort}/vortex`,
+    const env = {
+      NODE_ENV: 'production', PORT: String(apiPort),
+      APP_DATABASE_URL: `postgresql://vortex_app_login:${runtime}@127.0.0.1:${pgPort}/vortex`,
+      IDENTITY_DATABASE_URL: `postgresql://vortex_identity_login:${identity}@127.0.0.1:${pgPort}/vortex`,
       APP_URL: appUrl, ADMIN_ORIGINS: 'https://admin.example.test,' + appUrl, ADMIN_ALLOWED_MAIL: 'admin@example.test',
       BETTER_AUTH_SECRET: randomBytes(32).toString('hex'),
       SMTP_HOST: '127.0.0.1', SMTP_PORT: String(smtp.address().port), SMTP_SECURE: 'false', SMTP_REQUIRE_TLS: 'false', MAIL_FROM: 'Vortex <noreply@example.test>',
-    }, stdio: ['ignore', 'ignore', 'inherit'] });
+    };
+    apiName = name + '-api';
+    execFileSync('docker', bun(['-d', '--name', apiName, ...Object.entries(env).flatMap(([key, value]) => ['-e', `${key}=${value}`])], ['bun', 'src/main.ts']), { stdio: 'ignore' });
     const apiUrl = `http://127.0.0.1:${apiPort}`;
     for (let i = 0; ; i++) {
-      if (api.exitCode !== null) throw new Error('The backend stopped during startup.');
+      try { if (execFileSync('docker', ['inspect', '-f', '{{.State.Running}}', apiName]).toString().trim() !== 'true') throw new Error('The backend stopped during startup.'); } catch (error) { if (/stopped/.test(String(error))) throw error; }
       try { if ((await fetch(apiUrl + '/api/v1/health')).ok) break; } catch {}
       if (i > 60) throw new Error('The backend did not become healthy.');
       await delay(500);

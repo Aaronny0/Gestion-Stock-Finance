@@ -1,5 +1,5 @@
 // Real end-to-end check: Next.js (production) -> /api/auth/* relay -> vortex-backend (Better Auth) -> PostgreSQL + SMTP sink.
-// Requires Docker, a built ../vortex-backend (override with VORTEX_BACKEND_DIR) and a production build here (pnpm build).
+// Requires Docker, ../vortex-backend installed with `bun install` + `prisma generate` (override with VORTEX_BACKEND_DIR) and a production build here (pnpm build).
 const assert = require('node:assert/strict');
 const net = require('node:net');
 const { spawn } = require('node:child_process');
@@ -93,9 +93,24 @@ const freePort = () => new Promise(resolve => { const s = net.createServer(); s.
     const list = await admin.call('/api/v1/admin/access-requests'); const found = list.json.requests.find(x => x.email === email);
     assert.ok(found && found.status === 'PENDING_APPROVAL');
     assert.equal((await user.call('/api/admin/access-requests')).status, 403, 'applicant cannot list requests via the Next admin proxy');
-    r = await admin.call('/api/v1/admin/access-requests', { method: 'POST', body: { id: found.id, decisionId: randomUUID(), expectedStatus: 'PENDING_APPROVAL', status: 'APPROVED', reason: '' } }); assert.equal(r.status, 201, JSON.stringify(r.json));
+    r = await admin.call('/api/v1/admin/access-requests', { method: 'POST', body: { id: found.id, decisionId: randomUUID(), expectedStatus: 'PENDING_APPROVAL', status: 'APPROVED', reason: '' } }); assert.equal(r.status, 200, JSON.stringify(r.json));
     r = await user.call('/api/auth/sign-in/email', { method: 'POST', body: { email, password: newPassword } }); assert.equal(r.status, 200);
     r = await user.call('/api/v1/access'); assert.deepEqual(r.json, { status: 'APPROVED', destination: '/onboarding' });
-    console.log('Auth E2E passed: signup, EMAIL_NOT_VERIFIED, verification link via relay, session cookie, /api/v1/access (401/PENDING_APPROVAL/APPROVED), update-user guard, reset password, blocked admin routes.');
+    // 8. Onboarding through the relay: approved identity without a company is sent to /onboarding, then to the dashboard.
+    assert.equal((await user.call('/api/v1/session')).json.code, 'ONBOARDING_REQUIRED', 'approved account without company');
+    const key = randomUUID();
+    const company = { name: 'Test Applicant', organizationName: 'Entreprise E2E', country: 'Bénin', currency: 'XOF', timezone: 'Africa/Porto-Novo', storeName: 'Boutique E2E', city: 'Cotonou' };
+    const send = (body, headers = { 'idempotency-key': key }) => fetch(app + '/api/v1/onboarding', { method: 'POST', headers: { 'content-type': 'application/json', origin: app, cookie: [...user.cookies].map(([k, v]) => k + '=' + v).join('; '), ...headers }, body: JSON.stringify(body) }).then(async res => ({ status: res.status, json: await res.json().catch(() => ({})) }));
+    assert.equal((await send({ ...company, email: 'autre@example.test' })).status, 422, 'the body never carries an email');
+    r = await send(company); assert.equal(r.status, 200, JSON.stringify(r.json));
+    assert.equal(r.json.user.role, 'owner'); assert.equal(r.json.organization.name, 'Entreprise E2E'); assert.equal(r.json.stores.length, 1);
+    const replay = await send(company); assert.equal(replay.status, 200); assert.equal(replay.json.organization.id, r.json.organization.id, 'same key, same company');
+    assert.equal((await send({ ...company, organizationName: 'Autre' })).status, 409, 'same key, different content');
+    r = await user.call('/api/v1/access'); assert.deepEqual(r.json, { status: 'APPROVED', destination: '/app/dashboard' });
+    r = await user.call('/api/v1/workspace?start=2026-10-01&end=2026-10-07'); assert.equal(r.status, 200, JSON.stringify(r.json));
+    assert.equal(r.json.session.organization.name, 'Entreprise E2E'); assert.equal(r.json.data.products.length, 0);
+    assert.equal(r.json.reporting.daily.length, 7); assert.equal(r.json.reporting.kpis.revenue, 0);
+    assert.equal((await new Browser(app, app).call('/api/v1/workspace?start=2026-10-01&end=2026-10-07')).status, 401, 'dashboard data needs a session');
+    console.log('Auth E2E passed: signup, EMAIL_NOT_VERIFIED, verification link via relay, session cookie, /api/v1/access (401/PENDING_APPROVAL/APPROVED), update-user guard, reset password, blocked admin routes, onboarding, dashboard workspace.');
   } finally { next?.kill(); stack.stop(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
