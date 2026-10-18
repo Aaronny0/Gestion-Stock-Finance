@@ -53,3 +53,15 @@ test("D27 : les dialogues métier utilisent les tailles nommées et un DialogBod
     assert.ok(source.includes("<DialogBody"), `${f} : contenu hors DialogBody`);
   }
 });
+
+test("D28 : SummaryStrip passe en 2 × 2 sous 860 px de largeur utile et sa cellule active est un bouton pressé", () => {
+  const tsx = read("src/components/data-display/summary-strip.tsx");
+  const css = read("src/components/data-display/summary-strip.module.css");
+  assert.match(css, /container(-type)?:[^;]*inline-size/);
+  assert.match(css, /@container[^{]*\(max-width:\s*859px\)/);
+  assert.match(css, /grid-column:\s*1 \/ -1/, "dernière cellule impaire en pleine largeur");
+  assert.match(css, /tabular-nums/);
+  assert.match(css, /overflow-wrap:\s*anywhere/, "libellés longs sans débordement");
+  assert.match(tsx, /aria-pressed/);
+  assert.match(tsx, /export \{[^}]*SummaryItem/);
+});

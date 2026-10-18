@@ -1,0 +1,125 @@
+/* D28 : bande de synthèse partagée (modèle Ventes/Stock, D26). Aucune nouvelle couleur. */
+.strip {
+  container: summary / inline-size;
+  min-width: 0;
+}
+.grid {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  background: #fff;
+  border: 1px solid #dde3e4;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 16px 20px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.item + .item {
+  border-left: 1px solid #eaefef;
+}
+.label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #586767;
+  overflow-wrap: anywhere;
+}
+.label svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+.value {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.note,
+.currency {
+  font-size: 12px;
+  font-weight: 400;
+  color: #586767;
+}
+.meta {
+  font-size: 12px;
+  color: #586767;
+  overflow-wrap: anywhere;
+}
+.warning .label,
+.warning .value {
+  color: #864900;
+}
+.pressable {
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+.pressable:hover {
+  background: #f9f9fc;
+}
+.pressable:focus-visible {
+  outline: 2px solid #007176;
+  outline-offset: -2px;
+}
+.pressable .meta {
+  color: #007176;
+  font-weight: 500;
+}
+.pressable[aria-pressed="true"] {
+  background: #fff2d6;
+}
+.pressable[aria-pressed="true"] .meta {
+  color: #864900;
+}
+.skeleton {
+  display: block;
+  height: 14px;
+  width: 60%;
+  border-radius: 6px;
+  background: #eaefef;
+}
+.skeleton + .skeleton {
+  height: 22px;
+  width: 80%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pressable {
+    transition: none;
+  }
+}
+@container summary (max-width: 859px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    grid-auto-flow: row;
+  }
+  .item:nth-child(odd) {
+    border-left: 0;
+  }
+  .item:nth-child(n + 3) {
+    border-top: 1px solid #eaefef;
+  }
+  .item:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 500px) {
+  .item {
+    padding: 14px 16px;
+  }
+  .value {
+    font-size: 18px;
+  }
+}
