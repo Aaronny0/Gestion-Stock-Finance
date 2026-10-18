@@ -65,3 +65,18 @@ test("D28 : SummaryStrip passe en 2 × 2 sous 860 px de largeur utile et sa cell
   assert.match(tsx, /aria-pressed/);
   assert.match(tsx, /export \{[^}]*SummaryItem/);
 });
+
+test("D28 : FilterChip et SegmentedControl sont des boutons pressés de 40 px", () => {
+  const chip = read("src/components/ui/filter-chip.tsx");
+  const chipCss = read("src/components/ui/filter-chip.module.css");
+  const seg = read("src/components/ui/segmented-control.tsx");
+  const segCss = read("src/components/ui/segmented-control.module.css");
+  assert.match(chip, /aria-pressed/);
+  assert.match(chip, /Effacer les filtres/, "bouton d'effacement des filtres partagé");
+  assert.match(chipCss, /height:\s*40px/);
+  assert.match(chipCss, /#dff2f2/);
+  assert.match(seg, /role="group"/);
+  assert.match(seg, /aria-pressed/);
+  assert.match(segCss, /height:\s*40px/);
+  for (const css of [chipCss, segCss]) assert.match(css, /@media \(pointer: coarse\)[\s\S]*min-height:\s*44px/, "cible tactile 44 px");
+});

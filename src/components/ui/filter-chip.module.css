@@ -1,0 +1,66 @@
+/* D28 : puce de filtre bascule, style unique (D26 Stock), 40 px comme les contrôles de liste. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #dde3e4;
+  border-radius: 8px;
+  background: #fff;
+  color: #0a1a1b;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.chip svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: #586767;
+}
+.chip:hover {
+  background: #f9f9fc;
+}
+.chip:focus-visible {
+  outline: none;
+  border-color: #007176;
+  box-shadow: 0 0 0 3px rgb(0 113 118 / 18%);
+}
+.chip[aria-pressed="true"] {
+  background: #dff2f2;
+  border-color: #007176;
+  color: #04585c;
+}
+.chip[aria-pressed="true"] svg {
+  color: currentColor;
+}
+.warning[aria-pressed="true"] {
+  background: #fff2d6;
+  border-color: #e8a127;
+  color: #864900;
+}
+.count {
+  font-size: 12px;
+  font-weight: 500;
+  color: #586767;
+  font-variant-numeric: tabular-nums;
+}
+.chip[aria-pressed="true"] .count {
+  color: currentColor;
+}
+.icon {
+  width: 40px;
+  padding: 0;
+}
+@media (pointer: coarse) {
+  .chip {
+    height: auto;
+    min-height: 44px;
+  }
+  .icon {
+    width: 44px;
+  }
+}

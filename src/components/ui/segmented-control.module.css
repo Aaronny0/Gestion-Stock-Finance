@@ -1,0 +1,40 @@
+/* D28 : choix exclusif court (périodes), 40 px. Conteneur #eaefef, option active blanche. */
+.group {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 8px;
+  background: #eaefef;
+  height: 40px;
+}
+.option {
+  height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #586767;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.option:focus-visible {
+  outline: 2px solid #007176;
+  outline-offset: 1px;
+}
+.option[aria-pressed="true"] {
+  background: #fff;
+  color: #0a1a1b;
+  box-shadow: 0 1px 3px rgb(10 26 27 / 8%);
+}
+@media (pointer: coarse) {
+  .group {
+    height: auto;
+    min-height: 44px;
+  }
+  .option {
+    height: auto;
+    min-height: 44px;
+  }
+}
