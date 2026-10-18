@@ -1,0 +1,36 @@
+/* D30 : en-tête fonctionnel — titre, description, une primaire, secondaires outline repliées sous 768 px. */
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+.heading {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.menu {
+  display: none;
+}
+@media (max-width: 767px) {
+  .collapsible {
+    flex-wrap: nowrap;
+    width: 100%;
+  }
+  .secondary {
+    display: none;
+  }
+  .menu {
+    display: inline-flex;
+  }
+  .collapsible > :last-child {
+    flex: 1;
+  }
+}

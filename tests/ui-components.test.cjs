@@ -102,3 +102,12 @@ test("D28 : ListCard porte une seule fois la barre d'outils à 40 px et la bascu
   assert.match(tsx, /ArrowRight/, "onglets navigables aux flèches");
   for (const token of ["toolbarStart", "data-list-toolbar", "data-list-desktop", "data-list-mobile"]) assert.ok(table.includes(token), `data-table.tsx sans ${token}`);
 });
+
+test("D30 : PageHeader a une primaire et des secondaires repliées dans « Autres actions » sous 768 px", () => {
+  const tsx = read("src/components/layout/page-header.tsx");
+  const css = read("src/components/layout/page-header.module.css");
+  assert.match(tsx, /primaryAction/);
+  assert.match(tsx, /secondaryActions/);
+  assert.match(tsx, /aria-label="Autres actions"/);
+  assert.match(css, /@media \(max-width: 767px\)/);
+});
