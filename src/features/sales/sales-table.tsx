@@ -3,7 +3,7 @@
 import { formatListDate } from "@/lib/format";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ChevronRight, ReceiptText } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/data-display/empty-state";
 import { DataTable } from "@/components/data-display/data-table";
 import { Money } from "@/components/data-display/money";
 import { StatusBadge } from "@/components/data-display/status-badge";
@@ -21,6 +21,8 @@ function SalesTable({
   search,
   onSearch,
   onReset,
+  toolbarStart,
+  filtered = false,
 }: {
   sales: Sale[];
   onOpen: (sale: Sale) => void;
@@ -29,6 +31,9 @@ function SalesTable({
   search?: string;
   onSearch?: (value: string) => void;
   onReset?: () => void;
+  toolbarStart?: ReactNode;
+  /** Un filtre ou une recherche est actif : l'état vide propose de les effacer. */
+  filtered?: boolean;
 }) {
   const { snapshot } = useWorkspace();
   const clientName = (sale: Sale) =>
@@ -83,6 +88,7 @@ function SalesTable({
     {
       id: "total",
       header: "Montant net",
+      meta: { align: "right" },
       accessorFn: (sale) => salePosition(sale).netTotal,
       cell: ({ row }) => (
         <Money
@@ -95,6 +101,7 @@ function SalesTable({
     {
       id: "due",
       header: "Reste dû",
+      meta: { align: "right" },
       accessorFn: (sale) => salePosition(sale).due,
       cell: ({ row }) =>
         salePosition(row.original).due > 0 ? (
@@ -120,7 +127,9 @@ function SalesTable({
   return (
     <DataTable
       name="ventes"
+      density="comfortable"
       filters={filters}
+      toolbarStart={toolbarStart}
       searchValue={search}
       onSearchChange={onSearch}
       enableColumnVisibility={false}
@@ -142,22 +151,14 @@ function SalesTable({
         Statut: sale.status,
       })}
       emptyContent={
-        <div className={styles.state}>
-          <span className={styles.stateIcon}>
-            <ReceiptText size={20} />
-          </span>
-          <strong>Aucune vente sur cette période</strong>
-          <p>
-            Modifiez la période ou les filtres, ou enregistrez une nouvelle
-            vente depuis la caisse.
-          </p>
-          <Button variant="outline" onClick={onReset}>
-            Effacer les filtres
-          </Button>
-        </div>
+        <EmptyState
+          kind={filtered ? "no-results" : "first-use"}
+          icon={ReceiptText}
+          title={filtered ? "Aucune vente ne correspond" : "Aucune vente sur cette période"}
+          description={filtered ? "Aucune vente de la période ne correspond à la recherche ou au statut choisi." : "Changez de période ou enregistrez une nouvelle vente depuis la caisse."}
+          onClearFilters={filtered ? onReset : undefined}
+        />
       }
-      emptyTitle="Aucune vente sur cette période"
-      emptyDescription="Modifiez la période ou enregistrez une nouvelle vente depuis la caisse."
       searchPlaceholder="Référence, client, IMEI…"
       mobileRow={(sale) => (
         <div className={styles.mobileRow}>
@@ -171,7 +172,7 @@ function SalesTable({
               />
             </div>
             <p className="mt-1 truncate text-xs text-muted-foreground">
-              {new Date(sale.date).toLocaleDateString("fr-FR")} ·{" "}
+              {formatListDate(sale.date)} ·{" "}
               {clientName(sale)}
             </p>
             <div className="mt-2 flex items-center justify-between gap-3">

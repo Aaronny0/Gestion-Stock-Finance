@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CreditCard, Plus } from "lucide-react";
-import { Money } from "@/components/data-display/money";
+import { ListCard } from "@/components/data-display/list-card";
+import { SummaryItem, SummaryStrip } from "@/components/data-display/summary-strip";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import {
   Sheet,
   SheetContent,
@@ -83,51 +86,36 @@ function SalesPage({ path }: { path: string }) {
     { label: "7 jours", days: 7 },
     { label: "30 jours", days: 30 },
   ];
+  const span = Math.round((Date.parse(end) - Date.parse(start)) / 86400000) + 1;
+  const periodValue = String(periods.find((period) => period.days === span)?.days ?? "");
+  const periodControl = (
+    <SegmentedControl
+      aria-label="Période"
+      options={periods.map((period) => ({ value: String(period.days), label: period.label }))}
+      value={periodValue}
+      onValueChange={(value) => selectPeriod(Number(value))}
+    />
+  );
   const filters = (
     <>
-      <div className={styles.period}>
-        {periods.map((period) => (
-          <button
-            key={period.days}
-            type="button"
-            aria-pressed={
-              Math.round((Date.parse(end) - Date.parse(start)) / 86400000) +
-                1 ===
-              period.days
-            }
-            onClick={() => selectPeriod(period.days)}
-          >
-            {period.label}
-          </button>
-        ))}
-      </div>
-      <div className={styles.chips}>
-        {[
-          { key: "all", label: "Toutes" },
-          { key: "paid", label: "Payées" },
-          { key: "credit", label: "À crédit" },
-          { key: "returns", label: "Retours" },
-        ].map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            aria-pressed={status === item.key}
-            onClick={() => {
-              resetPagination({ pageIndex: 0, pageSize: 10 });
-              setStatus(item.key);
-            }}
-          >
-            {item.label}
-            <small>
-              {
-                periodSales.filter(
-                  (sale) => item.key === "all" || category(sale) === item.key,
-                ).length
-              }
-            </small>
-          </button>
-        ))}
-      </div>
+      {[
+        { key: "all", label: "Toutes" },
+        { key: "paid", label: "Payées" },
+        { key: "credit", label: "À crédit" },
+        { key: "returns", label: "Retours" },
+      ].map((item) => (
+        <FilterChip
+          key={item.key}
+          pressed={status === item.key}
+          onPressedChange={() => {
+            resetPagination({ pageIndex: 0, pageSize: 10 });
+            setStatus(item.key);
+          }}
+          count={periodSales.filter((sale) => item.key === "all" || category(sale) === item.key).length}
+        >
+          {item.label}
+        </FilterChip>
+      ))}
     </>
   );
   const saleId = path.split("/")[2];
@@ -158,72 +146,24 @@ function SalesPage({ path }: { path: string }) {
       <PageHeader
         title="Ventes"
         description="Reçus, encaissements, crédits et retours de la boutique."
-        actions={
-          <>
-            <Button variant="outline" asChild>
-              <Link href={href("/sales/credits")}>
-                <CreditCard /> Crédits et échéances
+        secondaryActions={[{ label: "Crédits et échéances", icon: CreditCard, href: href("/sales/credits") }]}
+        primaryAction={
+          can("sales.create") ? (
+            <Button asChild>
+              <Link href={href("/pos")}>
+                <Plus /> Nouvelle vente
               </Link>
             </Button>
-            {can("sales.create") && (
-              <Button asChild>
-                <Link href={href("/pos")}>
-                  <Plus /> Nouvelle vente
-                </Link>
-              </Button>
-            )}
-          </>
+          ) : undefined
         }
       />
-      <section
-        className={styles.summary}
-        aria-label="Synthèse des ventes affichées"
-      >
-        <div>
-          <label>Ventes</label>
-          <strong>{sales.length}</strong>
-        </div>
-        <div>
-          <label>Montant net</label>
-          <strong>
-            <Money
-              currencyDisplay="code"
-              value={sales.reduce(
-                (sum, sale) => sum + salePosition(sale).netTotal,
-                0,
-              )}
-              currencyClassName={styles.currency}
-            />
-          </strong>
-        </div>
-        <div>
-          <label>Encaissé</label>
-          <strong>
-            <Money
-              currencyDisplay="code"
-              value={sales.reduce(
-                (sum, sale) => sum + salePosition(sale).netPaid,
-                0,
-              )}
-              currencyClassName={styles.currency}
-            />
-          </strong>
-        </div>
-        <div>
-          <label>Reste dû</label>
-          <strong className={styles.warning}>
-            <Money
-              currencyDisplay="code"
-              value={sales.reduce(
-                (sum, sale) => sum + salePosition(sale).due,
-                0,
-              )}
-              currencyClassName={styles.currency}
-            />
-          </strong>
-        </div>
-      </section>
-      <div className={styles.ledger}>
+      <SummaryStrip aria-label="Synthèse des ventes affichées">
+        <SummaryItem label="Ventes" value={sales.length} />
+        <SummaryItem label="Montant net" money={sales.reduce((sum, sale) => sum + salePosition(sale).netTotal, 0)} />
+        <SummaryItem label="Encaissé" money={sales.reduce((sum, sale) => sum + salePosition(sale).netPaid, 0)} />
+        <SummaryItem label="Reste dû" tone="warning" money={sales.reduce((sum, sale) => sum + salePosition(sale).due, 0)} />
+      </SummaryStrip>
+      <ListCard>
         <SalesTable
           key={status}
           sales={sales}
@@ -242,13 +182,15 @@ function SalesPage({ path }: { path: string }) {
               );
           }}
           filters={filters}
+          toolbarStart={periodControl}
+          filtered={status !== "all" || Boolean(search.trim()) || ["brand", "seller", "product"].some((key) => query.get(key))}
           onOpen={(item) => {
             setLastOpened(item.id);
             router.push(href(`/sales/${item.id}`));
           }}
           canExport={can("exports.create")}
         />
-      </div>
+      </ListCard>
       {saleId && !sale && (
         <div
           className="rounded-lg border border-destructive/20 bg-destructive-background p-4 text-sm text-destructive"

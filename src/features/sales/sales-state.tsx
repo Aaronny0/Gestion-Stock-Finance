@@ -1,6 +1,9 @@
 import { CloudOff } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/data-display/empty-state";
+import { ListCard } from "@/components/data-display/list-card";
+import { SummaryStrip } from "@/components/data-display/summary-strip";
 import styles from "./sales.module.css";
 
 export function SalesState({
@@ -16,34 +19,18 @@ export function SalesState({
         title="Ventes"
         description="Reçus, encaissements, crédits et retours de la boutique."
       />
-      {!error && (
-        <div className={styles.summary} aria-hidden="true">
-          {[0, 1, 2, 3].map((index) => (
-            <div key={index}>
-              <i className={styles.placeholder} />
-              <i className={styles.placeholder} />
-            </div>
-          ))}
-        </div>
-      )}
-      <section className={styles.ledger}>
+      {!error && <SummaryStrip.Skeleton count={4} />}
+      <ListCard>
         {error ? (
-          <div className={styles.state} role="alert">
-            <span className={styles.stateIcon} data-error>
-              <CloudOff size={20} />
-            </span>
-            <strong>Impossible de charger les ventes</strong>
-            <p>{error}</p>
-            <Button variant="outline" onClick={onRetry}>
-              Réessayer
-            </Button>
-          </div>
+          <EmptyState
+            kind="error"
+            icon={CloudOff}
+            title="Impossible de charger les ventes"
+            description={error}
+            actions={onRetry ? <Button variant="outline" onClick={onRetry}>Réessayer</Button> : undefined}
+          />
         ) : (
-          <div
-            role="status"
-            aria-label="Chargement des ventes"
-            aria-busy="true"
-          >
+          <div role="status" aria-label="Chargement des ventes" aria-busy="true">
             {[0, 1, 2, 3, 4, 5].map((index) => (
               <div key={index} className={styles.skeletonRow}>
                 <i />
@@ -55,7 +42,7 @@ export function SalesState({
             ))}
           </div>
         )}
-      </section>
+      </ListCard>
     </div>
   );
 }

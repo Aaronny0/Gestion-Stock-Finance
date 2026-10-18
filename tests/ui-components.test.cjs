@@ -111,3 +111,11 @@ test("D30 : PageHeader a une primaire et des secondaires repliées dans « Autre
   assert.match(tsx, /aria-label="Autres actions"/);
   assert.match(css, /@media \(max-width: 767px\)/);
 });
+
+test("Lot 3 : Ventes n'a plus de bande, puces, période ni état vide locaux", () => {
+  const css = read("src/features/sales/sales.module.css");
+  for (const local of [".summary", ".chips", ".period", ".state", ":global(.data-toolbar)", ".ledger"]) assert.ok(!css.includes(local), `sales.module.css contient ${local}`);
+  const page = read("src/features/sales/sales-page.tsx");
+  for (const shared of ["SummaryStrip", "FilterChip", "SegmentedControl", "ListCard", "secondaryActions"]) assert.ok(page.includes(shared), `sales-page.tsx sans ${shared}`);
+  assert.match(read("src/features/sales/sales-table.tsx"), /density="comfortable"/);
+});

@@ -1,18 +1,18 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { MoreHorizontal, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import styles from "./page-header.module.css";
 
-interface SecondaryAction {
+type SecondaryAction = {
   label: string;
   icon?: LucideIcon;
-  onSelect: () => void;
   disabled?: boolean;
-}
+} & ({ onSelect: () => void; href?: never } | { href: string; onSelect?: never });
 
 interface PageHeaderProps extends React.ComponentProps<"header"> {
   /** Retiré par D30 ; toléré jusqu'à la migration du dernier écran. */
@@ -41,11 +41,17 @@ function PageHeader({ eyebrow, title, description, primaryAction, secondaryActio
           {actions}
           {secondaryActions.length ? (
             <>
-              {secondaryActions.map(({ label, icon: Icon, onSelect, disabled }) => (
-                <Button key={label} variant="outline" className={styles.secondary} onClick={onSelect} disabled={disabled}>
-                  {Icon ? <Icon /> : null} {label}
-                </Button>
-              ))}
+              {secondaryActions.map(({ label, icon: Icon, onSelect, href, disabled }) =>
+                href ? (
+                  <Button key={label} variant="outline" className={styles.secondary} asChild>
+                    <Link href={href}>{Icon ? <Icon /> : null} {label}</Link>
+                  </Button>
+                ) : (
+                  <Button key={label} variant="outline" className={styles.secondary} onClick={onSelect} disabled={disabled}>
+                    {Icon ? <Icon /> : null} {label}
+                  </Button>
+                ),
+              )}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon" className={styles.menu} aria-label="Autres actions">
@@ -53,11 +59,17 @@ function PageHeader({ eyebrow, title, description, primaryAction, secondaryActio
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start">
-                  {secondaryActions.map(({ label, icon: Icon, onSelect, disabled }) => (
-                    <DropdownMenuItem key={label} onSelect={onSelect} disabled={disabled}>
-                      {Icon ? <Icon /> : null} {label}
-                    </DropdownMenuItem>
-                  ))}
+                  {secondaryActions.map(({ label, icon: Icon, onSelect, href, disabled }) =>
+                    href ? (
+                      <DropdownMenuItem key={label} asChild disabled={disabled}>
+                        <Link href={href}>{Icon ? <Icon /> : null} {label}</Link>
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem key={label} onSelect={onSelect} disabled={disabled}>
+                        {Icon ? <Icon /> : null} {label}
+                      </DropdownMenuItem>
+                    ),
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
