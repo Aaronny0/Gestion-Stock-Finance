@@ -34,8 +34,9 @@ Inventaire lu le8 octobre2026. Les chemins ci-dessous sont relatifs à la racine
 | [src/components/ui/button.tsx](../../src/components/ui/button.tsx) | Button, Comp |
 | [src/components/ui/card.tsx](../../src/components/ui/card.tsx) | Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter |
 | [src/components/ui/checkbox.tsx](../../src/components/ui/checkbox.tsx) | Checkbox |
-| [src/components/ui/dialog.tsx](../../src/components/ui/dialog.tsx) | Dialog, DialogTrigger, DialogClose, DialogPortal, DialogOverlay, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription |
+| [src/components/ui/dialog.tsx](../../src/components/ui/dialog.tsx) | Dialog, DialogTrigger, DialogClose, DialogPortal, DialogOverlay, DialogContent (size), DialogHeader, DialogBody, DialogFooter, DialogTitle, DialogDescription, dialogFrame, dialogSizes |
 | [src/components/ui/drawer.tsx](../../src/components/ui/drawer.tsx) | Drawer, DrawerTrigger, DrawerPortal, DrawerClose, DrawerOverlay, DrawerContent, DrawerHeader, DrawerFooter, DrawerTitle, DrawerDescription |
+| [src/components/ui/filter-chip.tsx](../../src/components/ui/filter-chip.tsx) | FilterChip, ClearFiltersButton |
 | [src/components/ui/dropdown-menu.tsx](../../src/components/ui/dropdown-menu.tsx) | DropdownMenu, DropdownMenuTrigger, DropdownMenuGroup, DropdownMenuPortal, DropdownMenuSub, DropdownMenuRadioGroup, DropdownMenuContent, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuSubTrigger, DropdownMenuSubContent |
 | [src/components/ui/form.tsx](../../src/components/ui/form.tsx) | Form, FormFieldContext, FormField, FormItemContext, FormItem, FormLabel, FormControl, FormDescription, FormMessage |
 | [src/components/ui/input.tsx](../../src/components/ui/input.tsx) | Input |
@@ -43,6 +44,7 @@ Inventaire lu le8 octobre2026. Les chemins ci-dessous sont relatifs à la racine
 | [src/components/ui/pagination.tsx](../../src/components/ui/pagination.tsx) | Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis |
 | [src/components/ui/popover.tsx](../../src/components/ui/popover.tsx) | Popover, PopoverTrigger, PopoverContent, PopoverAnchor, PopoverHeader, PopoverTitle, PopoverDescription |
 | [src/components/ui/search-input.tsx](../../src/components/ui/search-input.tsx) | SearchInput |
+| [src/components/ui/segmented-control.tsx](../../src/components/ui/segmented-control.tsx) | SegmentedControl |
 | [src/components/ui/select.tsx](../../src/components/ui/select.tsx) | Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectItem, SelectLabel, SelectSeparator |
 | [src/components/ui/sheet.tsx](../../src/components/ui/sheet.tsx) | Sheet, SheetTrigger, SheetClose, SheetPortal, SheetOverlay, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetDescription |
 | [src/components/ui/skeleton.tsx](../../src/components/ui/skeleton.tsx) | Skeleton |
@@ -52,14 +54,16 @@ Inventaire lu le8 octobre2026. Les chemins ci-dessous sont relatifs à la racine
 | [src/components/ui/tabs.tsx](../../src/components/ui/tabs.tsx) | Tabs, TabsList, TabsTrigger, TabsContent |
 | [src/components/ui/textarea.tsx](../../src/components/ui/textarea.tsx) | Textarea |
 | [src/components/ui/tooltip.tsx](../../src/components/ui/tooltip.tsx) | TooltipProvider, Tooltip, TooltipTrigger, TooltipContent |
+| [src/components/ui/use-return-focus.ts](../../src/components/ui/use-return-focus.ts) | useReturnFocus |
 | [src/components/data-display/data-table.tsx](../../src/components/data-display/data-table.tsx) | DataTable, XLSX |
 | [src/components/data-display/date-range-filter.tsx](../../src/components/data-display/date-range-filter.tsx) | DateRangeFilter |
 | [src/components/data-display/document-link.tsx](../../src/components/data-display/document-link.tsx) | DocumentLink |
-| [src/components/data-display/empty-state.tsx](../../src/components/data-display/empty-state.tsx) | EmptyState |
+| [src/components/data-display/empty-state.tsx](../../src/components/data-display/empty-state.tsx) | EmptyState (kind first-use/no-results/error) |
 | [src/components/data-display/fiscal-invoice.tsx](../../src/components/data-display/fiscal-invoice.tsx) | FiscalInvoice |
-| [src/components/data-display/metric-card.tsx](../../src/components/data-display/metric-card.tsx) | MetricCard, TrendIcon |
+| [src/components/data-display/list-card.tsx](../../src/components/data-display/list-card.tsx) | ListCard, ListTabs |
 | [src/components/data-display/money.tsx](../../src/components/data-display/money.tsx) | Money |
 | [src/components/data-display/status-badge.tsx](../../src/components/data-display/status-badge.tsx) | StatusBadge, Icon |
+| [src/components/data-display/summary-strip.tsx](../../src/components/data-display/summary-strip.tsx) | SummaryStrip, SummaryItem |
 | [src/components/layout/app-breadcrumb.tsx](../../src/components/layout/app-breadcrumb.tsx) | AppBreadcrumb |
 | [src/components/layout/app-logo.tsx](../../src/components/layout/app-logo.tsx) | AppLogo |
 | [src/components/layout/app-sidebar.tsx](../../src/components/layout/app-sidebar.tsx) | NavigationLink, SidebarNavigation, Icon, AppSidebar |
@@ -105,3 +109,13 @@ L’[inventaire des valeurs](references/inventaire-valeurs.md) contient toutes l
 - `tests/browser-claude-pages.cjs` : dimensions HTML, interactions, focus, responsive et confidentialité des marges.
 
 Les descriptions datées du 8 octobre ci-dessus documentent l’état antérieur. Le registre D18 daté du 9 octobre remplace l’ancien statut de proposition non approuvée.
+
+## Composants partagés et modales unifiées — 18 octobre 2026
+
+Registre D27–D30, [spec](../superpowers/specs/2026-10-18-ui-composants-partages-design.md) et [plan](../superpowers/plans/2026-10-18-ui-composants-partages.md).
+
+- Modales : `src/components/ui/dialog.tsx`, `alert-dialog.tsx`, `use-return-focus.ts` ; façades `Modal`/`ConfirmDialog` (`src/frontend/ui.tsx`) et `ActionForm` (`src/frontend/forms.tsx`). Le `<dialog>` natif et le CSS `.modal*` n'existent plus.
+- Listes : `summary-strip.tsx`, `list-card.tsx`, `empty-state.tsx` (data-display), `filter-chip.tsx`, `segmented-control.tsx` (ui), `page-header.tsx` (layout), `src/lib/format.ts`. Les CSS modules de Ventes et Stock ne gardent que leurs styles propres (lignes mobiles, détail, vignettes).
+- Écrans migrés : Ventes, Crédits, Stock (fiche produit, réapprovisionnement), Achats, Troc, Rachat, Clients, Fournisseurs (`src/frontend/pages.tsx`), Trésorerie, Dépenses, Paiements, Comptabilité, Statistiques (`src/frontend/analytics.tsx`), Équipe, Audit, Paramètres, Caisse, préréglages du Dashboard.
+- Retirés : `MetricCard`, le `DataTable`/`EmptyState`/`PageHeading`/`DateRangePicker` de `src/frontend/ui.tsx`, les orphelins `src/frontend/{returns,import-stock,accounting-page,settings,workflows}.tsx`, le bouton « Retour » du shell (`isDetailRoute` dans `src/frontend/navigation.ts` pilote le fil d'Ariane).
+- Tests : [garde-fous à la source](../../tests/ui-components.test.cjs), [format](../../tests/format.test.cjs), [audit de rendu](../../tests/ui-audit.cjs) (`node tests/ui-audit.cjs [route…]`, `TEST_BASE_URL`).

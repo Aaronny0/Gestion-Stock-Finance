@@ -14,7 +14,7 @@ Sources : [Design System, composants](references/claude-original/Design%20System
 | Indicateur / Money | CA héros + variation, devise petite muted ; compteur À traiter + verbe | Source cliquable avec boutique/période conservées ; masquer marge sans permission |
 | Graphique | CA/jour histogramme, marge superposée ; palette fixe | Survol lecture ; clic détail filtré ; légende et information textuelle accessibles |
 | Menu / popover / tooltip | Élément flottant avec ombre | Clavier, focus visible, fermeture, placement adapté ; délai tooltip actuel300 ms |
-| Dialog / AlertDialog | Rayon18 ; mutation destructive confirmée | Nom accessible, modalité, focus capturé/restauré, Escape selon action ; pas de perte silencieuse du brouillon |
+| Dialog / AlertDialog | Rayon18 (cible DESIGN.md ; implémentation12, D08/D27) ; tailles sm/md/lg/xl ; en-tête et pied fixes, seul le corps défile ; mutation destructive confirmée | Nom accessible, modalité, focus initial sur le premier champ, retour au déclencheur, Escape et clic au fond gardés si le formulaire est modifié ; pas de perte silencieuse du brouillon |
 | Sheet / Drawer | DetailSheet460 px ou largeur viewport ; liste en contexte | Fermeture clavier/focus ; actions en pied ; mobile sans dépassement |
 | Navigation | Rail clair groupé, entrée active accent + barre3 px | Permissions effectives, rôle visible, retour accueil rôle, repli avec intitulé accessible |
 | Auth | Shell partagé,6 routes, inscription4étapes | Succès/échec, attente, lien expiré, retour, renvoi, Google uniquement si activé ; vraie intégration |
@@ -29,7 +29,20 @@ Sources : [Design System, composants](references/claude-original/Design%20System
 
 `DataTable` : colonnes et données, `density=default|comfortable|dense`, `mobileRow`, tri/recherche/export/pagination ; voir sa définition pour l’ensemble des props. Les états ne sont pas tous fournis automatiquement : la page doit traiter le chargement, l’erreur, l’offline et les permissions.
 
-`Money` reçoit des unités mineures et la devise courante/explicite. Réutiliser les calculs métier, ne pas reformater un montant en perdant devise ou précision. `MetricCard`, `EmptyState`, `PageHeader`, `SearchInput`, `DateRangeFilter`, `Skeleton`, `Toaster` complètent ce socle.
+`Money` reçoit des unités mineures et la devise courante/explicite. Réutiliser les calculs métier, ne pas reformater un montant en perdant devise ou précision. `SearchInput`, `DateRangeFilter`, `Skeleton`, `Toaster` complètent ce socle.
+
+## Composants de liste partagés (D27–D30)
+
+À réutiliser pour tout écran métier ; ne pas recréer de variante locale.
+
+- `Dialog` : `DialogContent size="sm|md|lg|xl"` (448/640/768/1024), `DialogHeader`, `DialogBody` (seule zone qui défile), `DialogFooter` (`data-dialog-footer`). Un formulaire enveloppe corps et pied (`flex min-h-0 flex-1 flex-col`). Façades historiques : `Modal({ title, onClose, onCloseRequest?, size? })`, `ConfirmDialog`, `ActionForm`.
+- `PageHeader({ title, description?, primaryAction?, secondaryActions? })` : une primaire ; secondaires `{ label, icon?, onSelect | href }` en outline, repliées dans « Autres actions » sous 768 px. Pas d'eyebrow ni de slogan, pas de bouton « Retour ».
+- `SummaryStrip` + `SummaryItem({ label, value? | money?, note?, meta?, icon?, tone?, pressed?, onPress? })`, `SummaryStrip.Skeleton({ count })` : 2 à 4 totaux, 2 × 2 sous 860 px utiles.
+- `ListCard({ tabs? })` + `ListTabs` (liens `{ href, label, count?, tone?, active }` ou valeurs `{ value, label, count? }` avec `value`/`onValueChange`) : carte de liste ; barre d'outils à 40 px, lignes 52 px (60 px avec `density="comfortable"`), lignes-cartes sous 900 px utiles quand `mobileRow` est fourni.
+- `DataTable` dans une `ListCard` : `toolbarStart` (période, segmenté), `filters` (puces, sélecteurs), `emptyKind`/`emptyTitle`/`emptyContent`, `meta: { align: "right" }` pour les montants.
+- `FilterChip({ pressed, onPressedChange, count?, tone?, icon? })`, `ClearFiltersButton`, `SegmentedControl({ options, value, onValueChange, aria-label })`.
+- `EmptyState({ kind: "first-use"|"no-results"|"error", title, description?, icon?, actions?, steps?, onClearFilters? })` : texte propre à l'écran, jamais générique.
+- `formatListDate(value, { time? })` et `plural(count, mot)` (`src/lib/format.ts`).
 
 ## Barres de défilement
 

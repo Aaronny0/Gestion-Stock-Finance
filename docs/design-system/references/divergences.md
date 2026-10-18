@@ -66,3 +66,64 @@ Limites : seuil du panier fixe de caisse (1280 px) choisi sur l'observation à 1
 - deux états vides distincts : catalogue vide (actions Importer / Créer un produit et trois étapes) et aucun résultat filtré (Effacer les filtres).
 
 **Aucune nouvelle couleur** : uniquement les valeurs HTML déjà appliquées par Ventes (`#dde3e4`, `#eaefef`, `#586767`, accent `#dff2f2/#04585c`, warning `#fff2d6/#864900/#e8a127`, destructive `#9e1618`). Le point « Valeur d'achat du stock » de D25 est remplacé par cette grille. Limites : vérifié dans le navigateur à 1440 px, ~800 px et 375 px sur `/demo` ; les suites Playwright (`test:browser`) n'ont pas pu être exécutées (module `playwright` absent du checkout) ; l'état « catalogue vide » n'a pas de jeu de données de démonstration et n'a pas été vu en rendu réel.
+
+**D27 — Modales unifiées sur Radix.** L'utilisateur a validé le 18 octobre 2026 le spec [composants partagés](../../superpowers/specs/2026-10-18-ui-composants-partages-design.md), approche A. Ce spec part d'une capture de « Créer un produit » collée en haut à gauche. Il approuve :
+
+- une seule famille de modales, le `Dialog` Radix (`src/components/ui/dialog.tsx`) :
+  - tailles nommées `sm`/`md`/`lg`/`xl` (448/640/768/1024 px) ;
+  - en-tête et pied fixes, filet `#eaefef` ; seul `DialogBody` défile, avec `.scroll-hint` (D25) ;
+  - hauteur maximale `min(100dvh − 32px − safe-area, 90dvh)`, rayon 12 px, ombre `--shadow-dialog`, fond `foreground/35` ;
+- croix de fermeture de 44 × 44. Le focus initial va au premier champ du corps, jamais à la croix. Le focus revient au déclencheur, ou au bouton « Autres actions » si l'action venait d'un menu (`useReturnFocus`) ;
+- des façades à API inchangée :
+  - `Modal` et `ConfirmDialog` (`src/frontend/ui.tsx`) ;
+  - `ActionForm` (`src/frontend/forms.tsx`), avec des boutons shadcn. Un formulaire modifié ne se ferme plus sans confirmation, ni par Échap ni par un clic sur le fond (`onCloseRequest`) ;
+- le retrait du `<dialog>` natif et de son CSS legacy `.modal*` : ombre violette, rayon 15 px et fond violacé de l’ancienne palette (D11) ;
+- sous 640 px, des boutons de pied empilés en pleine largeur, primaire en haut ;
+- deux corrections de contenu : « 1 unité » au singulier, et « Motif / commentaire » en pleine largeur.
+
+Le rayon 18 de la ligne Dialog du chapitre 05 (DESIGN.md) reste la cible documentée. L'implémentation garde les 12 px déjà appliqués par le Dialog Radix (D08). La règle `dialog:modal { margin: auto }` de `src/styles/base.css` vient d'un correctif non commité de l'utilisateur. Elle n'a plus d'effet, puisqu'il n'y a plus aucun `<dialog>`, mais elle est laissée à sa décision.
+
+**D28 — Composants de liste partagés.** Le même spec approuve les composants suivants :
+
+- **`SummaryStrip` / `SummaryItem`** (`src/components/data-display/summary-strip.tsx`) :
+  - modèle D26 : une ligne, puis 2 × 2 sous 860 px de largeur utile (container query), la dernière cellule impaire en pleine largeur ;
+  - une cellule `onPress` devient un bouton `aria-pressed` ;
+  - remplace `MetricCard`, `.finance-summary`, `.team-summary`, `.directory-summary`, `.sales-ledger-summary` et les cartes de la fiche produit et des crédits ;
+- **`ListCard` / `ListTabs`** (`src/components/data-display/list-card.tsx`) :
+  - porte une seule fois les surcharges de `DataTable` qui étaient dupliquées entre Ventes et Stock ;
+  - contrôles de la barre d'outils à **40 px** (44 px en `pointer: coarse`) ;
+  - lignes de 52 px, ou 60 px avec `density="comfortable"` pour Ventes (D06) ;
+  - lignes-cartes sous **900 px** de largeur utile, « Colonnes » masqué dans ce mode ;
+  - « Colonnes » et « Exporter » passent à la ligne ensemble ;
+  - onglets soulignés en liens (`aria-current`) ou en `tablist` au clavier (flèches, Début, Fin). Ils remplacent les onglets Radix en pastille (Crédits, Comptabilité) et `.page-tabs` (Statistiques) ;
+- **`FilterChip`** (`src/components/ui/filter-chip.tsx`) : style unique D26 de Stock, 40 px, actif `#dff2f2`/`#04585c`, variante warning. Les statuts de Ventes quittent la pilule noire de 34 px. `ClearFiltersButton` l'accompagne ;
+- **`SegmentedControl`** (`src/components/ui/segmented-control.tsx`) : conteneur `#eaefef` à 40 px. Il remplace `.period` (Ventes) et `.presets` (Dashboard) ;
+- **`DataTable`** : props additives `toolbarStart` et `emptyKind`, attributs `data-list-*`. `DateRangeFilter` devient fluide sous 640 px et plus compact au-delà (144 px par champ).
+
+**D29 — États vides typés.** `EmptyState` (`src/components/data-display/empty-state.tsx`) :
+
+- prend `kind` (`first-use`, `no-results` ou `error`), un titre obligatoire, des actions, des étapes et « Effacer les filtres » ;
+- place l'icône centrée au-dessus du titre ; elle était décalée à gauche sur Achats, Troc et Rachat.
+
+Chaque écran a son propre texte. Le message générique « Essayez de modifier vos filtres ou créez votre premier élément » disparaît. Une liste sans filtre actif ne propose plus de modifier les filtres (cas de la fiche produit). Le schéma troc/rachat devient les étapes de l'état « premier usage ».
+
+**D30 — En-têtes fonctionnels et harmonisations.** Sur tous les écrans métier :
+
+- **En-têtes.** `PageHeader` perd `eyebrow` et le filet bas. Les titres-slogans deviennent le nom de l'écran (« Achats », « Comptabilité », « Trésorerie & caisse »…). L'en-tête porte une seule primaire et des secondaires outline, regroupées sous 768 px dans « Autres actions ». Une secondaire seule sans primaire n'est pas repliée.
+- **Navigation.** Le bouton « Retour » du shell est supprimé. Le fil d'Ariane n'affiche « Détail » que pour une fiche (produit, vente) et non pour les onglets d'un écran.
+- **Fiche produit.** « Nouvelle entrée » en primaire. Modifier, Ajuster, Transférer et Archiver passent en secondaires.
+- **Format des données.**
+  - Les dates des listes suivent le format de Ventes via `formatListDate` (`src/lib/format.ts`), sans heure inventée pour une date seule.
+  - Les montants et leurs en-têtes sont alignés à droite (`meta.align`).
+  - Les modèles de rôles affichent des libellés de permissions et non des clés techniques.
+- **Clients et Fournisseurs.** La colonne « Voir › » et les cases à cocher sans action groupée sont retirées.
+
+**Aucune nouvelle couleur.** Les nouveaux CSS modules n'utilisent que `#fff`, `#dde3e4`, `#eaefef`, `#586767`, `#f9f9fc`, `#0a1a1b`, `#007176`, `#dff2f2`, `#04585c`, `#fff2d6`, `#864900`, `#e8a127` et `#9e1618`, contrôlés par `tests/ui-components.test.cjs`. Le survol des cellules et des puces passe de `#f5f7f7` à `#f9f9fc`. Le fond du segmenté passe de `#e9f2f2` à `#eaefef`.
+
+**Limites.**
+
+- Vérifié sur `/demo` à 1440, 768 et 360 px par `tests/ui-audit.cjs` : 22 routes, 6 modales à 1440 × 900 et 360 × 640. Contrôle visuel par captures sur chaque lot.
+- Non vérifié à 320 px, ni en dark mode (D14).
+- Les états « premier usage » de Stock, Achats, Troc, Rachat et Crédits n'ont pas de données de démonstration et n'ont pas été vus en rendu réel.
+- Le graphique des statistiques garde sa couleur historique (D15).
+- Les pages publiques et l'authentification ne sont pas concernées.
