@@ -44,3 +44,14 @@ La demande explicite de reproduire tous les HTML, accompagnée d’une capture d
 D02/D03/D11/D12/D13/D24 : les écrans métier utilisent désormais les couleurs HEX et les polices locales des HTML, avec une racine physique de 16 px limitée au workspace et des dimensions explicites. Les pages publiques ne sont pas refondues. Auth applique la primaire fonctionnelle HTML `#007176` ; les archives et le handoff `#057176` restent intacts. Dashboard : gouttière HTML 28 px, blocs et tables denses. Ventes : lignes 60 px, filtres et panneau de détail 460 px ; cartes lorsque la largeur utile devient inférieure à 900 px.
 
 Le contenu métier reste celui des API : pas de chiffres de maquette, de paiements simulés, de fausse activation ou de privilèges supplémentaires. Les documents `Design System.dc.html` et `Rôles et écrans.dc.html` restent des références et matrices consultables dans l’aperçu hors ligne ; ils ne deviennent pas des parcours métier artificiels.
+
+## Décision utilisateur — 18 octobre 2026
+
+**D25 — Barres de défilement et caisse.** La demande explicite d'améliorer les barres de défilement (capture du panier de caisse) et de corriger les défauts visibles trouvés en parcourant les écrans (1440, 1100 et 375 px) approuve :
+
+- une règle globale dans `src/styles/base.css` : `scrollbar-width: thin` et `scrollbar-color` dérivée de `--muted-foreground` à 45 % de transparence, avec repli `::-webkit-scrollbar` sans flèches (`@supports not (scrollbar-width: thin)`). **Aucune nouvelle couleur** : seul un token existant est composé avec de la transparence. Le rail sombre (`#57596e`, D12) et les rangées volontairement masquées (`[scrollbar-width:none]`) gardent leurs règles locales, plus spécifiques ;
+- la classe utilitaire `.scroll-hint` : `scrollbar-gutter: stable` et un fondu de `--card` sur le bord où du contenu est caché (ombre de `--foreground` à 14 %). Appliquée au panier de caisse, bureau et tiroir mobile ; à réutiliser pour tout conteneur qui défile dans une carte ;
+- la caisse : le panier fixe n'apparaît qu'à partir de 1280 px (`xl`), en dessous le tiroir « Voir le panier » laisse toute la largeur aux produits ; la grille produits utilise `repeat(auto-fill, minmax(11rem, 1fr))` (11 rem = 154 px) au lieu de colonnes fixées par seuil d'écran ; le placeholder de recherche devient « Produit, marque, IMEI… » pour tenir dans un champ étroit ;
+- Stock & catalogue sur mobile : « Valeur d'achat du stock » n'est plus repoussée à droite (`margin-left: 0`).
+
+Limites : seuil du panier fixe de caisse (1280 px) choisi sur l'observation à 1100 px, non sur une maquette Claude ; vérifié à 1440, 1100 et 375 px, pas à 768 ni 320 px. Les couleurs de la scrollbar ne sont pas contrôlées en contraste (élément décoratif natif, non certifié par D22).

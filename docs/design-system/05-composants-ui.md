@@ -31,6 +31,10 @@ Sources : [Design System, composants](references/claude-original/Design%20System
 
 `Money` reçoit des unités mineures et la devise courante/explicite. Réutiliser les calculs métier, ne pas reformater un montant en perdant devise ou précision. `MetricCard`, `EmptyState`, `PageHeader`, `SearchInput`, `DateRangeFilter`, `Skeleton`, `Toaster` complètent ce socle.
 
+## Barres de défilement
+
+Fines et sans flèches par défaut (`src/styles/base.css`, décision D25) : ne pas les restyler composant par composant. Un conteneur qui défile dans une carte reçoit `scroll-hint` (fondu sur le bord caché, place de la barre réservée). Le rail de navigation sombre et les rangées de filtres masquées gardent leurs règles locales.
+
 ## Écarts à ne pas cacher
 
 Input actuel porte bordure + shadow-sm ; Card porte une classe d’ombre mais token actuel `none` ; Badge consomme les anciens `*-background` ; le handoff `.dark` et les nouveaux `*-muted` ne sont pas encore installés. Aucun de ces constats n’autorise une migration globale dans une demande locale.

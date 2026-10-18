@@ -313,14 +313,14 @@ export default function POS() {
         ) : null}
 
         <fieldset disabled={quoting} className="min-w-0 disabled:opacity-80">
-          <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1fr)_390px] xl:grid-cols-[minmax(0,1fr)_420px]">
+          <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
             <section className="min-w-0 space-y-4">
               <div className="rounded-lg border border-border bg-card p-4 shadow-[var(--shadow-card)]">
                 <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
                   <ProductSearch
                     ref={searchRef}
                     aria-label="Rechercher un produit en caisse"
-                    placeholder="Rechercher un modèle, une marque, un IMEI…"
+                    placeholder="Produit, marque, IMEI…"
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     onKeyDown={(event) => {
@@ -338,7 +338,7 @@ export default function POS() {
               </div>
 
               {products.length ? (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 2xl:grid-cols-4">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] gap-3">
                   {products.map((product) => (
                     <ProductCard
                       key={product.id}
@@ -358,7 +358,7 @@ export default function POS() {
               )}
             </section>
 
-            <aside className="hidden lg:block">
+            <aside className="hidden xl:block">
               <div className="sticky top-20 h-[calc(100dvh-7rem)] overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow-card)]">
                 <Cart idPrefix="desktop-cart" checkoutButtonId="checkout" {...sharedCartProps} />
               </div>

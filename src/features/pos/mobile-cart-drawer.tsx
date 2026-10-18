@@ -19,7 +19,7 @@ export function MobileCartDrawer({ open, onOpenChange, ...cartProps }: MobileCar
     <>
       <button
         type="button"
-        className="fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 flex min-h-14 items-center justify-between gap-3 rounded-lg bg-foreground px-4 text-left text-background shadow-[var(--shadow-dialog)] lg:hidden"
+        className="fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-40 flex min-h-14 items-center justify-between gap-3 rounded-lg bg-foreground px-4 text-left text-background shadow-[var(--shadow-dialog)] lg:sticky lg:inset-x-auto lg:bottom-4 lg:w-full xl:hidden"
         onClick={() => onOpenChange(true)}
         aria-label="Ouvrir le panier"
       >

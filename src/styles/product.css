@@ -1425,6 +1425,9 @@
     width: 100%;
     padding: 14px;
   }
+  .inventory-value {
+    margin-left: 0;
+  }
   .inventory-value > span:nth-child(2) {
     font-size: 20px;
   }

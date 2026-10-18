@@ -82,7 +82,7 @@ export function Cart(props: CartProps) {
         <Badge variant={quantity ? "default" : "secondary"}>{quantity} article{quantity > 1 ? "s" : ""}</Badge>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-5">
+      <div className="scroll-hint min-h-0 flex-1 overflow-y-auto px-5">
         {props.lines.length ? props.lines.map((line) => (
           <CartItem
             key={line.productId}

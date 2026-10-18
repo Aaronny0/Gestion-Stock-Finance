@@ -2,6 +2,43 @@
   box-sizing: border-box;
 }
 
+/* D25 : barres de défilement fines, sans flèches, couleur dérivée des tokens (aucune nouvelle couleur).
+   Le rail de navigation sombre et les rangées masquées gardent leurs règles locales, plus spécifiques. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--muted-foreground) 45%, transparent) transparent;
+}
+
+@supports not (scrollbar-width: thin) {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--muted-foreground) 45%, transparent);
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
+}
+
+/* D25 : indice de défilement. Un léger fondu apparaît sur le bord où du contenu est caché et disparaît en butée. */
+.scroll-hint {
+  scrollbar-gutter: stable;
+  background:
+    linear-gradient(var(--card) 30%, transparent) top / 100% 28px no-repeat local,
+    linear-gradient(transparent, var(--card) 70%) bottom / 100% 28px no-repeat local,
+    radial-gradient(farthest-side at 50% 0, color-mix(in srgb, var(--foreground) 14%, transparent), transparent) top / 100% 10px no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, color-mix(in srgb, var(--foreground) 14%, transparent), transparent) bottom / 100% 10px no-repeat scroll;
+  background-color: var(--card);
+}
+
 html {
   background: var(--background);
   color: var(--foreground);

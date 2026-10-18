@@ -6,7 +6,7 @@ Inventaire lu le8 octobre2026. Les chemins ci-dessous sont relatifs à la racine
 | --- | --- | --- |
 | Tokens globaux | [src/styles/tokens.css](../../src/styles/tokens.css) | Indigo/DM Sans ; pas le handoff pétrole |
 | Cascade | [src/app/globals.css](../../src/app/globals.css) | Tailwind, tokens/base, legacy puis product ; lire aussi print |
-| Socle | [src/styles/base.css](../../src/styles/base.css) | Font14, headings, focus, reduced-motion |
+| Socle | [src/styles/base.css](../../src/styles/base.css) | Font14, headings, focus, reduced-motion, barres de défilement fines et `.scroll-hint` (D25) |
 | Surcharges produit | [src/styles/product.css](../../src/styles/product.css) | Rail sombre local ; overrides métier |
 | Shell | [src/frontend/shell.tsx](../../src/frontend/shell.tsx) | Auth/WorkspaceProvider, contexte, guards |
 | Permissions et rôles | [src/frontend/types.ts](../../src/frontend/types.ts) | rolePermissions ; serveur autorité effective |
