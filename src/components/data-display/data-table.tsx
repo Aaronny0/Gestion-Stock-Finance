@@ -290,7 +290,7 @@ function DataTable<TData, TValue>({
           {enableColumnVisibility ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" data-list-end="">
+                <Button variant="outline" size="sm" data-list-end="" data-list-columns={mobileRow ? "" : undefined}>
                   <Columns3 /> Colonnes
                 </Button>
               </DropdownMenuTrigger>

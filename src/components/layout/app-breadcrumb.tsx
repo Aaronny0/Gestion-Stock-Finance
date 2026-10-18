@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { navigation } from "@/frontend/navigation";
+import { isDetailRoute, navigation } from "@/frontend/navigation";
 
 interface AppBreadcrumbProps {
   path: string;
@@ -24,8 +24,7 @@ function routeItem(path: string) {
 
 export function AppBreadcrumb({ path, href }: AppBreadcrumbProps) {
   const item = routeItem(path);
-  const isDetail =
-    path.startsWith("/products/") || path.split("/").filter(Boolean).length > 1;
+  const isDetail = isDetailRoute(path);
 
   const section = navigation.find((section) =>
     section.items.some((entry) => entry.path === item?.path),

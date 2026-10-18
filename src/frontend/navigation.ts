@@ -156,6 +156,11 @@ export function routePermission(path: string): Permission | undefined {
     )?.permission;
 }
 
+/** Fiche d'un enregistrement (produit, vente) — les onglets d'un écran ne sont pas des détails (D30). */
+export function isDetailRoute(path: string) {
+  return /^\/products\/[^/]+$/.test(path) || (/^\/sales\/[^/]+$/.test(path) && path !== "/sales/credits");
+}
+
 export function parentRoute(path: string) {
   if (path.startsWith("/products/")) return "/stock";
   const parts = path.split("/").filter(Boolean);

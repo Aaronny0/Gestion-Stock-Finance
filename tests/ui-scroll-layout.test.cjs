@@ -37,9 +37,11 @@ test("le placeholder de recherche de la caisse tient dans un champ étroit", () 
 });
 
 test("sur mobile la synthèse du stock passe sur deux colonnes alignées", () => {
-  const css = read("src/features/stock/stock.module.css");
-  const mobile = css.slice(css.indexOf("@container (max-width: 860px)"));
-  assert.match(mobile, /\.summary \{\s*grid-template-columns:\s*1fr 1fr/);
+  // D28 : la bande de synthèse de Stock est la SummaryStrip partagée.
+  assert.match(read("src/features/stock/stock-page.tsx"), /<SummaryStrip/);
+  const css = read("src/components/data-display/summary-strip.module.css");
+  const mobile = css.slice(css.indexOf("@container summary (max-width: 859px)"));
+  assert.match(mobile, /\.grid \{\s*grid-template-columns:\s*1fr 1fr/);
   assert.doesNotMatch(read("src/styles/product.css"), /\.inventory-/);
 });
 

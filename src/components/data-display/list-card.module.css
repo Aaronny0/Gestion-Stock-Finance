@@ -188,7 +188,9 @@
   }
 }
 @container list (max-width: 899px) {
-  .card [data-list-desktop] {
+  /* En lignes-cartes, choisir les colonnes n'a plus d'effet visible. */
+  .card [data-list-desktop],
+  .card [data-list-columns] {
     display: none;
   }
   .card [data-list-mobile] {

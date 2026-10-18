@@ -11,7 +11,8 @@ import { ActionForm } from "@/frontend/forms";
 import { replenishment } from "@/frontend/operations";
 import { useWorkspace } from "@/frontend/provider";
 import type { Product } from "@/frontend/types";
-import { StockTabs } from "@/features/stock/stock-tabs";
+import { ListCard } from "@/components/data-display/list-card";
+import { StockViews } from "@/features/stock/stock-page";
 import styles from "@/features/stock/stock.module.css";
 
 type ReplenishmentRow = Product & { label: string; supplier: string; target: number; suggested: number };
@@ -33,12 +34,11 @@ function ReplenishmentPage() {
   ];
   return (
     <div className={styles.page}>
-      <PageHeader title="Stock & catalogue" description="Une proposition par produit sous son seuil d’alerte. Ajustez la quantité et le fournisseur avant de confirmer un achat." />
-      <div className="rounded-md border border-info/20 bg-info-background p-4 text-sm text-info">La cible est configurable dans la fiche produit. À défaut, elle correspond au double du seuil, avec un minimum d’une unité. Aucune commande fournisseur n’est envoyée automatiquement.</div>
-      <section className={styles.ledger} aria-label="Stock">
-        <StockTabs current="replenishment" catalogCount={catalogCount} lowCount={rows.length} />
-        <DataTable name="reapprovisionnement" data={rows} columns={columns} getRowId={(row) => row.id} searchPlaceholder="Produit, fournisseur…" emptyTitle="Aucun réapprovisionnement nécessaire" emptyDescription="Les produits actifs de cette boutique sont actuellement au-dessus de leur seuil d’alerte." />
-      </section>
+      <PageHeader title="Stock & catalogue" description="Retrouvez vos produits, anticipez les ruptures et gérez vos arrivages." />
+      <div className="rounded-md border border-info/20 bg-info-background p-4 text-sm text-info">Une proposition par produit sous son seuil d’alerte : ajustez la quantité et le fournisseur avant de confirmer un achat. La cible est configurable dans la fiche produit. À défaut, elle correspond au double du seuil, avec un minimum d’une unité. Aucune commande fournisseur n’est envoyée automatiquement.</div>
+      <ListCard aria-label="Stock" tabs={<StockViews current="replenishment" catalogCount={catalogCount} lowCount={rows.length} />}>
+        <DataTable name="reapprovisionnement" data={rows} columns={columns} getRowId={(row) => row.id} searchPlaceholder="Produit, fournisseur…" emptyKind="first-use" emptyTitle="Aucun réapprovisionnement nécessaire" emptyDescription="Les produits actifs de cette boutique sont actuellement au-dessus de leur seuil d’alerte." />
+      </ListCard>
       {purchase ? <ActionForm type="purchase.create" title="Préparer le réapprovisionnement" initial={purchase} onClose={() => setPurchase(null)} /> : null}
     </div>
   );

@@ -109,7 +109,8 @@ async function auditStockEmpty(page) {
   if (!(await empty.isVisible().catch(() => false))) return fail("stock zzzz", "aucun état vide no-results");
   await empty.getByRole("button", { name: "Effacer les filtres" }).click();
   await page.waitForTimeout(400);
-  if (!(await page.locator("tbody tr, [data-list-mobile] > *").first().isVisible().catch(() => false)))
+  const visibleRows = await page.evaluate(() => [...document.querySelectorAll("[data-row-id], tbody tr")].filter((row) => row.getClientRects().length > 0).length);
+  if (!visibleRows)
     fail("stock zzzz", "la liste ne revient pas après « Effacer les filtres »");
 }
 

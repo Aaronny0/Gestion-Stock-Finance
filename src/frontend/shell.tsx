@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowLeft, ArrowUpRight, BookOpen, Check, X } from "lucide-react";
+import { ArrowUpRight, BookOpen, Check, X } from "lucide-react";
 import { SalesState } from "@/features/sales/sales-state";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { MobileNavigation } from "@/components/layout/mobile-navigation";
@@ -42,7 +42,6 @@ function Shell({ children }: { children: ReactNode }) {
     setNotice,
     setOrganization,
     confirmDiscard,
-    goBack,
     locationKey,
   } = useWorkspace();
 
@@ -277,21 +276,6 @@ function Shell({ children }: { children: ReactNode }) {
                 </Alert>
               )}
 
-              {path !== "/" &&
-                path.split("/").filter(Boolean).length > 1 &&
-                !path.startsWith("/sales/") && (
-                  <nav aria-label="Retour" className="flex">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={goBack}
-                      aria-label="Revenir à la page précédente"
-                    >
-                      <ArrowLeft />
-                      Retour
-                    </Button>
-                  </nav>
-                )}
 
               {loading || onboardingRequired ? (
                 path === "/" ? (

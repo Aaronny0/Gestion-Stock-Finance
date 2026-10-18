@@ -119,3 +119,32 @@ test("Lot 3 : Ventes n'a plus de bande, puces, période ni état vide locaux", (
   for (const shared of ["SummaryStrip", "FilterChip", "SegmentedControl", "ListCard", "secondaryActions"]) assert.ok(page.includes(shared), `sales-page.tsx sans ${shared}`);
   assert.match(read("src/features/sales/sales-table.tsx"), /density="comfortable"/);
 });
+
+test("Lot 3 : Stock, fiche produit et réappro reposent sur les composants partagés", () => {
+  const css = read("src/features/stock/stock.module.css");
+  for (const local of [".summary", ".chip", ".tabs", ".empty", ":global(.data-toolbar)", ".ledger", ".desktopActions"]) assert.ok(!css.includes(local), `stock.module.css contient ${local}`);
+  assert.ok(!fs.existsSync("src/features/stock/stock-tabs.tsx"), "stock-tabs.tsx remplacé par ListTabs");
+  const details = read("src/features/stock/product-details.tsx");
+  assert.match(details, /SummaryStrip/);
+  assert.doesNotMatch(details, /<Button/, "les actions de la fiche passent dans l'en-tête");
+  assert.doesNotMatch(read("src/features/stock/stock-page.tsx"), /eyebrow=/);
+  assert.match(read("src/features/stock/replenishment-page.tsx"), /ListCard/);
+});
+
+test("D30 : pas de bouton « Retour » dans le shell ; le fil d'Ariane ne dit « Détail » que pour une fiche", () => {
+  assert.doesNotMatch(read("src/frontend/shell.tsx"), /aria-label="Retour"/);
+  const ts = require("typescript");
+  const source = ts.transpileModule(read("src/frontend/navigation.ts"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
+  const mod = { exports: {} };
+  new Function("module", "exports", "require", source)(mod, mod.exports, require);
+  const { isDetailRoute } = mod.exports;
+  assert.equal(isDetailRoute("/products/p0"), true);
+  assert.equal(isDetailRoute("/sales/sale0"), true);
+  for (const path of ["/sales/credits", "/stock/entries", "/stock/replenishment", "/accounting/journals", "/analytics/sales", "/settings/stores"]) assert.equal(isDetailRoute(path), false, path);
+  assert.match(read("src/components/layout/app-breadcrumb.tsx"), /isDetailRoute/);
+});
+
+test("D28 : sous 900 px, « Colonnes » disparaît avec la table", () => {
+  assert.match(read("src/components/data-display/data-table.tsx"), /data-list-columns/);
+  assert.match(read("src/components/data-display/list-card.module.css"), /@container list \(max-width: 899px\)[^}]*\[data-list-columns\]/);
+});

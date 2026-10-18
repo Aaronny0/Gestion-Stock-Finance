@@ -1,38 +1,33 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { Archive, ArrowRightLeft, PackagePlus, Pencil, Package } from "lucide-react";
 import { DataTable } from "@/components/data-display/data-table";
-import { Money } from "@/components/data-display/money";
+import { ListCard } from "@/components/data-display/list-card";
 import { StatusBadge } from "@/components/data-display/status-badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { SummaryItem, SummaryStrip } from "@/components/data-display/summary-strip";
 import type { Product, RecordRow } from "@/frontend/types";
+import { formatListDate, plural } from "@/lib/format";
 import { stockStatus } from "@/features/stock/stock-table";
 
-function ProductDetails({ product, history, canReadCost, canAdjust, canTransfer, onEdit, onEntry, onAdjust, onTransfer, onArchive }: { product: Product; history: RecordRow[]; canReadCost: boolean; canAdjust: boolean; canTransfer: boolean; onEdit: () => void; onEntry: () => void; onAdjust: () => void; onTransfer: () => void; onArchive: () => void }) {
+/** Fiche produit : synthèse et historique. Les actions sont dans l'en-tête de page (D30). */
+function ProductDetails({ product, history, canReadCost }: { product: Product; history: RecordRow[]; canReadCost: boolean }) {
   const columns: ColumnDef<RecordRow>[] = [
-    { accessorKey: "date", header: "Date", cell: ({ row }) => new Date(row.original.date).toLocaleDateString("fr-FR") },
+    { accessorKey: "date", header: "Date", cell: ({ row }) => formatListDate(row.original.date) },
     { accessorKey: "label", header: "Opération" },
-    { accessorKey: "quantity", header: "Quantité" },
+    { accessorKey: "quantity", header: "Quantité", meta: { align: "right" } },
     { accessorKey: "reason", header: "Motif", cell: ({ row }) => String(row.original.reason ?? "—") },
   ];
   return (
     <div className="space-y-5">
-      <div data-qa="product-metrics" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Card className="p-4"><p className="text-xs font-medium text-muted-foreground">Stock</p><p className="mt-2 text-xl font-bold [font-variant-numeric:tabular-nums]">{product.quantity} unités</p><div className="mt-2"><StatusBadge value={stockStatus(product)} /></div></Card>
-        <Card className="p-4"><p className="text-xs font-medium text-muted-foreground">Prix de vente</p><Money value={product.price} className="mt-2 block text-xl font-bold" /></Card>
-        {canReadCost ? <Card className="p-4"><p className="text-xs font-medium text-muted-foreground">Coût unitaire</p><Money value={product.cost ?? 0} className="mt-2 block text-xl font-bold" /></Card> : null}
-        <Card className="p-4"><p className="text-xs font-medium text-muted-foreground">IMEI</p><p className="mt-2 break-all text-sm font-semibold">{product.availableImeis?.join(", ") || product.imei || "Non renseigné"}</p><p className="mt-1 text-xs text-muted-foreground">{product.condition} · {product.variant}</p></Card>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {canAdjust ? <Button onClick={onEdit}><Pencil /> Modifier le produit</Button> : null}
-        {canAdjust ? <Button variant="outline" onClick={onEntry}><PackagePlus /> Nouvelle entrée</Button> : null}
-        {canAdjust ? <Button variant="outline" onClick={onAdjust}><Package /> Ajuster</Button> : null}
-        {canTransfer ? <Button variant="outline" onClick={onTransfer}><ArrowRightLeft /> Transférer</Button> : null}
-        {canAdjust ? <Button variant="outline" onClick={onArchive}><Archive /> Archiver</Button> : null}
-      </div>
-      <DataTable name="historique-produit" data={history} columns={columns} getRowId={(row) => row.id} pageSize={10} searchPlaceholder="Opération, motif…" emptyTitle="Aucun mouvement pour ce produit" />
+      <SummaryStrip aria-label="Synthèse du produit" data-qa="product-metrics">
+        <SummaryItem label="Stock" value={plural(product.quantity, "unité")} meta={<StatusBadge value={stockStatus(product)} showIcon={false} />} />
+        <SummaryItem label="Prix de vente" money={product.price} />
+        {canReadCost ? <SummaryItem label="Coût unitaire" money={product.cost ?? 0} /> : null}
+        <SummaryItem label="IMEI" value={<span className="text-sm">{product.availableImeis?.join(", ") || product.imei || "Non renseigné"}</span>} meta={`${product.condition} · ${product.variant}`} />
+      </SummaryStrip>
+      <ListCard aria-label="Historique du produit">
+        <DataTable name="historique-produit" data={history} columns={columns} getRowId={(row) => row.id} pageSize={10} searchPlaceholder="Opération, motif…" emptyKind="first-use" emptyTitle="Aucun mouvement pour ce produit" emptyDescription="Les entrées, ajustements et transferts de ce produit apparaîtront ici." />
+      </ListCard>
     </div>
   );
 }
