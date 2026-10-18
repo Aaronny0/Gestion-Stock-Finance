@@ -1,13 +1,13 @@
 "use client";
 import {
-  useEffect,
   useId,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
-import { Check, Clock, Info, CircleMinus, ChevronLeft, ChevronRight, Download, Search, X, Inbox, CircleAlert } from "lucide-react";
+import { Check, Clock, Info, CircleMinus, ChevronLeft, ChevronRight, Download, Search, Inbox, CircleAlert } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, type DialogSize } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { money } from "./accounting";
 import { useWorkspace, useViewState } from "./provider";
 export function Money({ value }: { value: number }) {
@@ -140,16 +140,19 @@ export function Field({
   error,
   hint,
   required,
+  wide,
 }: {
   label: string;
   children: ReactNode;
   error?: string;
   hint?: string;
   required?: boolean;
+  /** Occupe toute la largeur de la grille (textarea). */
+  wide?: boolean;
 }) {
   const id = useId();
   return (
-    <label className="field">
+    <label className={wide ? "field wide" : "field"}>
       <span>
         {label}
         {required && <b aria-hidden> *</b>}
@@ -164,50 +167,40 @@ export function Field({
     </label>
   );
 }
-let modalLocks = 0;
-let bodyOverflowBeforeModal = "";
+// D27 : façades sur le Dialog Radix — même API pour les appelants, une seule famille de modales.
 export function Modal({
   title,
+  description,
   children,
   onClose,
+  onCloseRequest,
+  size = "md",
 }: {
   title: string;
+  description?: ReactNode;
   children: ReactNode;
   onClose: () => void;
+  /** Peut refuser la fermeture (formulaire modifié) ; appelé pour Échap, clic sur le fond et la croix. */
+  onCloseRequest?: () => boolean;
+  size?: DialogSize;
 }) {
-  const ref = useRef<HTMLDialogElement>(null),
-    titleId = useId();
-  useEffect(() => {
-    const previous = document.activeElement as HTMLElement;
-    ref.current?.showModal();
-    if (modalLocks++ === 0) {
-      bodyOverflowBeforeModal = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-    }
-    return () => {
-      if (--modalLocks === 0)
-        document.body.style.overflow = bodyOverflowBeforeModal;
-      previous?.focus({ preventScroll: true });
-    };
-  }, []);
+  const request = () => {
+    if (onCloseRequest?.() !== false) onClose();
+  };
   return (
-    <dialog
-      ref={ref}
-      className="modal"
-      onCancel={(e) => {
-        e.preventDefault();
-        onClose();
-      }}
-      aria-labelledby={titleId}
-    >
-      <div className="modal-head">
-        <h2 id={titleId}>{title}</h2>
-        <button className="icon-button" aria-label="Fermer" onClick={onClose}>
-          <X />
-        </button>
-      </div>
-      {children}
-    </dialog>
+    <Dialog open onOpenChange={(open) => { if (!open) request(); }}>
+      <DialogContent
+        size={size}
+        onEscapeKeyDown={(event) => { event.preventDefault(); if (onCloseRequest?.() !== false) onClose(); }}
+        onPointerDownOutside={(event) => { event.preventDefault(); if (onCloseRequest?.() !== false) onClose(); }}
+      >
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          {description ? <DialogDescription>{description}</DialogDescription> : <DialogDescription className="sr-only">{title}</DialogDescription>}
+        </DialogHeader>
+        {children}
+      </DialogContent>
+    </Dialog>
   );
 }
 export function ConfirmDialog({
@@ -222,19 +215,18 @@ export function ConfirmDialog({
   onConfirm: () => unknown;
 }) {
   return (
-    <Modal title={title} onClose={onClose}>
-      <div className="modal-body">
-        {children}
-        <div className="modal-actions">
-          <button className="button secondary" onClick={onClose}>
-            Annuler
-          </button>
-          <button className="button primary" onClick={onConfirm}>
-            Confirmer
-          </button>
-        </div>
-      </div>
-    </Modal>
+    <AlertDialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription asChild><div>{children}</div></AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Annuler</AlertDialogCancel>
+          <AlertDialogAction onClick={() => void onConfirm()}>Confirmer</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 function safeCell(value: unknown) {

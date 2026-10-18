@@ -1,5 +1,7 @@
 "use client";
 import {DocumentLink} from "@/components/data-display/document-link";
+import { Button } from "@/components/ui/button";
+import { DialogBody, DialogFooter } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -308,8 +310,8 @@ function BusinessPage({ path }: { path: string }) {
         <ActionForm {...action} onClose={() => setAction(null)} />
       )}{" "}
       {selected && (
-        <Modal title={selected.label} onClose={() => setSelected(null)}>
-          <div className="modal-body">
+        <Modal title={selected.label} onClose={() => setSelected(null)} size="lg">
+          <DialogBody>
             <dl className="review-list">
               {Object.entries(selected)
                 .filter(
@@ -409,13 +411,15 @@ function BusinessPage({ path }: { path: string }) {
                 }}
               />
             )}
-          </div>
-          <div className="modal-foot">
+          </DialogBody>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSelected(null)}>
+              Fermer
+            </Button>
             {path.startsWith("/purchases") &&
               (selected.amount ?? 0) > (selected.paid ?? 0) &&
               can("finance.read") && (
-                <button
-                  className="button primary"
+                <Button
                   onClick={() => {
                     launch("payment.create", "Régler le fournisseur", {
                       sourceId: selected.id,
@@ -425,15 +429,9 @@ function BusinessPage({ path }: { path: string }) {
                   }}
                 >
                   Régler le solde
-                </button>
+                </Button>
               )}
-            <button
-              className="button secondary"
-              onClick={() => setSelected(null)}
-            >
-              Fermer
-            </button>
-          </div>
+          </DialogFooter>
         </Modal>
       )}
     </>

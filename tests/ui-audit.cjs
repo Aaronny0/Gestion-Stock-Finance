@@ -55,7 +55,8 @@ async function auditModal(page, size, route, label) {
   const where = `${size.width}x${size.height} ${route} « ${label} »`;
   await open(page, route);
   let button = await trigger(page, label);
-  const opener = await button.evaluate((el) => (el.getAttribute("aria-label") || el.textContent.trim()).slice(0, 40));
+  // Une action ouverte depuis le menu « ⋯ » rend le focus au bouton du menu, l'élément de menu ayant disparu.
+  const opener = await button.evaluate((el) => (el.getAttribute("role") === "menuitem" ? "Autres actions" : el.getAttribute("aria-label") || el.textContent.trim()).slice(0, 40));
   await button.click();
   const dialog = page.locator("[role=dialog]").last();
   await dialog.waitFor({ timeout: 5000 }).catch(() => fail(where, "aucun [role=dialog]"));
@@ -80,7 +81,7 @@ async function auditModal(page, size, route, label) {
   await page.keyboard.press("Escape");
   await page.waitForTimeout(300);
   const back = await page.evaluate(() => document.activeElement && (document.activeElement.getAttribute("aria-label") || document.activeElement.textContent.trim()).slice(0, 40));
-  if (!(await dialog.isVisible().catch(() => false)) && back !== opener && opener !== "Autres actions")
+  if (!(await dialog.isVisible().catch(() => false)) && !back?.startsWith(opener))
     fail(where, `focus rendu à « ${back} » au lieu de « ${opener} »`);
   // Saisie puis Échap : la garde de fermeture demande confirmation.
   button = await trigger(page, label);

@@ -4,6 +4,9 @@ import { salePosition } from "./operations";
 import { useState, type ReactNode } from "react";
 import { useWorkspace, useUnsavedChanges } from "./provider";
 import { Alert, Field, Modal, Money } from "./ui";
+import { Button } from "@/components/ui/button";
+import { DialogBody, DialogFooter } from "@/components/ui/dialog";
+import { plural } from "@/lib/format";
 import { decimals, minor } from "./accounting";
 import { request } from "./api";
 import { paymentMethods } from "./types";
@@ -379,7 +382,7 @@ export function ActionForm({
     "stock.entry": (
       <>
         <span>
-          Quantité à recevoir<strong>{values.quantity || 0} unités</strong>
+          Quantité à recevoir<strong>{plural(Number(values.quantity || 0), "unité")}</strong>
         </span>
         <span>
           Coût total
@@ -472,11 +475,11 @@ export function ActionForm({
   return (
     <Modal
       title={review ? `Confirmer · ${title}` : title}
-      onClose={() => {
-        close();
-      }}
+      onClose={onClose}
+      onCloseRequest={() => !busy && discard()}
     >
       <form
+        className="flex min-h-0 flex-1 flex-col"
         onSubmit={(e) => {
           e.preventDefault();
           setError("");
@@ -519,7 +522,7 @@ export function ActionForm({
           }
         }}
       >
-        <div className="modal-body">
+        <DialogBody>
           <div className="context-note">
             {snapshot!.session.organization.name} <span>→</span>{" "}
             {snapshot!.session.stores.find((s) => s.id === storeId)?.name ??
@@ -597,7 +600,7 @@ export function ActionForm({
               {extras.map((line, index) => (
                 <p key={index}>
                   {products.find((p) => p.id === line.productId)?.model} ·{" "}
-                  {line.quantity} unités ·{" "}
+                  {plural(line.quantity, "unité")} ·{" "}
                   <Money
                     value={line.quantity * minor(line.cost || 0, currency)}
                   />
@@ -615,6 +618,7 @@ export function ActionForm({
                     label={s.label}
                     required={s.required}
                     hint={s.hint}
+                    wide={s.kind === "textarea"}
                   >
                     {s.kind === "select" ? (
                       <select
@@ -641,7 +645,6 @@ export function ActionForm({
                       />
                     ) : (
                       <input
-                        autoFocus={fields[0] === s}
                         type={
                           s.kind === "money" ? "number" : (s.kind ?? "text")
                         }
@@ -731,21 +734,22 @@ export function ActionForm({
                           />
                         </Field>
                       </div>
-                      <button
+                      <Button
                         type="button"
-                        className="text-button"
+                        variant="ghost"
+                        size="sm"
                         onClick={() =>
                           setExtras(extras.filter((_, i) => i !== index))
                         }
                       >
                         <Trash2 />
                         Retirer
-                      </button>
+                      </Button>
                     </fieldset>
                   ))}
-                  <button
+                  <Button
                     type="button"
-                    className="button secondary"
+                    variant="outline"
                     onClick={() =>
                       setExtras([
                         ...extras,
@@ -755,7 +759,7 @@ export function ActionForm({
                   >
                     <Plus />
                     Ajouter un article à l’achat
-                  </button>
+                  </Button>
                   <p className="report-footnote">
                     Les quantités saisies seront réceptionnées dans la boutique
                     active.
@@ -809,18 +813,18 @@ export function ActionForm({
           )}
           {impact[type] && <div className="impact-summary">{impact[type]}</div>}
           {error && <Alert error>{error}</Alert>}
-        </div>
-        <div className="modal-foot">
-          <button
+        </DialogBody>
+        <DialogFooter>
+          <Button
             type="button"
-            className="button secondary"
+            variant="outline"
             disabled={busy}
             onClick={() => (review ? setReview(false) : close())}
           >
             {review ? "Modifier" : "Annuler"}
-          </button>
-          <button
-            className="button primary"
+          </Button>
+          <Button
+            type="submit"
             disabled={busy || storeId === "all"}
           >
             {busy ? (
@@ -835,8 +839,8 @@ export function ActionForm({
                 Vérifier <ArrowRight />
               </>
             )}
-          </button>
-        </div>
+          </Button>
+        </DialogFooter>
       </form>
     </Modal>
   );

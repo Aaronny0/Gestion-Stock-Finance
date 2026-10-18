@@ -4,6 +4,8 @@ import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { dialogFrame } from "@/components/ui/dialog";
+import { useReturnFocus } from "@/components/ui/use-return-focus";
 
 const AlertDialog = AlertDialogPrimitive.Root;
 const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
@@ -15,20 +17,30 @@ const AlertDialogOverlay = React.forwardRef<React.ElementRef<typeof AlertDialogP
 AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName;
 
 const AlertDialogContent = React.forwardRef<React.ElementRef<typeof AlertDialogPrimitive.Content>, React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>>(
-  ({ className, ...props }, ref) => (
-    <AlertDialogPortal>
-      <AlertDialogOverlay />
-      <AlertDialogPrimitive.Content ref={ref} className={cn("fixed left-1/2 top-1/2 z-50 grid max-h-[calc(100dvh-2rem)] overflow-y-auto w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl border border-border bg-card p-6 shadow-[var(--shadow-dialog)]", className)} {...props} />
-    </AlertDialogPortal>
-  ),
+  ({ className, onOpenAutoFocus, onCloseAutoFocus, ...props }, ref) => {
+    // D27 : même cadre que Dialog (taille sm) ; Radix garde son focus initial sur « Annuler ».
+    const focus = useReturnFocus(undefined, onCloseAutoFocus);
+    return (
+      <AlertDialogPortal>
+        <AlertDialogOverlay />
+        <AlertDialogPrimitive.Content
+          ref={ref}
+          className={cn(dialogFrame, "max-w-[448px]", className)}
+          onOpenAutoFocus={(event) => { focus.remember(event.currentTarget); onOpenAutoFocus?.(event); }}
+          onCloseAutoFocus={focus.onCloseAutoFocus}
+          {...props}
+        />
+      </AlertDialogPortal>
+    );
+  },
 );
 AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName;
 
 function AlertDialogHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return <div className={cn("flex flex-col gap-2", className)} {...props} />;
+  return <div className={cn("flex shrink-0 flex-col gap-2 px-6 pb-4 pt-6 text-left", className)} {...props} />;
 }
 function AlertDialogFooter({ className, ...props }: React.ComponentProps<"div">) {
-  return <div className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)} {...props} />;
+  return <div data-dialog-footer="" className={cn("flex shrink-0 flex-col-reverse gap-2 border-t border-[#eaefef] px-6 py-4 sm:flex-row sm:justify-end max-sm:[&>*]:w-full", className)} {...props} />;
 }
 const AlertDialogTitle = React.forwardRef<React.ElementRef<typeof AlertDialogPrimitive.Title>, React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title>>(
   ({ className, ...props }, ref) => <AlertDialogPrimitive.Title ref={ref} className={cn("text-lg font-semibold", className)} {...props} />,

@@ -6,29 +6,6 @@
   body {
     background: white;
   }
-
-  .modal {
-    position: static;
-    display: block !important;
-    max-height: none !important;
-    width: 100%;
-    max-width: none;
-    border: 0;
-    box-shadow: none;
-    overflow: visible;
-  }
-
-  .modal::backdrop {
-    display: none;
-  }
-  .modal-head,
-.modal-foot {
-    display: none !important;
-  }
-
-  .modal-body.receipt {
-    padding: 0;
-  }
 }
 @media print  {
 html,

@@ -172,7 +172,7 @@ export function TeamMemberDialog({ open, member, onOpenChange }: TeamMemberDialo
               <>
                 <div className="space-y-2">
                   <Label htmlFor="team-name">Nom du membre</Label>
-                  <Input id="team-name" required value={name} onChange={(event) => setName(event.target.value)} autoFocus />
+                  <Input id="team-name" required value={name} onChange={(event) => setName(event.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="team-email">Email</Label>

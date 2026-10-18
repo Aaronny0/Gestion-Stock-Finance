@@ -172,25 +172,6 @@
   .form-grid {
     grid-template-columns: 1fr;
   }
-  .modal-body {
-    padding: 18px;
-  }
-  .modal-head {
-    padding: 17px 18px;
-  }
-  .modal-head h2 {
-    font-size: 16px;
-  }
-  .modal-foot {
-    padding: 14px 18px;
-  }
-  .modal-foot .button {
-    font-size: 12px;
-    white-space: normal;
-  }
-  .modal {
-    max-height: 92dvh;
-  }
   .impact-summary {
     padding: 15px;
     gap: 16px;

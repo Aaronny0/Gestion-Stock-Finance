@@ -1,16 +1,5 @@
 /* Compatibility for screens not yet migrated. Preserve order until their migration. */
-.modal {
-  overscroll-behavior: contain;
-  scroll-padding-block: 80px;
-  max-width: calc(100vw - 24px);
-}
-.modal-head h2 {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-.modal-head > .icon-button {
-  flex-shrink: 0;
-}
+
 @media (max-width: 1024px)  {
 .button,
 .icon-button,
@@ -55,22 +44,6 @@ input[type="radio"] {
   .date-range input {
     min-width: 0;
   }
-
-  .modal {
-    max-height: calc(
-      100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)
-    );
-    width: min(700px, calc(100vw - 24px));
-  }
-  .modal-foot {
-    flex-wrap: wrap;
-    padding-bottom: max(14px, env(safe-area-inset-bottom));
-  }
-  .modal-foot .button {
-    flex: 1;
-    white-space: normal;
-    min-width: 100px;
-  }
 }
 @media (max-width: 480px)  {
 .date-range {
@@ -105,14 +78,7 @@ input[type="radio"] {
     max-width: 100%;
   }
 }
-@media (max-height: 500px) and (max-width: 1024px)  {
-.modal-head {
-    padding-block: 8px;
-  }
-  .modal-foot {
-    padding-block: 8px;
-  }
-}
+
 .mobile-table-sort {
   display: none;
 }
