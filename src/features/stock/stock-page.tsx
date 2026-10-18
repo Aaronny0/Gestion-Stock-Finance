@@ -1,24 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowRightLeft, PackagePlus, Plus, Upload } from "lucide-react";
+import { ArrowRightLeft, MoreHorizontal, Package, PackagePlus, Plus, SearchX, TriangleAlert, Upload, X } from "lucide-react";
 import { DataTable } from "@/components/data-display/data-table";
 import { DateRangeFilter } from "@/components/data-display/date-range-filter";
+import { EmptyState } from "@/components/data-display/empty-state";
 import { Money } from "@/components/data-display/money";
 import { StatusBadge } from "@/components/data-display/status-badge";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ActionForm } from "@/frontend/forms";
 import { useViewState, useWorkspace } from "@/frontend/provider";
 import type { Product, RecordRow } from "@/frontend/types";
 import { ProductDetails } from "@/features/stock/product-details";
 import { StockFilters } from "@/features/stock/stock-filters";
 import { StockImportDialog } from "@/features/stock/stock-import-dialog";
+import { StockTabs } from "@/features/stock/stock-tabs";
+import { cn } from "@/lib/utils";
+import styles from "@/features/stock/stock.module.css";
 import { StockTable } from "@/features/stock/stock-table";
 
 function RecordDetailsDialog({ row, canReadCost, onClose }: { row: RecordRow; canReadCost: boolean; onClose: () => void }) {
@@ -45,6 +48,7 @@ function StockPage({ path }: { path: string }) {
   const [condition, setCondition] = useViewState("stock:condition", "");
   const [archived, setArchived] = useViewState("stock:archived", false);
   const [low, setLow] = useViewState("stock:low", typeof location !== "undefined" && new URLSearchParams(location.search).get("low") === "1");
+  const [search, setSearch] = useViewState("stock:search", "");
   const scopedProducts = db.products.filter((product) => storeId === "all" || product.storeId === storeId);
   const launch = (type: string, title: string, initial?: Record<string, unknown>) => setAction({ type, title, initial });
   const scope = (row: { storeId?: string; date: string }) => (!row.storeId || storeId === "all" || row.storeId === storeId) && row.date.slice(0, 10) >= start && row.date.slice(0, 10) <= end;
@@ -61,40 +65,95 @@ function StockPage({ path }: { path: string }) {
   }
 
   const tab = path.split("/")[2] || "catalog";
+  const activeProducts = scopedProducts.filter((product) => product.active);
+  const lowProducts = activeProducts.filter((product) => product.quantity <= product.threshold);
+  const outCount = lowProducts.filter((product) => product.quantity === 0).length;
   const products = scopedProducts.filter((product) => product.active !== archived && (!brand || product.brand === brand) && (!condition || product.condition === condition) && (!low || product.quantity <= product.threshold));
+  const brands = [...new Set(scopedProducts.map((product) => product.brand))];
+  const filtered = Boolean(brand || condition || low || archived || search);
+  const resetFilters = () => { setBrand(""); setCondition(""); setLow(false); setArchived(false); setSearch(""); };
+  const canAdjust = can("stock.adjust");
+  const canTransfer = can("stock.transfer");
   const activityRows = (tab === "transfers" ? db.transfers : db.stockEntries).filter(scope);
   const activityColumns: ColumnDef<RecordRow>[] = [
     { accessorKey: "date", header: "Date", cell: ({ row }) => new Date(row.original.date).toLocaleDateString("fr-FR") },
-    { accessorKey: "label", header: "Produit" },
-    { accessorKey: "quantity", header: "Quantité" },
+    { accessorKey: "label", header: "Produit", cell: ({ row }) => <span className="font-medium">{row.original.label}</span> },
+    { accessorKey: "quantity", header: "Quantité", meta: { align: "right" } },
     { accessorKey: "reason", header: "Motif", cell: ({ row }) => String(row.original.reason ?? "—") },
-    { accessorKey: "status", header: "Statut", cell: ({ row }) => <StatusBadge value={row.original.status} /> },
+    { accessorKey: "status", header: "Statut", cell: ({ row }) => <StatusBadge value={row.original.status} showIcon={false} /> },
     ...(tab === "transfers" ? [{ id: "destination", header: "Destination", accessorFn: (row: RecordRow) => snapshot!.session.stores.find((store) => store.id === row.destination)?.name ?? "—" } as ColumnDef<RecordRow>] : []),
   ];
 
-  return (
-    <div className="space-y-6">
-      <PageHeader eyebrow="STOCK & CATALOGUE" title="Le bon stock, au bon endroit." description="Retrouvez vos produits, anticipez les ruptures et gérez vos arrivages." actions={can("stock.adjust") ? <Button onClick={() => launch("stock.entry", "Nouvelle entrée")}><PackagePlus /> Nouvelle entrée</Button> : undefined} />
+  const secondaryActions = [
+    canAdjust ? { key: "import", label: "Importer", icon: <Upload />, run: () => setImporting(true) } : null,
+    canTransfer ? { key: "transfer", label: "Transférer", icon: <ArrowRightLeft />, run: () => launch("stock.transfer", "Transférer du stock") } : null,
+    canAdjust ? { key: "product", label: "Nouveau produit", icon: <Plus />, run: () => launch("product.save", "Créer un produit") } : null,
+  ].filter((item) => item !== null);
+  const entryButton = canAdjust ? <Button onClick={() => launch("stock.entry", "Nouvelle entrée")}><PackagePlus /> Nouvelle entrée</Button> : null;
 
-      <section className="inventory-overview" aria-label="État du catalogue">
-        <div><span>Catalogue actif</span><strong>{products.length} <small>références</small></strong><p>{products.reduce((sum,p)=>sum+p.quantity,0)} unités dans cette sélection</p></div>
-        <button type="button" className={low ? "inventory-warning selected" : "inventory-warning"} aria-pressed={low} onClick={()=>setLow(!low)}><PackagePlus/><span><strong>{scopedProducts.filter(p=>p.active && p.quantity<=p.threshold).length} références sous le seuil</strong><small>{low ? "Afficher tout le catalogue" : "Voir les références à réapprovisionner"}</small></span></button>
-        {can("stock.cost.read") && <div className="inventory-value"><span>Valeur d’achat du stock</span><Money value={products.reduce((sum,p)=>sum+(p.cost ?? 0)*p.quantity,0)}/><small>Sur la sélection affichée</small></div>}
+  const catalogEmpty = !activeProducts.length && !filtered ? (
+    <div className={styles.empty}>
+      <span className={styles.emptyIcon}><Package className="size-6" aria-hidden="true" /></span>
+      <div>
+        <h2>Votre catalogue est vide</h2>
+        <p>Ajoutez vos premières références pour suivre les quantités, les seuils d’alerte et la valeur de votre stock.</p>
+      </div>
+      {canAdjust ? <div className="flex flex-wrap justify-center gap-2"><Button variant="outline" onClick={() => setImporting(true)}><Upload /> Importer un fichier</Button><Button onClick={() => launch("product.save", "Créer un produit")}><Plus /> Créer un produit</Button></div> : null}
+      <ol className={styles.steps}>
+        <li><span>1</span><span><strong>Créer la référence</strong><small>Marque, modèle, variante, prix de vente et seuil d’alerte.</small></span></li>
+        <li><span>2</span><span><strong>Enregistrer l’arrivage</strong><small>Une entrée de stock fixe la quantité et le coût d’achat.</small></span></li>
+        <li><span>3</span><span><strong>Vendre</strong><small>Chaque vente décompte le stock et alerte sous le seuil.</small></span></li>
+      </ol>
+    </div>
+  ) : (
+    <EmptyState icon={<SearchX className="size-5" aria-hidden="true" />} title="Aucun produit ne correspond" description="Aucune référence ne correspond à la recherche ou aux filtres actifs." action={filtered ? <Button variant="outline" onClick={resetFilters}><X /> Effacer les filtres</Button> : undefined} />
+  );
+
+  return (
+    <div className={styles.page}>
+      <PageHeader
+        title="Stock & catalogue"
+        description="Retrouvez vos produits, anticipez les ruptures et gérez vos arrivages."
+        actions={
+          <>
+            <div className={cn("flex flex-wrap items-center gap-2", styles.desktopActions)}>
+              {secondaryActions.map((item) => <Button key={item.key} variant="outline" onClick={item.run}>{item.icon} {item.label}</Button>)}
+              {entryButton}
+            </div>
+            {secondaryActions.length || entryButton ? (
+              <div className={styles.mobileActions}>
+                {secondaryActions.length ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild><Button variant="outline" size="icon" aria-label="Autres actions de stock"><MoreHorizontal /></Button></DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">{secondaryActions.map((item) => <DropdownMenuItem key={item.key} onClick={item.run}>{item.icon} {item.label}</DropdownMenuItem>)}</DropdownMenuContent>
+                  </DropdownMenu>
+                ) : null}
+                {entryButton}
+              </div>
+            ) : null}
+          </>
+        }
+      />
+
+      <section className={styles.summary} aria-label="Synthèse du stock">
+        <div><span className={styles.label}>Références {archived ? "archivées" : "actives"}</span><strong className={styles.value}>{products.length}</strong><span className={styles.meta}>{brands.length} marque{brands.length > 1 ? "s" : ""} au catalogue</span></div>
+        <div><span className={styles.label}>Unités en stock</span><strong className={styles.value}>{products.reduce((sum, product) => sum + product.quantity, 0)}</strong><span className={styles.meta}>dans la sélection affichée</span></div>
+        <button type="button" className={styles.alert} aria-pressed={low} onClick={() => setLow(!low)}>
+          <span className={styles.label}><TriangleAlert aria-hidden="true" /> À réapprovisionner</span>
+          <strong className={styles.value}>{lowProducts.length}{outCount ? <span className={styles.currency}> dont {outCount} en rupture</span> : null}</strong>
+          <span className={styles.meta}>{low ? "Afficher tout le catalogue" : "Filtrer ces références →"}</span>
+        </button>
+        {can("stock.cost.read") ? <div><span className={styles.label}>Valeur d’achat du stock</span><strong className={styles.value}><Money value={products.reduce((sum, product) => sum + (product.cost ?? 0) * product.quantity, 0)} currencyClassName={styles.currency} /></strong><span className={styles.meta}>au coût unitaire, sélection affichée</span></div> : null}
       </section>
 
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <Tabs value={tab} onValueChange={(value) => router.push(href(value === "catalog" ? "/stock" : `/stock/${value}`))}>
-          <TabsList className="w-full overflow-x-auto lg:w-auto"><TabsTrigger value="catalog">Catalogue</TabsTrigger><TabsTrigger value="entries">Entrées & ajustements</TabsTrigger><TabsTrigger value="transfers">Transferts</TabsTrigger></TabsList>
-        </Tabs>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" asChild><Link href={href("/stock/replenishment")}>Réapprovisionnement</Link></Button>
-          {can("stock.adjust") ? <Button variant="outline" onClick={() => setImporting(true)}><Upload /> Importer</Button> : null}
-          {can("stock.adjust") ? <Button variant="outline" onClick={() => launch("product.save", "Créer un produit")}><Plus /> Produit</Button> : null}
-          {can("stock.transfer") ? <Button variant="outline" onClick={() => launch("stock.transfer", "Transférer du stock")}><ArrowRightLeft /> Transférer</Button> : null}
-        </div>
-      </div>
-
-      {tab === "catalog" ? <StockTable products={products} canReadCost={can("stock.cost.read")} canExport={can("exports.create")} onOpen={(product: Product) => router.push(href(`/products/${product.id}`))} filters={<StockFilters brands={[...new Set(scopedProducts.map((product) => product.brand))]} brand={brand} condition={condition} low={low} archived={archived} onBrand={setBrand} onCondition={setCondition} onLow={setLow} onArchived={setArchived} />} /> : <div className="space-y-4"><DateRangeFilter /><DataTable name={tab} data={activityRows} columns={activityColumns} getRowId={(row) => row.id} onRow={setSelected} enableSelection={can("exports.create")} canExport={can("exports.create")} exportRow={(row) => ({ Date: row.date, Produit: row.label, Quantité: row.quantity ?? "", Motif: row.reason ?? "", Statut: row.status, ...(tab === "transfers" ? { Destination: snapshot!.session.stores.find((store) => store.id === row.destination)?.name ?? "" } : {}) })} searchPlaceholder="Produit, motif, statut…" /></div>}
+      <section className={styles.ledger} aria-label="Stock">
+        <StockTabs current={tab} catalogCount={activeProducts.length} lowCount={lowProducts.length} />
+        {tab === "catalog" ? (
+          <StockTable products={products} canReadCost={can("stock.cost.read")} canExport={can("exports.create")} search={search} onSearch={setSearch} emptyContent={catalogEmpty} onOpen={(product: Product) => router.push(href(`/products/${product.id}`))} filters={<StockFilters brands={brands} brand={brand} condition={condition} low={low} archived={archived} onBrand={setBrand} onCondition={setCondition} onLow={setLow} onArchived={setArchived} onReset={resetFilters} />} />
+        ) : (
+          <DataTable name={tab} data={activityRows} columns={activityColumns} getRowId={(row) => row.id} onRow={setSelected} filters={<DateRangeFilter />} enableSelection={can("exports.create")} canExport={can("exports.create")} exportRow={(row) => ({ Date: row.date, Produit: row.label, Quantité: row.quantity ?? "", Motif: row.reason ?? "", Statut: row.status, ...(tab === "transfers" ? { Destination: snapshot!.session.stores.find((store) => store.id === row.destination)?.name ?? "" } : {}) })} searchPlaceholder="Produit, motif, statut…" emptyTitle={tab === "transfers" ? "Aucun transfert sur la période" : "Aucune entrée sur la période"} emptyDescription="Élargissez la période ou enregistrez une nouvelle opération." />
+        )}
+      </section>
 
       {action ? <ActionForm {...action} onClose={() => setAction(null)} /> : null}
       {importing ? <StockImportDialog onClose={() => setImporting(false)} /> : null}

@@ -69,10 +69,12 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3000";
   checks.push("Vue des crédits hors filtre de période");
   await page.locator('[data-qa="workspace-sidebar"]').getByRole("link", { name: /Stock & catalogue/ }).click();
   await page
-    .getByRole("link", { name: "Réapprovisionnement", exact: true })
+    .getByRole("navigation", { name: "Vues du stock" })
+    .getByRole("link", { name: /^Réapprovisionnement/ })
     .click();
   await page
-    .getByRole("heading", { name: "Anticipez les ruptures." })
+    .getByRole("navigation", { name: "Vues du stock" })
+    .locator('a[aria-current="page"]', { hasText: "Réapprovisionnement" })
     .waitFor();
   checks.push("Vue de réapprovisionnement accessible");
   await page
@@ -88,7 +90,7 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3000";
   page.once("dialog", (d) => d.accept());
   await page.locator('[data-qa="workspace-sidebar"]').getByRole("link", { name: /Stock & catalogue/ }).click();
   await page
-    .getByRole("heading", { name: "Le bon stock, au bon endroit." })
+    .getByRole("heading", { name: "Stock & catalogue", level: 1 })
     .waitFor();
   checks.push("Abandon explicite permet la navigation");
   for (const width of [1440, 768, 360]) {

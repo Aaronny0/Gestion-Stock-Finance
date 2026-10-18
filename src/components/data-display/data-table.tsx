@@ -76,6 +76,10 @@ interface DataTableProps<TData, TValue> {
   exportRow?: (row: TData) => Record<string, unknown>;
 }
 
+function alignOf(column: { meta?: unknown }) {
+  return (column.meta as { align?: "left" | "right" } | undefined)?.align;
+}
+
 function safeCell(value: unknown) {
   if (typeof value === "string" && /^[=+\-@\t\r\n]/.test(value))
     return `'${value}`;
@@ -434,7 +438,7 @@ function DataTable<TData, TValue>({
                       {headerGroup.headers.map((header) => (
                         <TableHead
                           key={header.id}
-                          className={cellPadding}
+                          className={cn(cellPadding, alignOf(header.column.columnDef) === "right" && "text-right")}
                           aria-sort={
                             header.column.getIsSorted() === "asc"
                               ? "ascending"
@@ -502,6 +506,7 @@ function DataTable<TData, TValue>({
                           className={cn(
                             cellPadding,
                             density === "dense" && "text-xs",
+                            alignOf(cell.column.columnDef) === "right" && "text-right tabular-nums",
                           )}
                         >
                           {flexRender(

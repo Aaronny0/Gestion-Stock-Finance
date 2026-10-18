@@ -1145,69 +1145,6 @@
 .vortex-workspace .page-tabs {
   border-bottom: 1px solid var(--border);
 }
-.inventory-overview {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 24px 0;
-  border-bottom: 1px solid var(--border);
-}
-.inventory-overview > div {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.inventory-overview > div > span:first-child {
-  font-size: 12px;
-  color: var(--muted-foreground);
-}
-.inventory-overview strong {
-  font-size: 30px;
-  line-height: 1;
-  letter-spacing: -0.04em;
-  font-weight: 600;
-}
-.inventory-overview strong small {
-  font-size: 13px;
-  font-weight: 400;
-  letter-spacing: 0;
-}
-.inventory-overview p,
-.inventory-overview small {
-  margin: 0;
-  font-size: 12px;
-  color: var(--muted-foreground);
-}
-.inventory-warning {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 18px;
-  background: #eee8d9;
-  border-left: 3px solid var(--warning);
-  border-radius: 4px;
-  color: var(--warning);
-  text-align: left;
-}
-.inventory-warning strong {
-  font-size: 14px;
-  letter-spacing: 0;
-  line-height: 1.5;
-  display: block;
-}
-.inventory-warning small {
-  display: block;
-  margin-top: 6px;
-}
-.inventory-warning.selected {
-  outline: 2px solid var(--warning);
-  outline-offset: 2px;
-}
-.inventory-value > span:nth-child(2) {
-  font-size: 24px;
-  font-weight: 600;
-}
 .sales-ledger-summary {
   display: grid;
   grid-template-columns: 2fr 1fr 2fr;
@@ -1391,12 +1328,6 @@
   border-radius: 6px;
 }
 @media (max-width: 1100px) {
-  .inventory-overview {
-    flex-wrap: wrap;
-  }
-  .inventory-value {
-    margin-left: auto;
-  }
   .settings-workbench {
     grid-template-columns: 165px minmax(0, 1fr);
     gap: 20px;
@@ -1415,27 +1346,6 @@
   }
   .vortex-page-header h1 {
     font-size: 26px;
-  }
-  .inventory-overview {
-    gap: 18px;
-    padding: 16px 0;
-  }
-  .inventory-warning {
-    order: 3;
-    width: 100%;
-    padding: 14px;
-  }
-  .inventory-value {
-    margin-left: 0;
-  }
-  .inventory-value > span:nth-child(2) {
-    font-size: 20px;
-  }
-  .inventory-overview strong {
-    font-size: 26px;
-  }
-  .inventory-warning strong {
-    font-size: 14px;
   }
   .sales-ledger-summary {
     grid-template-columns: 1fr 1fr;

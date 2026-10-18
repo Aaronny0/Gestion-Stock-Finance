@@ -36,10 +36,11 @@ test("le placeholder de recherche de la caisse tient dans un champ étroit", () 
   assert.match(read("src/frontend/pos.tsx"), /placeholder="Produit, marque, IMEI…"/);
 });
 
-test("sur mobile la valeur du stock n'est plus repoussée à droite", () => {
-  const css = read("src/styles/product.css");
-  const mobile = css.slice(css.indexOf(".inventory-warning {\n    order: 3;"));
-  assert.match(mobile, /\.inventory-value \{\s*margin-left:\s*0/);
+test("sur mobile la synthèse du stock passe sur deux colonnes alignées", () => {
+  const css = read("src/features/stock/stock.module.css");
+  const mobile = css.slice(css.indexOf("@container (max-width: 860px)"));
+  assert.match(mobile, /\.summary \{\s*grid-template-columns:\s*1fr 1fr/);
+  assert.doesNotMatch(read("src/styles/product.css"), /\.inventory-/);
 });
 
 test("le panier fixe n'apparaît qu'à partir de 1280 px ; en dessous, le tiroir laisse tout l'écran aux produits", () => {

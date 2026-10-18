@@ -45,3 +45,7 @@ L’anatomie dashboard ci-dessus est implémentée dans `src/frontend/dashboard.
 ## Intégration multi-écrans — 9 octobre 2026
 
 Le thème Claude et la navigation B sont désormais communs aux routes métier. Le dashboard conserve son anatomie et adopte les dimensions exactes HTML. Ventes applique le gabarit complet avec détail latéral460 et listes compactes sous900 px utiles. Les six parcours auth conservent leurs mécanismes réels et utilisent la primaire HTML007176. Les matrices de rôles et le catalogue Design System restent des documents de référence, sans invention de parcours ni de permissions. Voir `docs/claude-design-integration.md`.
+
+## Stock & catalogue — 18 octobre 2026
+
+Stock applique le gabarit Listes de Ventes (`src/features/stock/stock.module.css`) : PageHeader avec une seule primaire « Nouvelle entrée », SummaryStrip filtrante, carte de liste avec onglets Catalogue / Entrées & ajustements / Transferts / Réapprovisionnement, filtres en boutons bascule, table 52 px à chiffres alignés à droite et états vides distincts (catalogue vide, aucun résultat). Le réapprovisionnement partage les mêmes onglets (`stock-tabs.tsx`). Maquette Claude Design validée et arbitrages : registre, D26.

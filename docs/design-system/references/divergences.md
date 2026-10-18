@@ -55,3 +55,14 @@ Le contenu métier reste celui des API : pas de chiffres de maquette, de paiemen
 - Stock & catalogue sur mobile : « Valeur d'achat du stock » n'est plus repoussée à droite (`margin-left: 0`).
 
 Limites : seuil du panier fixe de caisse (1280 px) choisi sur l'observation à 1100 px, non sur une maquette Claude ; vérifié à 1440, 1100 et 375 px, pas à 768 ni 320 px. Les couleurs de la scrollbar ne sont pas contrôlées en contraste (élément décoratif natif, non certifié par D22).
+
+**D26 — Stock & catalogue au gabarit Listes.** La demande explicite de corriger le design de Stock & catalogue (icônes mal placées, parcours UI/UX), accompagnée d'une maquette Claude Design validée par l'utilisateur, approuve :
+
+- en-tête PageHeader sans eyebrow décoratif, titre « Stock & catalogue » comme Ventes ; une seule primaire « Nouvelle entrée » à droite, actions secondaires outline (Importer, Transférer, Nouveau produit) ; sous 768 px, secondaires regroupées dans un menu « ⋯ » à côté de la primaire ;
+- SummaryStrip de 3–4 totaux (références, unités, à réapprovisionner, valeur d'achat sous `stock.cost.read`), sur le modèle Ventes : une ligne, puis 2 × 2 sous 860 px de largeur utile (container query). La cellule « À réapprovisionner » filtre la liste ; elle remplace l'encadré beige `#eee8d9` hors palette et son icône `PackagePlus` (sens « ajout ») par l'icône d'alerte et les tokens warning existants ;
+- onglets soulignés dans la carte de liste (Catalogue, Entrées & ajustements, Transferts, Réapprovisionnement), avec compteurs ; Réapprovisionnement devient un onglet au lieu d'un bouton isolé ;
+- filtres booléens en boutons bascule (`aria-pressed`) à la place des cases à cocher, même hauteur 40 px que les listes ; Colonnes/Exporter alignés à 40 px dans la carte, comme Ventes ; bouton icône « Effacer les filtres » ;
+- table : lignes 52 px (règle générale), montants et quantités alignés à droite en chiffres tabulaires (option additive `meta.align` de `DataTable`, sans effet sur les autres listes), quantité avec seuil, badges à pastille comme Ventes ;
+- deux états vides distincts : catalogue vide (actions Importer / Créer un produit et trois étapes) et aucun résultat filtré (Effacer les filtres).
+
+**Aucune nouvelle couleur** : uniquement les valeurs HTML déjà appliquées par Ventes (`#dde3e4`, `#eaefef`, `#586767`, accent `#dff2f2/#04585c`, warning `#fff2d6/#864900/#e8a127`, destructive `#9e1618`). Le point « Valeur d'achat du stock » de D25 est remplacé par cette grille. Limites : vérifié dans le navigateur à 1440 px, ~800 px et 375 px sur `/demo` ; les suites Playwright (`test:browser`) n'ont pas pu être exécutées (module `playwright` absent du checkout) ; l'état « catalogue vide » n'a pas de jeu de données de démonstration et n'a pas été vu en rendu réel.
