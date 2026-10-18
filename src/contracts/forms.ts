@@ -1,5 +1,6 @@
 // Fichier généré depuis vortex-backend/src/contracts. Ne pas modifier : lancer « bun run contracts:sync » dans vortex-backend.
 import { z } from 'zod';
+import { noNul } from './onboarding';
 
 const MIN_PASSWORD = 12;
 
@@ -37,3 +38,16 @@ export const resetPasswordFormSchema = z
     message: 'Les mots de passe ne correspondent pas.',
   });
 export type ResetPasswordForm = z.infer<typeof resetPasswordFormSchema>;
+
+/**
+ * Champs de profil acceptés par Better Auth à l'inscription et à la mise à jour du compte. Le serveur les borne lui-même :
+ * `signupFormSchema` ne s'applique que dans le navigateur.
+ */
+export const profileFieldsSchema = z.looseObject({
+  name: z.string().max(120, 'Maximum 120 caractères.').refine(noNul, 'Caractère non autorisé.').optional(),
+  company: z.string().max(120, 'Maximum 120 caractères.').refine(noNul, 'Caractère non autorisé.').optional(),
+  phone: z.string().max(40, 'Maximum 40 caractères.').refine(noNul, 'Caractère non autorisé.').optional(),
+  activity: z.string().max(200, 'Maximum 200 caractères.').refine(noNul, 'Caractère non autorisé.').optional(),
+  onboarding: z.string().max(8192, 'Brouillon trop volumineux.').refine(noNul, 'Caractère non autorisé.').optional(),
+});
+export type ProfileFields = z.infer<typeof profileFieldsSchema>;

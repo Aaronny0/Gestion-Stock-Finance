@@ -1,7 +1,10 @@
 // Fichier généré depuis vortex-backend/src/contracts. Ne pas modifier : lancer « bun run contracts:sync » dans vortex-backend.
 import { z } from 'zod';
 
-const text = (message: string) => z.string({ error: message }).trim().min(1, message).max(120, 'Maximum 120 caractères.');
+/** PostgreSQL refuse le caractère NUL : il est écarté à l'entrée plutôt que de finir en erreur serveur. */
+export const noNul = (value: string) => !value.includes('\u0000');
+const text = (message: string) =>
+  z.string({ error: message }).trim().min(1, message).max(120, 'Maximum 120 caractères.').refine(noNul, 'Caractère non autorisé.');
 
 const CURRENCY = 'Utilisez un code de devise de 3 lettres (ex. XOF).';
 const TIMEZONE = 'Indiquez un fuseau valide (ex. Africa/Porto-Novo).';
