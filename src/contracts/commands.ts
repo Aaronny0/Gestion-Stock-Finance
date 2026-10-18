@@ -26,7 +26,8 @@ const dateString = z
   .refine((value) => {
     const parsed = new Date(`${value}T00:00:00Z`);
     return !Number.isNaN(parsed.getTime()) && parsed.toISOString().startsWith(value);
-  }, 'Date invalide (AAAA-MM-JJ).');
+  }, 'Date invalide (AAAA-MM-JJ).')
+  .refine((value) => value >= '2000-01-01', 'Date invalide : à partir du 1er janvier 2000.');
 
 const payload = <S extends z.ZodRawShape>(shape: S) =>
   z.strictObject({ organizationId: id('Entreprise'), date: dateString.optional(), ...shape });
