@@ -71,7 +71,7 @@ export function TeamPage() {
       />
 
       <SummaryStrip aria-label="Synthèse de l’équipe">
-        <SummaryItem label="Membres" value={team.length} meta={`${plural(team.filter((member) => member.status !== "Actif").length, "invitation")} en attente`} />
+        <SummaryItem label="Membres" value={team.length} meta={`${plural(team.filter((member) => member.status === "Invitation en attente").length, "invitation")} en attente`} />
         <SummaryItem label="Boutiques" value={snapshot!.session.stores.length} />
         <SummaryItem label="Permissions disponibles" value={rolePermissions.owner.length} />
       </SummaryStrip>

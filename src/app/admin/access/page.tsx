@@ -47,6 +47,11 @@ export default function AdminAccess() {
   const [selected, setSelected] = useState<Prospect | null>(null),
     [status, setStatus] = useState("CONTACTED"),
     [reason, setReason] = useState("");
+  // Hors espace de travail, pas de useUnsavedChanges : même garde, locale à la décision en cours.
+  const decisionDirty = status !== "CONTACTED" || reason.trim() !== "";
+  const discard = () =>
+    !decisionDirty ||
+    window.confirm("Décision : abandonner les modifications non enregistrées ?");
   const load = useCallback(async () => {
     setBusy(true);
     setError("");
@@ -199,7 +204,7 @@ export default function AdminAccess() {
         <Dialog
           open={!!selected}
           onOpenChange={(open) => {
-            if (!open && !busy) setSelected(null);
+            if (!open && !busy && discard()) setSelected(null);
           }}
         >
           <DialogContent size="md">

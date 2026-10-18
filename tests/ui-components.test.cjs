@@ -131,8 +131,8 @@ test("Lot 3 : Stock, fiche produit et réappro reposent sur les composants parta
   assert.match(read("src/features/stock/replenishment-page.tsx"), /ListCard/);
 });
 
-test("D30 : pas de bouton « Retour » dans le shell ; le fil d'Ariane ne dit « Détail » que pour une fiche", () => {
-  assert.doesNotMatch(read("src/frontend/shell.tsx"), /aria-label="Retour"/);
+test("D30 : « Retour » seulement sur une fiche ; le fil d'Ariane ne dit « Détail » que pour une fiche", () => {
+  assert.match(read("src/frontend/shell.tsx"), /isDetailRoute\(path\)[^\n]*\n?[^\n]*aria-label="Retour"|isDetailRoute\(path\)[\s\S]{0,200}aria-label="Retour"/, "le retour à la liste (défilement restauré) reste sur les fiches");
   const ts = require("typescript");
   const source = ts.transpileModule(read("src/frontend/navigation.ts"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const mod = { exports: {} };
@@ -219,4 +219,41 @@ test("Nettoyage : plus aucun motif remplacé dans src", () => {
   assert.ok(!fs.existsSync("src/components/data-display/metric-card.tsx"));
   const ui = read("src/frontend/ui.tsx");
   for (const legacy of ["export function DataTable", "export function EmptyState", "export function PageHeading", "export function DateRangePicker"]) assert.ok(!ui.includes(legacy), `ui.tsx garde ${legacy}`);
+});
+
+test("Relecture : les blocs du corps de modale gardent leur espacement", () => {
+  assert.match(read("src/components/ui/dialog.tsx"), /data-dialog-body=""[^\n]*space-y-4/);
+});
+
+test("Relecture : un filtre de page actif donne un état no-results avec « Effacer les filtres », sans texte générique", () => {
+  const table = read("src/components/data-display/data-table.tsx");
+  assert.match(table, /onClearFilters\?: \(\) => void/);
+  assert.match(table, /filtered\?: boolean/);
+  assert.doesNotMatch(table, /Essayez de modifier vos filtres/);
+  assert.match(read("src/frontend/pages.tsx"), /filtered=\{balanceOnly\}/);
+});
+
+test("Relecture : les tables des statistiques restent exportables", () => {
+  const source = read("src/frontend/analytics.tsx");
+  assert.equal((source.match(/exportRow=/g) ?? []).length, 5);
+  assert.match(source, /canExport=\{can\("exports\.create"\)\}/);
+});
+
+test("Relecture : le focus initial ignore la recherche d'une table imbriquée", () => {
+  assert.match(read("src/components/ui/use-return-focus.ts"), /:not\(\[data-list-toolbar\] \*\)/);
+});
+
+test("Relecture : la décision d'accès saisie n'est pas perdue sans confirmation", () => {
+  const source = read("src/app/admin/access/page.tsx");
+  assert.match(source, /useUnsavedChanges\(|window\.confirm\(/);
+  assert.match(source, /discard\(\)/);
+});
+
+test("Relecture : le compteur d'invitations ne compte que les invitations en attente", () => {
+  assert.match(read("src/features/team/team-page.tsx"), /status === "Invitation en attente"/);
+});
+
+test("Relecture : la pagination numérotée ne déborde pas d'une carte étroite", () => {
+  assert.match(read("src/components/data-display/data-table.tsx"), /data-list-pages/);
+  assert.match(read("src/components/data-display/list-card.module.css"), /@container list \(max-width: 479px\)[\s\S]*\[data-list-pages\]/);
 });

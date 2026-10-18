@@ -61,7 +61,7 @@ const base = process.env.TEST_BASE_URL || "http://localhost:3000";
   checks.push("Retour depuis la vente : historique et état du stock");
   await page.getByRole("dialog").getByRole("button", { name: "Fermer", exact: true }).click();
   await page.getByRole("link", { name: "Crédits et échéances" }).click();
-  await page.getByRole("heading", { name: "Les crédits à suivre." }).waitFor();
+  await page.getByRole("heading", { name: "Crédits et échéances", level: 1 }).waitFor();
   await page.screenshot({
     path: "output/frontend-qa/ux-credits.png",
     fullPage: true,

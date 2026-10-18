@@ -14,6 +14,8 @@ export function formatListDate(value: string | Date, opts: { time?: boolean } = 
   return date.toLocaleString("fr-FR", {
     day: "2-digit",
     month: "short",
+    // L'année n'apparaît que si elle diffère de l'année courante (exercices, historiques longs).
+    ...(date.getFullYear() !== new Date().getFullYear() ? { year: "numeric" } : {}),
     ...(opts.time && !dateOnly ? { hour: "2-digit", minute: "2-digit" } : {}),
   });
 }

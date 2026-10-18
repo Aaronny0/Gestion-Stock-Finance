@@ -190,12 +190,12 @@ export default function Analytics({ path }: { path: string }) {
                 onSelect={(label) => router.push(href("/sales") + `?${tab === "team" ? "seller" : "brand"}=${encodeURIComponent(label)}&start=${start}&end=${end}`)}
               />
             </section>
-            <DataTable name="ventes-analyse" data={sales} columns={saleColumns} getRowId={(row) => row.id} onRow={(s) => router.push(href("/sales/" + s.id))} searchPlaceholder="Référence, vendeur…" emptyTitle="Aucune vente sur cette période" emptyDescription="Élargissez la période ou retirez un filtre d’analyse." />
+            <DataTable name="ventes-analyse" data={sales} columns={saleColumns} getRowId={(row) => row.id} canExport={can("exports.create")} exportRow={(s) => ({ Référence: s.reference, Date: s.date, Vendeur: s.seller, CA: salePosition(s).netTotal, ...(canMargin ? { Marge: margin(s) } : {}) })} onRow={(s) => router.push(href("/sales/" + s.id))} searchPlaceholder="Référence, vendeur…" emptyTitle="Aucune vente sur cette période" emptyDescription="Élargissez la période ou retirez un filtre d’analyse." />
           </>
         ) : null}
-        {tab === "stock" ? <DataTable name="stock-analyse" data={stockRows} columns={stockColumns} getRowId={(row) => row.id} onRow={(p) => router.push(href("/products/" + p.id))} searchPlaceholder="Produit…" emptyTitle="Aucun produit dans cette sélection" /> : null}
-        {tab === "clients" ? <DataTable name="clients-analyse" data={clientRows} columns={clientColumns} getRowId={(row) => row.id} onRow={(c) => router.push(href("/clients/" + c.id))} searchPlaceholder="Client…" emptyTitle="Aucun client" /> : null}
-        {tab === "cash" ? <DataTable name="flux-trésorerie" data={db.payments.filter(scoped)} columns={paymentColumns} getRowId={(row) => row.id} searchPlaceholder="Source, mode…" emptyTitle="Aucun flux sur cette période" /> : null}
+        {tab === "stock" ? <DataTable name="stock-analyse" data={stockRows} columns={stockColumns} getRowId={(row) => row.id} canExport={can("exports.create")} exportRow={(p) => ({ Produit: `${p.brand} ${p.model}`, Stock: p.quantity, "Unités vendues": p.sold, "Couverture (jours)": p.coverage ?? "", Dormant: p.dormant ? "Oui" : "Non", ...(canMargin ? { "Valeur immobilisée": p.quantity * (p.cost ?? 0) } : {}) })} onRow={(p) => router.push(href("/products/" + p.id))} searchPlaceholder="Produit…" emptyTitle="Aucun produit dans cette sélection" /> : null}
+        {tab === "clients" ? <DataTable name="clients-analyse" data={clientRows} columns={clientColumns} getRowId={(row) => row.id} canExport={can("exports.create")} exportRow={(c) => ({ Client: c.label, "Achats sur la période": c.count, "Chiffre d’affaires": c.total, "Reste dû": c.due })} onRow={(c) => router.push(href("/clients/" + c.id))} searchPlaceholder="Client…" emptyTitle="Aucun client" /> : null}
+        {tab === "cash" ? <DataTable name="flux-trésorerie" data={db.payments.filter(scoped)} columns={paymentColumns} getRowId={(row) => row.id} canExport={can("exports.create")} exportRow={(p) => ({ Date: p.date, Source: p.label, Mode: p.method, Sens: p.direction === "in" ? "Entrée" : "Sortie", Montant: p.amount })} searchPlaceholder="Source, mode…" emptyTitle="Aucun flux sur cette période" /> : null}
         {tab === "accounting" ? (
           <div className="space-y-4 p-4">
             <SummaryStrip aria-label="Résultat et trésorerie">
@@ -209,7 +209,7 @@ export default function Analytics({ path }: { path: string }) {
             </Button>
           </div>
         ) : null}
-        {tab === "trade" ? <DataTable name="analyse-reprises" data={tradeRows} columns={tradeColumns} getRowId={(row) => row.id} searchPlaceholder="Appareil, type…" emptyTitle="Aucune reprise sur cette période" /> : null}
+        {tab === "trade" ? <DataTable name="analyse-reprises" data={tradeRows} columns={tradeColumns} getRowId={(row) => row.id} canExport={can("exports.create")} exportRow={(r) => ({ Date: r.date, Type: r.type, Appareil: r.label, "Valeur de reprise": r.amount ?? 0, Complément: r.complement })} searchPlaceholder="Appareil, type…" emptyTitle="Aucune reprise sur cette période" /> : null}
       </ListCard>
       <p className="text-xs text-muted-foreground">
         Source : opérations autorisées de la boutique et de la période sélectionnées. Les comparaisons nécessitent les données des périodes précédentes.

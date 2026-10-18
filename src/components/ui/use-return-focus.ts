@@ -3,7 +3,8 @@
 import * as React from "react";
 
 const FIRST_FIELD =
-  "[data-dialog-body] :is(input:not([type=hidden]):not([disabled]):not([readonly]), select:not([disabled]), textarea:not([disabled]), [role=combobox])";
+  // La recherche d'une table imbriquée n'est pas un champ de saisie de la modale.
+  "[data-dialog-body] :is(input:not([type=hidden]):not([disabled]):not([readonly]), select:not([disabled]), textarea:not([disabled]), [role=combobox]):not([data-list-toolbar] *)";
 
 /**
  * Focus d'un dialogue (D27). À l'ouverture : premier champ du corps, sinon le contenu — jamais la croix.

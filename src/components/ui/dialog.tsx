@@ -69,7 +69,7 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return <div className={cn("flex shrink-0 flex-col gap-1.5 border-b border-[#eaefef] px-6 pb-4 pt-6 pr-14 text-left", className)} {...props} />;
 }
 function DialogBody({ className, ...props }: React.ComponentProps<"div">) {
-  return <div data-dialog-body="" className={cn("scroll-hint min-h-0 flex-1 overflow-y-auto px-6 py-5", className)} {...props} />;
+  return <div data-dialog-body="" className={cn("scroll-hint min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-5", className)} {...props} />;
 }
 function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
   return <div data-dialog-footer="" className={cn("flex shrink-0 flex-col-reverse gap-2 border-t border-[#eaefef] px-6 py-4 sm:flex-row sm:justify-end max-sm:[&>*]:w-full", className)} {...props} />;

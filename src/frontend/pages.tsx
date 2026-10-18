@@ -290,7 +290,9 @@ function BusinessPage({ path }: { path: string }) {
                   />
                 )
               }
-              emptyTitle={directory ? (balanceOnly ? "Aucun solde à régler" : `${c.empty} ne correspond`) : "Aucun achat sur cette période"}
+              filtered={balanceOnly}
+              onClearFilters={() => setBalanceOnly(false)}
+              emptyTitle={directory ? c.empty : "Aucun achat sur cette période"}
               emptyDescription={directory ? undefined : "Élargissez la période pour retrouver l’historique."}
             />
           </ListCard>

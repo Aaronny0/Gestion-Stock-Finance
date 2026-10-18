@@ -201,6 +201,12 @@
     padding: 12px 16px 0;
   }
 }
+/* Carte étroite : seule la page courante reste visible entre « précédente » et « suivante ». */
+@container list (max-width: 479px) {
+  .card [data-list-pages] > :not([aria-current="page"]) {
+    display: none;
+  }
+}
 @media (max-width: 767px) {
   .card [data-list-start] {
     flex: 1 1 100%;

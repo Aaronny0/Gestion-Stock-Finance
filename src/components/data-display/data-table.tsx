@@ -61,6 +61,10 @@ interface DataTableProps<TData, TValue> {
   emptyContent?: React.ReactNode;
   /** Force le type d'état vide ; par défaut no-results si une recherche est active, sinon first-use. */
   emptyKind?: "first-use" | "no-results";
+  /** Un filtre propre à la page (hors recherche) est actif : l'état vide devient no-results. */
+  filtered?: boolean;
+  /** Remet les filtres de la page à zéro, en plus de la recherche. */
+  onClearFilters?: () => void;
   density?: "default" | "comfortable" | "dense";
   pageSize?: number;
   numberedPagination?: boolean;
@@ -116,9 +120,11 @@ function DataTable<TData, TValue>({
   name = "donnees",
   columns,
   data,
-  emptyTitle = "Aucun résultat",
-  emptyDescription = "Essayez de modifier vos filtres ou votre recherche.",
+  emptyTitle,
+  emptyDescription,
   emptyContent,
+  filtered = false,
+  onClearFilters,
   emptyKind,
   density = "default",
   pageSize = 10,
@@ -402,13 +408,18 @@ function DataTable<TData, TValue>({
       {!table.getFilteredRowModel().rows.length ? (
         (emptyContent ?? (() => {
           const searching = Boolean(searchValue ?? globalFilter);
-          const kind = emptyKind ?? (searching ? "no-results" : "first-use");
+          const narrowed = searching || filtered;
+          const kind = narrowed ? "no-results" : (emptyKind ?? "first-use");
+          const clear = () => {
+            if (searching) (onSearchChange ? onSearchChange("") : setGlobalFilter(""));
+            onClearFilters?.();
+          };
           return (
             <EmptyState
               kind={kind}
-              title={emptyTitle ?? (kind === "no-results" ? "Aucun résultat pour cette recherche" : "Rien à afficher pour le moment")}
-              description={emptyDescription}
-              onClearFilters={searching ? () => (onSearchChange ? onSearchChange("") : setGlobalFilter("")) : undefined}
+              title={narrowed ? "Aucun résultat pour ces critères" : (emptyTitle ?? "Rien à afficher pour le moment")}
+              description={narrowed ? "Aucune ligne ne correspond à la recherche ou aux filtres actifs." : emptyDescription}
+              onClearFilters={narrowed ? clear : undefined}
             />
           );
         })())
@@ -563,8 +574,9 @@ function DataTable<TData, TValue>({
             >
               <ChevronLeft className="size-4" />
             </Button>
-            {numberedPagination &&
-              Array.from(
+            {numberedPagination && (
+              <span data-list-pages="" className="flex items-center gap-1">
+              {Array.from(
                 { length: Math.min(5, table.getPageCount()) },
                 (_, index) =>
                   Math.min(
@@ -588,6 +600,8 @@ function DataTable<TData, TValue>({
                   {index + 1}
                 </Button>
               ))}
+              </span>
+            )}
             <Button
               variant="outline"
               size="icon"

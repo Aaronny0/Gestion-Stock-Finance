@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowUpRight, BookOpen, Check, X } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, BookOpen, Check, X } from "lucide-react";
 import { SalesState } from "@/features/sales/sales-state";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { MobileNavigation } from "@/components/layout/mobile-navigation";
@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { OnboardingModal } from "@/features/onboarding/onboarding-modal";
 import { WorkspaceProvider, useWorkspace, publicRoutes } from "./provider";
-import { canonical, routePermission } from "./navigation";
+import { canonical, isDetailRoute, routePermission } from "./navigation";
 import { Alert, Skeleton } from "./ui";
 import { roleLabels, type Role } from "./types";
 import { useAuth } from "./auth-provider";
@@ -42,6 +42,7 @@ function Shell({ children }: { children: ReactNode }) {
     setNotice,
     setOrganization,
     confirmDiscard,
+    goBack,
     locationKey,
   } = useWorkspace();
 
@@ -276,6 +277,20 @@ function Shell({ children }: { children: ReactNode }) {
                 </Alert>
               )}
 
+
+              {isDetailRoute(path) && !path.startsWith("/sales/") && (
+                <nav aria-label="Retour" className="flex">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={goBack}
+                    aria-label="Revenir à la page précédente"
+                  >
+                    <ArrowLeft />
+                    Retour
+                  </Button>
+                </nav>
+              )}
 
               {loading || onboardingRequired ? (
                 path === "/" ? (
