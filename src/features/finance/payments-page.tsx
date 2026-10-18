@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowDownRight, ArrowUpRight, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { DataTable } from "@/components/data-display/data-table";
 import { DateRangeFilter } from "@/components/data-display/date-range-filter";
-import { MetricCard } from "@/components/data-display/metric-card";
+import { ListCard } from "@/components/data-display/list-card";
+import { SummaryItem, SummaryStrip } from "@/components/data-display/summary-strip";
+import { formatListDate } from "@/lib/format";
 import { Money } from "@/components/data-display/money";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -26,23 +28,24 @@ function PaymentsPage() {
   const incoming = rows.filter((row) => row.direction === "in").reduce((sum, row) => sum + row.amount, 0);
   const outgoing = rows.filter((row) => row.direction === "out").reduce((sum, row) => sum + row.amount, 0);
   const columns: ColumnDef<Payment>[] = [
-    { accessorKey: "date", header: "Date" },
+    { accessorKey: "date", header: "Date", cell: ({ row }) => formatListDate(row.original.date, { time: true }) },
     { accessorKey: "label", header: "Référence" },
     { accessorKey: "method", header: "Mode" },
     { accessorKey: "direction", header: "Sens", cell: ({ row }) => <span className={row.original.direction === "in" ? "font-medium text-success" : "font-medium text-destructive"}>{row.original.direction === "in" ? "Encaissement" : "Décaissement"}</span> },
-    { accessorKey: "amount", header: "Montant", cell: ({ row }) => <Money value={row.original.amount} /> },
+    { accessorKey: "amount", header: "Montant", meta: { align: "right" }, cell: ({ row }) => <Money value={row.original.amount} /> },
   ];
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="PAIEMENTS" title="Des règlements sans zone d’ombre." description="Encaissements clients et paiements fournisseurs." actions={can("finance.read") ? <Button onClick={() => setCreate(true)}><Plus /> Enregistrer un règlement</Button> : undefined} />
-      <div className="finance-summary">
-        <MetricCard label="Encaissements" value={<Money value={incoming} />} icon={<ArrowDownRight className="size-4" />} comparison="sur la période sélectionnée" />
-        <MetricCard label="Décaissements" value={<Money value={outgoing} />} icon={<ArrowUpRight className="size-4" />} comparison="sur la période sélectionnée" />
-        <MetricCard label="Flux net" value={<Money value={incoming - outgoing} />} comparison={`${rows.length} règlement${rows.length > 1 ? "s" : ""}`} />
-      </div>
-      <DateRangeFilter />
-      <DataTable name="paiements" data={rows} columns={columns} getRowId={(row) => row.id} onRow={(payment) => { const sale = db.sales.find((item) => item.id === payment.sourceId); if (sale) router.push(href(`/sales/${sale.id}`)); else setSelected({ id: payment.id, label: payment.label, date: payment.date, status: "Validé", amount: payment.amount, sourceId: payment.sourceId, method: payment.method, direction: payment.direction }); }} canExport={can("exports.create")} enableSelection={can("exports.create")} exportRow={(row) => ({ Date: row.date, Référence: row.label, Mode: row.method, Sens: row.direction === "in" ? "Encaissement" : "Décaissement", Montant: row.amount })} searchPlaceholder="Référence, mode, sens…" mobileRow={(row) => <div className="rounded-lg border border-border bg-card p-4"><div className="flex items-start justify-between gap-3"><div><p className="font-semibold">{row.label}</p><p className="mt-1 text-xs text-muted-foreground">{row.date} · {row.method}</p></div><span className={row.direction === "in" ? "text-xs font-semibold text-success" : "text-xs font-semibold text-destructive"}>{row.direction === "in" ? "Encaissement" : "Décaissement"}</span></div><Money value={row.amount} className="mt-3 block text-base font-bold" /></div>} />
+      <PageHeader title="Paiements" description="Encaissements clients et paiements fournisseurs." primaryAction={can("finance.read") ? <Button onClick={() => setCreate(true)}><Plus /> Enregistrer un règlement</Button> : undefined} />
+      <SummaryStrip aria-label="Synthèse des paiements">
+        <SummaryItem label="Encaissements" money={incoming} meta="sur la période sélectionnée" />
+        <SummaryItem label="Décaissements" money={outgoing} meta="sur la période sélectionnée" />
+        <SummaryItem label="Flux net" money={incoming - outgoing} meta={`${rows.length} règlement${rows.length > 1 ? "s" : ""}`} />
+      </SummaryStrip>
+      <ListCard aria-label="Paiements">
+      <DataTable name="paiements" data={rows} columns={columns} getRowId={(row) => row.id} toolbarStart={<DateRangeFilter />} emptyTitle="Aucun règlement sur cette période" emptyDescription="Élargissez la période ou retirez le filtre de mode de paiement." onRow={(payment) => { const sale = db.sales.find((item) => item.id === payment.sourceId); if (sale) router.push(href(`/sales/${sale.id}`)); else setSelected({ id: payment.id, label: payment.label, date: payment.date, status: "Validé", amount: payment.amount, sourceId: payment.sourceId, method: payment.method, direction: payment.direction }); }} canExport={can("exports.create")} enableSelection={can("exports.create")} exportRow={(row) => ({ Date: row.date, Référence: row.label, Mode: row.method, Sens: row.direction === "in" ? "Encaissement" : "Décaissement", Montant: row.amount })} searchPlaceholder="Référence, mode, sens…" mobileRow={(row) => <div className="rounded-lg border border-border bg-card p-4"><div className="flex items-start justify-between gap-3"><div><p className="font-semibold">{row.label}</p><p className="mt-1 text-xs text-muted-foreground">{formatListDate(row.date, { time: true })} · {row.method}</p></div><span className={row.direction === "in" ? "text-xs font-semibold text-success" : "text-xs font-semibold text-destructive"}>{row.direction === "in" ? "Encaissement" : "Décaissement"}</span></div><Money value={row.amount} className="mt-3 block text-base font-bold" /></div>} />
+      </ListCard>
       {create ? <ActionForm type="payment.create" title="Enregistrer un règlement" onClose={() => setCreate(false)} /> : null}
       {selected ? <FinanceRecordDialog row={selected} onClose={() => setSelected(null)} /> : null}
     </div>

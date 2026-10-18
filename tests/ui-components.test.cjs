@@ -156,3 +156,11 @@ test("Lot 4 : achats, troc, rachat, clients et fournisseurs quittent le gabarit 
   for (const legacy of ["eyebrow", "directory-summary", "ESPACE DE GESTION", "trade-flow", 'className="button']) assert.ok(!pages.includes(legacy), `pages.tsx contient ${legacy}`);
   for (const shared of ["ListCard", "SummaryStrip", "PageHeader", "formatListDate"]) assert.ok(pages.includes(shared), `pages.tsx sans ${shared}`);
 });
+
+test("Lot 5 : trésorerie, dépenses et paiements sur les composants partagés", () => {
+  for (const f of ["src/features/finance/cash-page.tsx", "src/features/finance/expenses-page.tsx", "src/features/finance/payments-page.tsx"]) {
+    const source = read(f);
+    for (const legacy of ["MetricCard", "finance-summary", "eyebrow="]) assert.ok(!source.includes(legacy), `${f} contient ${legacy}`);
+    for (const shared of ["SummaryStrip", "ListCard", "formatListDate", 'align: "right"']) assert.ok(source.includes(shared), `${f} sans ${shared}`);
+  }
+});

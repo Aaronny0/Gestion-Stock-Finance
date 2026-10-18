@@ -1102,9 +1102,10 @@
     gap: 18px;
   }
 }
+/* D30 : en-tête sans filet, comme Ventes et Stock (D26). */
 .vortex-page-header {
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 .vortex-page-header h1 {
   font-size: var(--type-page-title);
@@ -1341,9 +1342,6 @@
   }
 }
 @media (max-width: 767px) {
-  .vortex-page-header {
-    padding-bottom: 16px;
-  }
   .vortex-page-header h1 {
     font-size: 26px;
   }
