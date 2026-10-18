@@ -68,6 +68,8 @@ interface DataTableProps<TData, TValue> {
   getRowId?: (row: TData, index: number) => string;
   searchPlaceholder?: string;
   filters?: React.ReactNode;
+  /** Contrôle placé avant la recherche (période, segmenté), dans la barre d'outils. */
+  toolbarStart?: React.ReactNode;
   searchValue?: string;
   onSearchChange?: (value: string) => void;
   onRow?: (row: TData) => void;
@@ -125,6 +127,7 @@ function DataTable<TData, TValue>({
   getRowId,
   searchPlaceholder = "Rechercher…",
   filters,
+  toolbarStart,
   searchValue,
   onSearchChange,
   onRow,
@@ -262,9 +265,10 @@ function DataTable<TData, TValue>({
   };
 
   return (
-    <section className="vortex-data-table space-y-3">
-      <div className="data-toolbar flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="w-full sm:max-w-sm">
+    <section data-density={density} className="vortex-data-table space-y-3">
+      <div data-list-toolbar="" className="data-toolbar flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        {toolbarStart ? <div data-list-start="" className="flex flex-wrap items-center gap-2">{toolbarStart}</div> : null}
+        <div data-list-search="" className="w-full sm:max-w-sm">
           <SearchInput
             aria-label={`Rechercher dans ${name}`}
             placeholder={searchPlaceholder}
@@ -276,7 +280,7 @@ function DataTable<TData, TValue>({
             }}
           />
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div data-list-actions="" className="flex flex-wrap items-center gap-2">
           {filters}
           {selectedRows.length ? (
             <span className="text-xs text-muted-foreground">
@@ -286,7 +290,7 @@ function DataTable<TData, TValue>({
           {enableColumnVisibility ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" data-list-end="">
                   <Columns3 /> Colonnes
                 </Button>
               </DropdownMenuTrigger>
@@ -313,7 +317,7 @@ function DataTable<TData, TValue>({
           {canExport && exportRow ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" data-list-end="">
                   <Download /> Exporter
                 </Button>
               </DropdownMenuTrigger>
@@ -332,7 +336,7 @@ function DataTable<TData, TValue>({
       </div>
 
       {mobileRow && sortableColumns.length ? (
-        <div className="flex items-center gap-2 md:hidden">
+        <div data-list-mobile="" className="flex items-center gap-2 md:hidden">
           <Select
             value={activeSort?.id ?? "none"}
             onValueChange={(value) =>
@@ -407,7 +411,7 @@ function DataTable<TData, TValue>({
       ) : (
         <>
           {mobileRow ? (
-            <div className="space-y-2 md:hidden">
+            <div data-list-mobile="" className="space-y-2 md:hidden">
               {pageRows.map((row) => (
                 <div
                   key={row.id}
@@ -437,6 +441,7 @@ function DataTable<TData, TValue>({
           ) : null}
 
           <div
+            data-list-desktop={mobileRow ? "" : undefined}
             className={cn(
               "overflow-hidden rounded-lg border border-border bg-card",
               mobileRow && "hidden md:block",

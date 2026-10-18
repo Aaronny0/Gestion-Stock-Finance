@@ -41,7 +41,7 @@ async function auditLayout(page, width, route) {
     overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     toolbars: [...document.querySelectorAll("[data-list-toolbar]")].map((bar) => [
       ...new Set(
-        [...bar.querySelectorAll("button, input, [role=combobox]")]
+        [...bar.querySelectorAll("button:not([role=group] button):not([data-list-search] button), input, [role=combobox], [role=group]")]
           .filter((el) => el.offsetParent && el.getAttribute("type") !== "checkbox")
           .map((el) => Math.round(el.getBoundingClientRect().height)),
       ),

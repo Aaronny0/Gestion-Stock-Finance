@@ -1,0 +1,223 @@
+/* D28 : carte de liste partagée (« ledger » de Ventes et Stock, D26). Une seule source pour la barre
+   d'outils (contrôles à 40 px), les en-têtes de table, les badges, la pagination et la bascule en cartes. */
+.card {
+  container: list / inline-size;
+  min-width: 0;
+  border: 1px solid #dde3e4;
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+/* Onglets soulignés */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 12px;
+  border-bottom: 1px solid #dde3e4;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #586767;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+.tab:hover {
+  color: #0a1a1b;
+}
+.tab:focus-visible {
+  outline: 2px solid #007176;
+  outline-offset: -2px;
+  border-radius: 6px;
+}
+.tab[aria-current="page"],
+.tab[aria-selected="true"] {
+  color: #0a1a1b;
+  font-weight: 600;
+  border-bottom-color: #007176;
+}
+.count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #dff2f2;
+  color: #04585c;
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.countWarning {
+  background: #fff2d6;
+  color: #864900;
+}
+
+/* Table et barre d'outils */
+.card :global(.vortex-data-table) {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.card :global(.vortex-data-table) > * {
+  margin-top: 0;
+}
+.card [data-list-toolbar] {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #dde3e4;
+}
+.card [data-list-search] {
+  flex: 1 1 220px;
+  max-width: 360px;
+  width: auto;
+}
+.card [data-list-actions] {
+  display: contents;
+}
+.card [data-list-toolbar] input,
+.card [data-list-toolbar] button:not([role="group"] button),
+.card [data-list-toolbar] [role="combobox"] {
+  height: 40px;
+  min-height: 40px;
+  font-size: 14px;
+}
+.card [data-list-toolbar] [data-list-end]:not([data-list-end] ~ [data-list-end]) {
+  margin-left: auto;
+}
+.card :global(table) {
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.card :global(th) {
+  height: auto;
+  padding: 10px 12px;
+  border-bottom: 1px solid #dde3e4;
+  background: #f9f9fc;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: #586767;
+}
+.card :global(th) button {
+  min-height: 20px;
+  font-size: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+.card :global(td) {
+  height: 52px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #eaefef;
+}
+.card [data-density="comfortable"] :global(td) {
+  height: 60px;
+  padding: 10px 12px;
+  font-size: 13.5px;
+}
+.card :global(th):first-child,
+.card :global(td):first-child {
+  padding-left: 16px;
+}
+.card :global(.overflow-hidden.rounded-lg) {
+  border: 0;
+  border-radius: 0;
+}
+.card :global(button[role="checkbox"]) {
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  border-radius: 4px;
+}
+.card :global(td) :global([data-slot="badge"])::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: currentColor;
+}
+.card [data-empty-kind] {
+  border: 0;
+  border-radius: 0;
+}
+.card :global(.vortex-data-table) > div:last-child:not([data-list-toolbar]):not([data-list-desktop]):not([data-list-mobile]):not([data-empty-kind]) {
+  padding: 10px 16px;
+  border-top: 1px solid #dde3e4;
+}
+
+/* Lignes-cartes : sous 900 px de largeur utile, la table laisse place aux lignes mobiles. */
+.card [data-list-mobile] > [data-row-id] {
+  border-bottom: 1px solid #eaefef;
+}
+.card [data-list-mobile] > [data-row-id] > :global(.rounded-lg) {
+  border: 0;
+  border-radius: 0;
+}
+.card :global(.space-y-2)[data-list-mobile] > * + * {
+  margin-top: 0;
+}
+@container list (min-width: 900px) {
+  .card [data-list-mobile] {
+    display: none;
+  }
+  .card [data-list-desktop] {
+    display: block;
+  }
+}
+@container list (max-width: 899px) {
+  .card [data-list-desktop] {
+    display: none;
+  }
+  .card [data-list-mobile] {
+    display: block;
+  }
+  .card [data-list-mobile]:not(:has([data-row-id])) {
+    display: flex;
+    padding: 12px 16px 0;
+  }
+}
+@media (max-width: 767px) {
+  .card [data-list-search] {
+    flex-basis: 100%;
+    max-width: none;
+  }
+  .card [data-list-toolbar] [data-list-end]:not([data-list-end] ~ [data-list-end]) {
+    margin-left: 0;
+  }
+}
+@media (pointer: coarse) {
+  .tab,
+  .card [data-list-toolbar] input,
+  .card [data-list-toolbar] button:not([role="group"] button),
+  .card [data-list-toolbar] [role="combobox"] {
+    min-height: 44px;
+  }
+  .card :global(button[aria-label="Page précédente"]),
+  .card :global(button[aria-label="Page suivante"]) {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

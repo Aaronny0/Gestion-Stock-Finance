@@ -88,3 +88,17 @@ test("D29 : EmptyState est typé, sans titre par défaut ni message générique"
   assert.match(read("src/components/data-display/data-table.tsx"), /emptyKind/);
   for (const f of srcFiles()) assert.doesNotMatch(read(f), /créez votre premier élément/i, `${f} : message générique`);
 });
+
+test("D28 : ListCard porte une seule fois la barre d'outils à 40 px et la bascule en cartes sous 900 px", () => {
+  const css = read("src/components/data-display/list-card.module.css");
+  const tsx = read("src/components/data-display/list-card.tsx");
+  const table = read("src/components/data-display/data-table.tsx");
+  assert.match(css, /@container list \(max-width: 899px\)/);
+  assert.match(css, /height:\s*40px/);
+  assert.match(css, /\[data-list-desktop\]/);
+  assert.match(css, /\[data-list-mobile\]/);
+  assert.match(tsx, /aria-current/);
+  assert.match(tsx, /role="tablist"/);
+  assert.match(tsx, /ArrowRight/, "onglets navigables aux flèches");
+  for (const token of ["toolbarStart", "data-list-toolbar", "data-list-desktop", "data-list-mobile"]) assert.ok(table.includes(token), `data-table.tsx sans ${token}`);
+});
