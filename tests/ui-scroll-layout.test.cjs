@@ -54,3 +54,7 @@ test("le panier fixe n'apparaît qu'à partir de 1280 px ; en dessous, le tiroir
   const drawer = read("src/features/pos/mobile-cart-drawer.tsx");
   assert.match(drawer, /shadow-\[var\(--shadow-dialog\)\] lg:sticky lg:inset-x-auto lg:bottom-4 lg:w-full xl:hidden/, "entre 1024 et 1279 px la barre suit la colonne de contenu au lieu de recouvrir le menu");
 });
+
+test("les dialogues natifs restent centrés malgré le reset de marge de Tailwind", () => {
+  assert.match(read("src/styles/base.css"), /dialog:modal\s*\{[^}]*margin:\s*auto/);
+});

@@ -2,6 +2,12 @@
   box-sizing: border-box;
 }
 
+/* Le reset de Tailwind v4 met margin: 0 sur tout élément, ce qui annule le centrage
+   natif des <dialog> ouverts avec showModal() et les colle en haut à gauche. */
+dialog:modal {
+  margin: auto;
+}
+
 /* D25 : barres de défilement fines, sans flèches, couleur dérivée des tokens (aucune nouvelle couleur).
    Le rail de navigation sombre et les rangées masquées gardent leurs règles locales, plus spécifiques. */
 * {
