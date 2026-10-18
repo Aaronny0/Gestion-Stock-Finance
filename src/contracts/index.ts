@@ -5,3 +5,4 @@ export * from './forms';
 export * from './onboarding';
 export * from './session';
 export * from './workspace';
+export * from './commands';
