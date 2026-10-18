@@ -25,3 +25,7 @@ test("le pluriel ne s'accorde qu'à partir de deux", () => {
   assert.equal(plural(0, "unité"), "0 unité");
   assert.equal(plural(18, "unité"), "18 unités");
 });
+
+test("une date sans heure n'invente pas d'heure, même avec { time: true }", () => {
+  assert.equal(formatListDate("2026-10-18", { time: true }), "18 oct.");
+});
