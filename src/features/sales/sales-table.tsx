@@ -1,5 +1,6 @@
 "use client";
 
+import { formatListDate } from "@/lib/format";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ChevronRight, ReceiptText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -45,12 +46,7 @@ function SalesTable({
         <span>
           <span className={styles.reference}>{row.original.reference}</span>
           <span className={styles.secondary}>
-            {new Date(row.original.date).toLocaleString("fr-FR", {
-              day: "2-digit",
-              month: "short",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            {formatListDate(row.original.date, { time: true })}
           </span>
         </span>
       ),
