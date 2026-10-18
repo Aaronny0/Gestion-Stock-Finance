@@ -3,8 +3,8 @@ import { useState, type ReactNode } from "react";
 import { CircleAlert, CircleCheck, Eye, EyeOff } from "lucide-react";
 import styles from "./auth-design.module.css";
 
-export function AuthNotice({ children, error = false }: { children: ReactNode; error?: boolean }) {
-  return <div className={`${styles.notice} ${error ? styles.error : styles.success}`} role={error ? "alert" : "status"}>{error ? <CircleAlert size={16} /> : <CircleCheck size={16} />}<span>{children}</span></div>;
+export function AuthNotice({ children, error = false, info = false }: { children: ReactNode; error?: boolean; info?: boolean }) {
+  return <div className={`${styles.notice} ${error ? styles.error : info ? styles.info : styles.success}`} role={error ? "alert" : "status"}>{error || info ? <CircleAlert size={16} /> : <CircleCheck size={16} />}<span>{children}</span></div>;
 }
 
 export function AuthField({ name, label, value, onChange, type = "text", autoComplete, placeholder, minLength, maxLength = 160, required = true, error, aside, strength = false, disabled = false }: {

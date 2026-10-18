@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ArrowRight, KeyRound, LoaderCircle, LockKeyhole, MailCheck } from "lucide-react";
 import { api } from "./api";
 import { getAuthClient } from "@/lib/auth/client";
-import { authError, businessDestination, emailNotVerified, saveOnboarding, readOnboarding } from "./auth-flow";
+import { authError, businessDestination, emailNotVerified, expiredNotice, saveOnboarding, readOnboarding } from "./auth-flow";
 import { authFormSchema, fieldErrors } from "./form-schemas";
 import { useAuth, pendingLoginKey } from "./auth-provider";
 import { roleLabels, type Role } from "./types";
@@ -31,7 +31,7 @@ export function AuthScreen({ path }: { path: string }) {
   const login = !signup && !forgot && !invite && !reset && !verify;
   const [values, setValues] = useState<Record<string, string>>({ country: "Bénin", currency: "XOF", timezone: "Africa/Porto-Novo", newAccount: "yes" });
   const [step, setStep] = useState(0);
-  const [busy, setBusy] = useState(false), [error, setError] = useState(""), [success, setSuccess] = useState("");
+  const [busy, setBusy] = useState(false), [error, setError] = useState(""), [success, setSuccess] = useState(""), [notice, setNotice] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [invitation, setInvitation] = useState<Invitation | null>(null);
   const [lastUsed, setLastUsed] = useState("");
@@ -40,7 +40,7 @@ export function AuthScreen({ path }: { path: string }) {
   const [busyAction, setBusyAction] = useState<"form" | "google" | null>(null);
   const submitting = useRef(false);
   const heading = useRef<HTMLHeadingElement>(null);
-  const change = (key: string, value: string) => { setValues(v => ({ ...v, [key]: value })); setErrors(e => ({ ...e, [key]: "" })); setSuccess(""); };
+  const change = (key: string, value: string) => { setValues(v => ({ ...v, [key]: value })); setErrors(e => ({ ...e, [key]: "" })); setSuccess(""); setNotice(""); };
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -49,6 +49,7 @@ export function AuthScreen({ path }: { path: string }) {
       setError(reset || verify ? "Lien invalide ou expiré. Demandez un nouveau lien." : "La connexion n’a pas abouti. Veuillez réessayer.");
       return;
     }
+    if (login) setNotice(expiredNotice(location.search));
     if (verify) {
       const draft = readOnboarding();
       if (draft?.payload.email) setValues(v => ({ ...v, email: draft.payload.email }));
@@ -56,7 +57,7 @@ export function AuthScreen({ path }: { path: string }) {
     // Better Auth redirects here with ?token=... (reset) or ?error=... (invalid link).
     if (reset && !params.get("token")) setInvalidLink(true);
     setLastUsed(document.cookie.split("; ").find(v => v.startsWith("vortex_last_login="))?.split("=")[1] ?? "");
-  }, [reset, verify]);
+  }, [reset, verify, login]);
 
   useEffect(() => {
     if (!invite) return;
@@ -193,7 +194,7 @@ export function AuthScreen({ path }: { path: string }) {
         {field("email", "Adresse email", { type: "email", autoComplete: "email", maxLength: 254, placeholder: "vous@boutique.bj" })}
         {!forgot && !verify && field("password", "Mot de passe", { ...passwordOptions, aside: login ? <Link href="/forgot-password">Mot de passe oublié ?</Link> : undefined })}
       </>}
-      {(error || auth.error) && <AuthNotice error>{error || auth.error}</AuthNotice>}{success && <AuthNotice>{success}</AuthNotice>}
+      {(error || auth.error) && <AuthNotice error>{error || auth.error}</AuthNotice>}{success && <AuthNotice>{success}</AuthNotice>}{notice && !error && <AuthNotice info>{notice}</AuthNotice>}
       <div className={styles.actions}>{signup && step > 0 && <button type="button" className={styles.secondary} disabled={busy} onClick={() => { setStep(s => s - 1); setError(""); setErrors({}); requestAnimationFrame(() => heading.current?.focus()); }}>Retour</button>}<button className={styles.primary} disabled={busy || auth.loading || (login && !!auth.user) || (invite && !invitation)}>{busy ? <><LoaderCircle size={16} className={styles.spinner} />Veuillez patienter…</> : <>{label}<ArrowRight size={16} /></>}</button></div>
       </fieldset>
     </form>}

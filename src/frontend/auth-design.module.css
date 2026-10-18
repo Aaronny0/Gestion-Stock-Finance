@@ -676,6 +676,12 @@
   color:#135c30;
 }
 
+/* Same information palette as .heroInfo (no new colour). */
+.info {
+  background:#e4f5ff;
+  color:#005892;
+}
+
 .page .demo {
   display:flex;
   align-items:center;

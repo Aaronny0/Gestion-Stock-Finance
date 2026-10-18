@@ -53,6 +53,8 @@ const freePort = () => new Promise(resolve => { const s = net.createServer(); s.
     r = await user.call(link.slice(app.length));
     assert.equal(r.status, 302, 'verification redirects'); assert.match(r.headers.get('location'), /\/verify-email$/);
     assert.ok(r.setCookies.some(c => /^vortex\.session_token=/.test(c)), 'session cookie relayed as is');
+    assert.ok(r.setCookies.every(c => !/;\s*domain=/i.test(c)), 'each site keeps its own host-only session cookie (no Domain): app and admin sessions stay independent');
+    assert.ok(r.setCookies.some(c => /max-age=604800/i.test(c) && /httponly/i.test(c) && /samesite=lax/i.test(c)), 'persistent, HttpOnly, SameSite=Lax');
     // 4. Session and access status via the relay (/api/auth/get-session, /api/v1/access).
     r = await user.call('/api/auth/get-session');
     assert.equal(r.json.user.emailVerified, true); assert.equal(r.json.user.company, 'Entreprise Test'); assert.equal(r.json.user.accessRequest, true);

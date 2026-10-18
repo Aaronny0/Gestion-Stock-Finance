@@ -43,3 +43,6 @@ export function parseOnboarding(value: string | null | undefined): { payload: Re
     return draft && typeof draft.idempotencyKey === "string" && draft.payload && typeof draft.payload === "object" ? draft : null;
   } catch { return null; }
 }
+/** A login page reached after the API answered 401 explains why the user is asked to sign in again. */
+export const expiredNotice = (search: string) =>
+  new URLSearchParams(search).get("expired") === "1" ? "Votre session a expiré. Connectez-vous à nouveau." : "";

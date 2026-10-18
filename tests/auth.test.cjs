@@ -15,7 +15,7 @@ function load(file, mocks = {}, globals = {}) {
     if (name.startsWith('./') && file.startsWith('src/contracts/')) return shared(`src/contracts/${name.slice(2)}.ts`);
     return undefined;
   };
-  vm.runInNewContext(code, { module, exports: module.exports, require: name => { if (name in mocks) return mocks[name]; const found = real(name); if (found) return found; throw Error(name); }, URL, Headers, AbortSignal, TextEncoder, process: { env: {} }, ...globals });
+  vm.runInNewContext(code, { module, exports: module.exports, require: name => { if (name in mocks) return mocks[name]; const found = real(name); if (found) return found; throw Error(name); }, URL, URLSearchParams, Headers, AbortSignal, TextEncoder, process: { env: {} }, ...globals });
   return module.exports;
 }
 function shared(file) {
@@ -134,6 +134,8 @@ test('onboarding retains retry key and excludes password; VORTEX states are dist
   assert.equal(flow.emailNotVerified({ code: 'EMAIL_NOT_VERIFIED', status: 403 }), true);
   assert.equal(flow.parseOnboarding(JSON.stringify(first)).idempotencyKey, first.idempotencyKey);
   assert.equal(flow.parseOnboarding('{broken'), null);
+  assert.equal(flow.expiredNotice('?expired=1'), 'Votre session a expiré. Connectez-vous à nouveau.');
+  for (const search of ['', '?expired=0', '?expired=true', '?other=1']) assert.equal(flow.expiredNotice(search), '', search);
 });
 test('API propagates onboarding, membership, forbidden and unavailable distinctly', async () => {
   for (const [status, code] of [[409, 'ONBOARDING_REQUIRED'], [403, 'NO_MEMBERSHIP'], [403, 'FORBIDDEN'], [503, undefined], [401, undefined]]) {
@@ -143,7 +145,8 @@ test('API propagates onboarding, membership, forbidden and unavailable distinctl
 });
 function authForm(path, sdk, values = {}, identity = null, action = async () => ({})) {
   const calls = [], navigation = [], storage = [];
-  const state = [values, path === '/signup' ? 3 : 0, false, '', '', {}, { organization: { name: 'Team' } }, '', false, false];
+  // Order of the useState calls in AuthScreen: values, step, busy, error, success, notice, errors, invitation, lastUsed, invalidLink, confirmed.
+  const state = [values, path === '/signup' ? 3 : 0, false, '', '', '', {}, { organization: { name: 'Team' } }, '', false, false];
   const React = { ...require('react'), useState: () => [state.shift(), () => {}], useEffect: () => {}, useRef: value => ({current:value}) };
   const form = load('src/frontend/auth-page.tsx', {
     react: React, 'react/jsx-runtime': require('react/jsx-runtime'), 'next/link': { default: 'a' }, 'next/navigation': { usePathname: () => path, useRouter: () => ({replace: value => navigation.push(value)}) },

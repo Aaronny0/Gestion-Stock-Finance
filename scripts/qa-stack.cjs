@@ -37,11 +37,11 @@ function startSmtpSink(mails) {
  * Starts the stack and resolves to { apiUrl, appUrl, mails, waitForMail(), stop() }.
  * appUrl is the public URL of the Next.js app under test (APP_URL of the backend, so cookies and origins match).
  */
-async function startStack({ appPort, backendDir = process.env.VORTEX_BACKEND_DIR || path.resolve(__dirname, '../../vortex-backend') }) {
+async function startStack({ appPort, adminUrl = 'https://admin.example.test', backendDir = process.env.VORTEX_BACKEND_DIR || path.resolve(__dirname, '../../vortex-backend') }) {
   const name = 'vortex-front-qa-' + randomBytes(3).toString('hex');
   const pgPort = 57000 + Math.floor(Math.random() * 500), apiPort = 3600 + Math.floor(Math.random() * 300);
   const dbPassword = randomBytes(16).toString('hex'), runtime = randomBytes(32).toString('hex');
-  const appUrl = `http://localhost:${appPort}`;
+  const appUrl = `http://${process.env.QA_HOST || 'localhost'}:${appPort}`;
   const mails = [];
   const smtp = await startSmtpSink(mails);
   let apiName;
@@ -65,7 +65,7 @@ async function startStack({ appPort, backendDir = process.env.VORTEX_BACKEND_DIR
       NODE_ENV: 'production', PORT: String(apiPort),
       APP_DATABASE_URL: `postgresql://vortex_app_login:${runtime}@127.0.0.1:${pgPort}/vortex`,
       IDENTITY_DATABASE_URL: `postgresql://vortex_identity_login:${identity}@127.0.0.1:${pgPort}/vortex`,
-      APP_URL: appUrl, ADMIN_ORIGINS: 'https://admin.example.test,' + appUrl, ADMIN_ALLOWED_MAIL: 'admin@example.test',
+      APP_URL: appUrl, ADMIN_ORIGINS: adminUrl + ',' + appUrl, ADMIN_ALLOWED_MAIL: 'admin@example.test',
       BETTER_AUTH_SECRET: randomBytes(32).toString('hex'),
       SMTP_HOST: '127.0.0.1', SMTP_PORT: String(smtp.address().port), SMTP_SECURE: 'false', SMTP_REQUIRE_TLS: 'false', MAIL_FROM: 'Vortex <noreply@example.test>',
     };
