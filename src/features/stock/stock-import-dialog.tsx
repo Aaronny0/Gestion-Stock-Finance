@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { minor } from "@/frontend/accounting";
 import { useUnsavedChanges, useWorkspace } from "@/frontend/provider";
 
 const fields = [
@@ -38,7 +39,8 @@ function downloadCsv(rows: Record<string, unknown>[], name: string) {
 }
 
 function StockImportDialog({ onClose }: { onClose: () => void }) {
-  const { command } = useWorkspace();
+  const { command, snapshot } = useWorkspace();
+  const currency = snapshot?.session.organization.currency ?? "XOF";
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [step, setStep] = useState(0);
@@ -123,7 +125,17 @@ function StockImportDialog({ onClose }: { onClose: () => void }) {
             setBusy(true);
             setError("");
             try {
-              await command("stock.import", { rows: mapped.map((row) => Object.fromEntries(fields.map(([key]) => [key, row[key]]))) });
+              // Le serveur attend des nombres entiers en unités mineures : les cellules du fichier sont du texte en unités majeures.
+              await command("stock.import", {
+                rows: mapped.map((row) => ({
+                  brand: String(row.brand).trim(),
+                  model: String(row.model).trim(),
+                  variant: String(row.variant ?? "").trim(),
+                  quantity: Number(row.quantity),
+                  cost: minor(row.cost as string, currency),
+                  price: minor(row.price as string, currency),
+                })),
+              });
               onClose();
             } catch (caught) { setError((caught as Error).message); } finally { setBusy(false); }
           }}><Upload /> {busy ? "Import en cours…" : "Confirmer l’import"}</Button> : null}
