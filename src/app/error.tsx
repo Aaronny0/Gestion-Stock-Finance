@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { request } from "@/frontend/api";
 export default function ErrorBoundary({
@@ -23,9 +24,7 @@ export default function ErrorBoundary({
     <div className="connection-error" role="alert">
       <h1>Cette page n’a pas pu s’afficher.</h1>
       <p>Vos opérations déjà validées sont conservées.</p>
-      <button className="button primary" onClick={reset}>
-        Réessayer
-      </button>
+      <Button onClick={reset}>Réessayer</Button>
     </div>
   );
 }

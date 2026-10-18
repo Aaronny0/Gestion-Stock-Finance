@@ -38,22 +38,6 @@
   outline: 2px solid #c6b8ee;
   outline-offset: 2px;
 }
-.table-filters {
-  display: flex;
-  gap: 9px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.table-filters select {
-  font-size: 12px;
-  min-height: 33px;
-  padding: 7px;
-}
-.table-filters .button {
-  font-size: 12px;
-  min-height: 33px;
-  padding: 8px 10px;
-}
 .table-scroll {
   overflow-x: auto;
   max-width: 100%;
@@ -137,43 +121,6 @@ td .money {
 .badge.red {
   background: #fceff0;
   color: var(--destructive);
-}
-.compact-metrics {
-  display: flex;
-  gap: 24px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: white;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-.compact-metrics > span {
-  font-size: 12px;
-  color: var(--muted-foreground);
-}
-.compact-metrics strong {
-  display: block;
-  font-size: 20px;
-  letter-spacing: -0.5px;
-  color: var(--muted-foreground);
-  margin-top: 7px;
-}
-.empty-state {
-  text-align: center;
-  padding: 45px 20px;
-}
-.empty-state > span {
-  font-size: 28px;
-  color: var(--muted-foreground);
-}
-.empty-state h3 {
-  margin: 14px 0 6px;
-}
-.empty-state p {
-  font-size: 12px;
 }
 .alert {
   padding: 13px 15px;
@@ -285,9 +232,4 @@ td .money {
   border-color: #e6dff5;
   color: var(--primary);
   font-weight: 600;
-}
-.page-tabs {
-  border-bottom: 1px solid #e9e2f0;
-  margin-bottom: 25px;
-  padding-bottom: 12px;
 }

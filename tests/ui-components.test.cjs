@@ -201,3 +201,22 @@ test("Lot 7 : en-têtes fonctionnels de paramètres et caisse, préréglages du 
   assert.doesNotMatch(read("src/features/dashboard/dashboard.module.css"), /\.presets/);
   assert.match(read("src/features/dashboard/dashboard-period-filter.tsx"), /SegmentedControl/);
 });
+
+test("Nettoyage : plus aucun motif remplacé dans src", () => {
+  const forbidden = ["<dialog", "modal-foot", "eyebrow", "finance-summary", "team-summary", "directory-summary", "sales-ledger-summary", "MetricCard", "page-tabs", "compact-metrics", 'className="button'];
+  // Hors périmètre : pages publiques et auth (spec), et base.css dont la règle dialog:modal appartient à l'utilisateur.
+  const outOfScope = /(auth|public-site|access-page|google-login|not-found|base\.css|legacy\/auth\.css)/;
+  // Les feuilles legacy gardent .eyebrow et .button pour les pages publiques et l'authentification.
+  const sharedLegacy = /src\/styles\/legacy\//;
+  for (const f of srcFiles().filter((f) => !outOfScope.test(f))) {
+    const source = read(f);
+    for (const legacy of forbidden) {
+      if (sharedLegacy.test(f) && ["eyebrow", 'className="button'].includes(legacy)) continue;
+      assert.ok(!source.includes(legacy), `${f} contient ${legacy}`);
+    }
+  }
+  for (const orphan of ["returns", "import-stock", "accounting-page", "settings", "workflows"]) assert.ok(!fs.existsSync(`src/frontend/${orphan}.tsx`), `src/frontend/${orphan}.tsx est orphelin`);
+  assert.ok(!fs.existsSync("src/components/data-display/metric-card.tsx"));
+  const ui = read("src/frontend/ui.tsx");
+  for (const legacy of ["export function DataTable", "export function EmptyState", "export function PageHeading", "export function DateRangePicker"]) assert.ok(!ui.includes(legacy), `ui.tsx garde ${legacy}`);
+});

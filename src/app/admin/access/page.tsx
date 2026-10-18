@@ -92,9 +92,9 @@ export default function AdminAccess() {
           </p>
         </div>
         {!auth.user && !auth.loading ? (
-          <Link className="button primary" href="/login">
-            Se connecter
-          </Link>
+          <Button asChild>
+            <Link href="/login">Se connecter</Link>
+          </Button>
         ) : (
           <>
             <div className="admin-filters">

@@ -29,53 +29,19 @@ input[type="radio"] {
   .check-field {
     min-height: 44px;
   }
-  .table-toolbar,
-.overview-toolbar,
-.heading-actions {
+  .table-toolbar {
     flex-wrap: wrap;
-    min-width: 0;
-  }
-  .heading-actions .button {
-    white-space: normal;
-  }
-  .date-range {
-    min-width: 0;
-  }
-  .date-range input {
     min-width: 0;
   }
 }
 @media (max-width: 480px)  {
-.date-range {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  .date-range select {
-    flex: 1 1 100%;
-  }
-  .date-range input {
-    flex: 1 1 40%;
-    width: 0;
-  }
 
   .table-footer {
     flex-wrap: wrap;
     gap: 8px;
   }
-  .table-filters {
-    flex-wrap: wrap;
-  }
-  .compact-metrics > span {
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
   .form-grid {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .page-tabs {
-    margin-inline: 0;
-    max-width: 100%;
   }
 }
 

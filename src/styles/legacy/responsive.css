@@ -4,10 +4,6 @@
     padding: 18px 18px 12px;
   }
 
-  .page-heading h1 {
-    font-size: 27px;
-  }
-
   .auth-story {
     padding: 40px;
   }
@@ -28,11 +24,6 @@
     height: 260px;
   }
 
-  .trade-flow {
-    gap: 15px;
-    padding: 25px;
-  }
-
   .auth-story h1 {
     font-size: 42px;
   }
@@ -48,46 +39,11 @@
   .table-toolbar {
     padding: 13px;
   }
-  .date-range {
-    flex-wrap: wrap;
-  }
-  .overview-toolbar {
-    align-items: flex-start;
-  }
 }
 @media (max-width: 760px)  {
-.page-heading {
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-  }
-  .page-heading h1 {
-    font-size: 26px;
-  }
-  .page-heading p {
-    font-size: 12px;
-  }
   .eyebrow {
     font-size: 12px;
     letter-spacing: 1.4px;
-  }
-  .heading-actions .button {
-    font-size: 12px;
-    min-height: 40px;
-  }
-
-  .overview-toolbar {
-    gap: 13px;
-  }
-  .date-range input {
-    width: 113px;
-    padding: 7px;
-    font-size: 12px;
-  }
-  .date-range select {
-    max-width: 84px;
-    font-size: 12px;
   }
 
   .panel-heading h2 {
@@ -107,14 +63,6 @@
   }
   .search-input input {
     width: 100%;
-  }
-  .table-filters {
-    width: 100%;
-    gap: 7px;
-  }
-  .table-filters select {
-    flex: 1;
-    max-width: 100%;
   }
   th {
     padding: 12px;
@@ -137,37 +85,6 @@
   .table-footer {
     font-size: 12px;
     padding: 8px 12px;
-  }
-  .compact-metrics {
-    gap: 19px;
-    padding: 19px;
-  }
-  .compact-metrics > span {
-    flex-basis: 40%;
-    font-size: 12px;
-  }
-  .compact-metrics strong {
-    font-size: 19px;
-  }
-
-  .trade-flow {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-    padding: 24px;
-  }
-  .trade-flow > svg {
-    transform: rotate(90deg);
-    margin-left: 11px;
-  }
-  .trade-flow h3 {
-    margin-top: 12px;
-  }
-  .trade-flow p {
-    font-size: 12px;
-  }
-  .trade-flow > div {
-    width: 100%;
   }
   .form-grid {
     grid-template-columns: 1fr;

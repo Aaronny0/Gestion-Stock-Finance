@@ -1,5 +1,4 @@
 /* Compatibility for screens not yet migrated. Preserve order until their migration. */
-.page-heading p,
 .panel-heading p {
   color: var(--muted-foreground);
 }
@@ -55,26 +54,6 @@ th {
   color: var(--muted-foreground);
 }
 @media (max-width: 760px)  {
-.date-range {
-    display: grid;
-    grid-template-columns: 75px 1fr 1fr;
-    width: 100%;
-    gap: 5px;
-  }
-  .date-range input {
-    width: 100%;
-    min-width: 0;
-    padding: 6px 3px;
-    font-size: 12px;
-  }
-  .date-range select {
-    width: 100%;
-    max-width: none;
-    padding: 6px 4px;
-  }
-  .date-range > span {
-    display: none;
-  }
   .table-scroll table {
     min-width: 0;
     display: block;

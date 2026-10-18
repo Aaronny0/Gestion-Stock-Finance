@@ -244,13 +244,7 @@ html:has(.claude-workspace) {
   }
 }
 /* Keep shared financial metrics within the HTML summary minimum column width. */
-.claude-workspace .finance-summary {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
-}
-.claude-workspace .finance-summary .text-2xl {
-  font-size: clamp(18px, 1.6vw, 22px);
-  font-weight: 600;
-}
+
 /* The wider approved rail leaves less room at the desktop breakpoint. */
 @media (min-width: 1024px) {
   .claude-workspace .lg\:flex-row {

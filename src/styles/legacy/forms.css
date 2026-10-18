@@ -49,9 +49,6 @@
 .check-field input {
   flex-shrink: 0;
 }
-.table-filters .check-field {
-  font-size: 12px;
-}
 fieldset {
   border: 1px solid #ede4f4;
   padding: 15px;
@@ -158,38 +155,6 @@ legend {
   padding: 3px 5px;
   border-radius: 4px;
   font-size: 12px;
-}
-.trade-flow {
-  display: flex;
-  align-items: center;
-  gap: 25px;
-  background: white;
-  border: 1px solid #ece2f3;
-  border-radius: 13px;
-  padding: 30px;
-  margin-bottom: 32px;
-}
-.trade-flow > div {
-  flex: 1;
-}
-.trade-flow > svg {
-  color: var(--muted-foreground);
-}
-.trade-flow h3 {
-  font-size: 15px;
-  margin: 16px 0 8px;
-}
-.trade-flow p {
-  font-size: 12px;
-  margin-bottom: 0;
-}
-.flow-icon {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 11px;
-  font-size: 20px;
 }
 .report-footnote {
   font-size: 12px;

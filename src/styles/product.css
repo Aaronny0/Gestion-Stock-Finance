@@ -1143,81 +1143,6 @@
   box-shadow: none;
   border-radius: 8px;
 }
-.vortex-workspace .page-tabs {
-  border-bottom: 1px solid var(--border);
-}
-.sales-ledger-summary {
-  display: grid;
-  grid-template-columns: 2fr 1fr 2fr;
-  background: var(--surface);
-  border-block: 1px solid var(--border);
-}
-.sales-ledger-summary > div,
-.sales-ledger-summary > a {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 10px;
-  padding: 22px 26px;
-  border-right: 1px solid var(--border);
-}
-.sales-ledger-summary > a {
-  border: 0;
-  background: #eeedf5;
-}
-.sales-ledger-summary > * > span:first-child {
-  color: var(--muted-foreground);
-  font-size: 12px;
-}
-.sales-ledger-summary > * > span:nth-child(2),
-.sales-ledger-summary strong {
-  font-size: 30px;
-  letter-spacing: -0.04em;
-  font-weight: 600;
-}
-.sales-ledger-summary small {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--primary);
-  font-size: 11px;
-}
-.finance-summary {
-  display: flex;
-  border-block: 1px solid var(--border);
-  background: var(--surface);
-}
-.finance-summary > div {
-  flex: 1;
-  border: 0;
-  border-right: 1px solid var(--border);
-  border-radius: 0;
-  box-shadow: none;
-  min-width: 0;
-}
-.finance-summary > div:last-child {
-  border: 0;
-}
-.finance-summary > div:first-child {
-  background: var(--surface-subtle);
-}
-.team-summary {
-  display: flex;
-  align-items: stretch;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 16px;
-}
-.team-summary > div {
-  flex: 1;
-  background: none;
-  border: 0;
-  border-radius: 0;
-  border-right: 1px solid var(--border);
-  box-shadow: none;
-}
-.team-summary > div:last-child {
-  border: 0;
-}
 .settings-workbench {
   display: grid;
   grid-template-columns: 200px minmax(0, 1fr);
@@ -1244,53 +1169,6 @@
   padding: 12px;
   background: var(--background);
   border-top: 1px solid var(--border);
-}
-.directory-summary {
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
-  border-bottom: 1px solid var(--border);
-  padding: 24px 0;
-  margin-bottom: 24px;
-}
-.directory-summary > div {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-}
-.directory-summary strong {
-  font-size: 38px;
-  letter-spacing: -0.05em;
-  font-weight: 600;
-}
-.directory-summary > div span {
-  font-size: 13px;
-  color: var(--muted-foreground);
-}
-.directory-summary button {
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-  flex-wrap: wrap;
-  text-align: left;
-  border-left: 2px solid var(--primary);
-  padding: 0 18px;
-  max-width: 430px;
-}
-.directory-summary button > span:first-child {
-  font-size: 12px;
-}
-.directory-summary .money {
-  font-size: 22px;
-  font-weight: 600;
-}
-.directory-summary small {
-  color: var(--primary);
-  font-size: 11px;
-  width: 100%;
-}
-.directory-summary [aria-pressed="true"] {
-  background: var(--accent);
 }
 .pos-product {
   min-height: 180px;
@@ -1321,43 +1199,15 @@
 .checkout-summary > div:first-child > span:last-child {
   font-size: 27px;
 }
-.vortex-workspace .trade-flow {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--primary);
-  box-shadow: none;
-  border-radius: 6px;
-}
 @media (max-width: 1100px) {
   .settings-workbench {
     grid-template-columns: 165px minmax(0, 1fr);
     gap: 20px;
   }
-  .sales-ledger-summary > div,
-  .sales-ledger-summary > a {
-    padding: 20px;
-  }
-  .sales-ledger-summary > * > span:nth-child(2) {
-    font-size: 24px;
-  }
 }
 @media (max-width: 767px) {
   .vortex-page-header h1 {
     font-size: 26px;
-  }
-  .sales-ledger-summary {
-    grid-template-columns: 1fr 1fr;
-  }
-  .sales-ledger-summary > a {
-    grid-column: 1/-1;
-    border-top: 1px solid var(--border);
-  }
-  .finance-summary {
-    flex-wrap: wrap;
-  }
-  .finance-summary > div {
-    flex: 1 1 50%;
-    border-bottom: 1px solid var(--border);
   }
   .settings-workbench {
     grid-template-columns: 1fr;
@@ -1373,26 +1223,6 @@
   .settings-links [aria-current] {
     border-left: 0;
     border-bottom: 2px solid var(--primary);
-  }
-  .directory-summary {
-    flex-direction: column;
-    gap: 20px;
-    padding: 18px 0;
-  }
-  .directory-summary button {
-    padding: 12px 16px;
-    background: var(--surface);
-    width: 100%;
-    max-width: none;
-  }
-  .team-summary {
-    flex-wrap: wrap;
-  }
-  .team-summary > div {
-    flex: 1 1 45%;
-  }
-  .team-summary h3 {
-    font-size: 22px;
   }
   .pos-product > button > div:last-child {
     padding: 12px;
