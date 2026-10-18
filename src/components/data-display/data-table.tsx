@@ -287,6 +287,8 @@ function DataTable<TData, TValue>({
               {selectedRows.length} sélectionné(s)
             </span>
           ) : null}
+          {enableColumnVisibility || (canExport && exportRow) ? (
+          <div data-list-end-group="" className="flex items-center gap-2">
           {enableColumnVisibility ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -331,6 +333,8 @@ function DataTable<TData, TValue>({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          ) : null}
+          </div>
           ) : null}
         </div>
       </div>

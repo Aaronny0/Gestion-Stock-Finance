@@ -170,3 +170,10 @@ test("Lot 5 : crédits avec onglets soulignés et synthèse partagée", () => {
   for (const legacy of ["TabsList", "<Card", "eyebrow="]) assert.ok(!source.includes(legacy), `credits-page.tsx contient ${legacy}`);
   for (const shared of ["ListTabs", "ListCard", "SummaryStrip", "formatListDate"]) assert.ok(source.includes(shared), `credits-page.tsx sans ${shared}`);
 });
+
+test("Lot 6 : comptabilité au gabarit Listes", () => {
+  const source = read("src/features/accounting/accounting-page.tsx");
+  for (const legacy of ["TabsList", "MetricCard", "finance-summary", "eyebrow=", 'density="dense"']) assert.ok(!source.includes(legacy), `accounting-page.tsx contient ${legacy}`);
+  for (const shared of ["ListTabs", "ListCard", "SummaryStrip", "toolbarStart", "formatListDate"]) assert.ok(source.includes(shared), `accounting-page.tsx sans ${shared}`);
+  assert.ok((source.match(/align: "right"/g) ?? []).length >= 8, "débits, crédits et soldes alignés à droite");
+});

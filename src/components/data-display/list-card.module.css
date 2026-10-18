@@ -88,7 +88,7 @@
   border-bottom: 1px solid #dde3e4;
 }
 .card [data-list-search] {
-  flex: 1 1 220px;
+  flex: 1 1 180px;
   max-width: 360px;
   width: auto;
 }
@@ -102,7 +102,7 @@
   min-height: 40px;
   font-size: 14px;
 }
-.card [data-list-toolbar] [data-list-end]:not([data-list-end] ~ [data-list-end]) {
+.card [data-list-end-group] {
   margin-left: auto;
 }
 .card :global(table) {
@@ -210,7 +210,7 @@
     flex-basis: 100%;
     max-width: none;
   }
-  .card [data-list-toolbar] [data-list-end]:not([data-list-end] ~ [data-list-end]) {
+  .card [data-list-end-group] {
     margin-left: 0;
   }
 }
