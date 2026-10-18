@@ -335,7 +335,7 @@ function DataTable<TData, TValue>({
         </div>
       </div>
 
-      {mobileRow && sortableColumns.length ? (
+      {mobileRow && sortableColumns.length && table.getFilteredRowModel().rows.length ? (
         <div data-list-mobile="" className="flex items-center gap-2 md:hidden">
           <Select
             value={activeSort?.id ?? "none"}

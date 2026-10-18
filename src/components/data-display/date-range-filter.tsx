@@ -15,7 +15,7 @@ function DateRangeFilter() {
   };
 
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+    <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
       <Select onValueChange={(value) => applyPreset(Number(value))}>
         <SelectTrigger className="w-full sm:w-44" aria-label="Période prédéfinie">
           <CalendarDays className="mr-2 size-4 text-muted-foreground" />
@@ -29,10 +29,10 @@ function DateRangeFilter() {
           <SelectItem value="365">Année</SelectItem>
         </SelectContent>
       </Select>
-      <div className="flex items-center gap-2">
-        <Input aria-label="Date de début" type="date" value={start} max={end} onChange={(event) => event.target.value && setDates(event.target.value, end)} className="min-w-0" />
+      <div className="flex min-w-0 items-center gap-2">
+        <Input aria-label="Date de début" type="date" value={start} max={end} onChange={(event) => event.target.value && setDates(event.target.value, end)} className="min-w-0 flex-1 sm:w-40 sm:flex-none" />
         <span className="text-muted-foreground">—</span>
-        <Input aria-label="Date de fin" type="date" value={end} min={start} onChange={(event) => event.target.value && setDates(start, event.target.value)} className="min-w-0" />
+        <Input aria-label="Date de fin" type="date" value={end} min={start} onChange={(event) => event.target.value && setDates(start, event.target.value)} className="min-w-0 flex-1 sm:w-40 sm:flex-none" />
       </div>
     </div>
   );

@@ -148,3 +148,11 @@ test("D28 : sous 900 px, « Colonnes » disparaît avec la table", () => {
   assert.match(read("src/components/data-display/data-table.tsx"), /data-list-columns/);
   assert.match(read("src/components/data-display/list-card.module.css"), /@container list \(max-width: 899px\)[^}]*\[data-list-columns\]/);
 });
+
+test("Lot 4 : achats, troc, rachat, clients et fournisseurs quittent le gabarit historique", () => {
+  const pages = read("src/frontend/pages.tsx");
+  const fromUi = pages.match(/import \{([^}]*)\} from "\.\/ui"/)?.[1] ?? "";
+  for (const legacy of ["DataTable", "PageHeading", "DateRangePicker", "EmptyState", "Badge"]) assert.ok(!new RegExp(`\\b${legacy}\\b`).test(fromUi), `pages.tsx importe ${legacy} legacy`);
+  for (const legacy of ["eyebrow", "directory-summary", "ESPACE DE GESTION", "trade-flow", 'className="button']) assert.ok(!pages.includes(legacy), `pages.tsx contient ${legacy}`);
+  for (const shared of ["ListCard", "SummaryStrip", "PageHeader", "formatListDate"]) assert.ok(pages.includes(shared), `pages.tsx sans ${shared}`);
+});

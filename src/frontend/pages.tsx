@@ -5,20 +5,22 @@ import { DialogBody, DialogFooter } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Plus, ArrowRight, ArrowDownLeft, ArrowUpRight, Repeat2, ShoppingBag } from "lucide-react";
+import { Plus, Repeat2, ShoppingBag } from "lucide-react";
 import { useWorkspace } from "./provider";
 import { canonical } from "./navigation";
 import { salePosition } from "./operations";
 import { ActionForm } from "./forms";
-import {
-  Alert,
-  Badge,
-  DataTable,
-  DateRangePicker,
-  Modal,
-  Money,
-  PageHeading,
-} from "./ui";
+import type { ColumnDef } from "@tanstack/react-table";
+import { DataTable } from "@/components/data-display/data-table";
+import { DateRangeFilter } from "@/components/data-display/date-range-filter";
+import { EmptyState } from "@/components/data-display/empty-state";
+import { ListCard } from "@/components/data-display/list-card";
+import { Money } from "@/components/data-display/money";
+import { StatusBadge } from "@/components/data-display/status-badge";
+import { SummaryItem, SummaryStrip } from "@/components/data-display/summary-strip";
+import { PageHeader } from "@/components/layout/page-header";
+import { formatListDate } from "@/lib/format";
+import { Alert, Modal } from "./ui";
 import { type RecordRow } from "./types";
 import Dashboard from "./dashboard";
 import { CreditsPage } from "@/features/sales/credits-page";
@@ -89,105 +91,78 @@ function BusinessPage({ path }: { path: string }) {
     title: string,
     initial?: Record<string, unknown>,
   ) => setAction({ type, title, initial });
-  const button = (type: string, title: string) => (
-    <button className="button primary" onClick={() => launch(type, title)}>
+  const primary = (type: string, title: string) => (
+    <Button onClick={() => launch(type, title)}>
       <Plus />
       {title}
-    </button>
+    </Button>
+  );
+  const canExport = can("exports.create");
+  const dateColumn: ColumnDef<RecordRow> = { accessorKey: "date", header: "Date", cell: ({ row }) => formatListDate(row.original.date) };
+  const statusColumn: ColumnDef<RecordRow> = { accessorKey: "status", header: "Statut", cell: ({ row }) => <StatusBadge value={row.original.status} showIcon={false} /> };
+  const moneyColumn = (key: "amount" | "complement", header: string): ColumnDef<RecordRow> => ({ id: key, header, meta: { align: "right" }, accessorFn: (row) => Number(row[key] ?? 0), cell: ({ row }) => <Money value={Number(row.original[key] ?? 0)} /> });
+  const mobileRow = (row: RecordRow, secondary: string) => (
+    <div className="flex items-center gap-3 px-4 py-3">
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <strong className="truncate text-sm font-semibold">{row.label}</strong>
+          <StatusBadge value={row.status} showIcon={false} />
+        </div>
+        <div className="mt-1 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+          <span className="truncate">{secondary}</span>
+          <Money value={Number(row.amount ?? 0)} className="text-sm font-semibold text-foreground" />
+        </div>
+      </div>
+    </div>
   );
   let content: React.ReactNode;
   if (path.startsWith("/trade") || path.startsWith("/buyback")) {
     const trade = path.startsWith("/trade");
+    const all = trade ? db.trades : db.buybacks;
+    const rows = all.filter(scope);
+    const noun = trade ? "troc" : "rachat";
     content = (
       <>
-        <PageHeading
-          eyebrow={trade ? "TROC & REPRISE" : "RACHAT CLIENT"}
-          title={
-            trade
-              ? "Un échange, de nouvelles possibilités."
-              : "Donnez une seconde vie aux appareils."
-          }
+        <PageHeader
+          title={trade ? "Troc & reprise" : "Rachat client"}
           description={
             trade
               ? "Un téléphone entre, un autre sort. Le complément reste clairement identifié."
               : "Un appareil rejoint votre stock et son règlement est suivi en trésorerie."
           }
-          action={button(
-            trade ? "trade.create" : "buyback.create",
-            trade ? "Nouveau troc" : "Nouveau rachat",
-          )}
+          primaryAction={primary(trade ? "trade.create" : "buyback.create", trade ? "Nouveau troc" : "Nouveau rachat")}
         />
-        <div className="trade-flow">
-          <div>
-            <span className="flow-icon green">
-              <ArrowDownLeft />
-            </span>
-            <h3>Appareil du client</h3>
-            <p>
-              Marque, modèle, état et valeur de reprise.
-              <br />
-              IMEI facultatif.
-            </p>
-          </div>
-          <ArrowRight />
-          <div>
-            <span className="flow-icon violet">
-              {trade ? <Repeat2 /> : <ShoppingBag />}
-            </span>
-            <h3>{trade ? "Appareil de la boutique" : "Règlement au client"}</h3>
-            <p>
-              {trade
-                ? "Sélection depuis le stock disponible."
-                : "Espèces, Mobile Money ou virement."}
-            </p>
-          </div>
-          <ArrowRight />
-          <div>
-            <span className="flow-icon blue">
-              <ArrowUpRight />
-            </span>
-            <h3>{trade ? "Complément encaissé" : "Entrée en stock"}</h3>
-            <p>
-              {trade
-                ? "Prix boutique moins valeur de reprise."
-                : "Le rachat ne crée aucun chiffre d’affaires."}
-            </p>
-          </div>
-        </div>
-        <div className="overview-toolbar">
-          <h2>{trade ? "Historique des trocs" : "Historique des rachats"}</h2>
-          <DateRangePicker />
-        </div>
-        <DataTable
-          name={trade ? "trocs" : "rachats"}
-          rows={(trade ? db.trades : db.buybacks).filter(scope)}
-          columns={[
-            { key: "date", label: "Date" },
-            { key: "label", label: "Appareil repris" },
-            {
-              key: "amount",
-              label: "Valeur de reprise",
-              render: (r) => <Money value={r.amount ?? 0} />,
-            },
-            ...(trade
-              ? [
-                  {
-                    key: "complement",
-                    label: "Complément",
-                    render: (r: RecordRow) => (
-                      <Money value={Number(r.complement ?? 0)} />
-                    ),
-                  },
-                ]
-              : []),
-            {
-              key: "status",
-              label: "Statut",
-              render: (r) => <Badge value={r.status} />,
-            },
-          ]}
-          onRow={setSelected}
-        />
+        <ListCard aria-label={trade ? "Historique des trocs" : "Historique des rachats"}>
+          <DataTable
+            name={trade ? "trocs" : "rachats"}
+            data={rows}
+            getRowId={(row) => row.id}
+            toolbarStart={<DateRangeFilter />}
+            columns={[dateColumn, { accessorKey: "label", header: "Appareil repris" }, moneyColumn("amount", "Valeur de reprise"), ...(trade ? [moneyColumn("complement", "Complément")] : []), statusColumn]}
+            onRow={setSelected}
+            mobileRow={(row) => mobileRow(row, formatListDate(row.date))}
+            canExport={canExport}
+            exportRow={(row) => ({ Date: row.date, "Appareil repris": row.label, "Valeur de reprise": row.amount ?? 0, ...(trade ? { Complément: Number(row.complement ?? 0) } : {}), Statut: row.status })}
+            searchPlaceholder="Appareil, statut…"
+            emptyContent={
+              all.length ? undefined : (
+                <EmptyState
+                  kind="first-use"
+                  icon={trade ? Repeat2 : ShoppingBag}
+                  title={`Aucun ${noun} enregistré`}
+                  description={trade ? "Le troc échange l’appareil d’un client contre un appareil de la boutique." : "Le rachat fait entrer en stock l’appareil d’un client, sans chiffre d’affaires."}
+                  steps={[
+                    { title: "Appareil du client", description: "Marque, modèle, état et valeur de reprise. IMEI facultatif." },
+                    trade ? { title: "Appareil de la boutique", description: "Sélection depuis le stock disponible." } : { title: "Règlement au client", description: "Espèces, Mobile Money ou virement." },
+                    trade ? { title: "Complément encaissé", description: "Prix boutique moins valeur de reprise." } : { title: "Entrée en stock", description: "Le rachat ne crée aucun chiffre d’affaires." },
+                  ]}
+                />
+              )
+            }
+            emptyTitle={`Aucun ${noun} sur cette période`}
+            emptyDescription="Élargissez la période pour retrouver l’historique."
+          />
+        </ListCard>
       </>
     );
   } else {
@@ -197,42 +172,47 @@ function BusinessPage({ path }: { path: string }) {
       {
         title: string;
         description: string;
-        collection:
-          | "purchases"
-          | "suppliers"
-          | "clients";
-        action?: string;
-        actionLabel?: string;
+        collection: "purchases" | "suppliers" | "clients";
+        action: string;
+        actionLabel: string;
+        empty: string;
+        emptyDescription: string;
       }
     > = {
       purchases: {
-        title: "Vos achats, bien suivis.",
-        description:
-          "Réceptions de marchandises, factures et dettes fournisseurs.",
+        title: "Achats",
+        description: "Réceptions de marchandises, factures et dettes fournisseurs.",
         collection: "purchases",
         action: "purchase.create",
         actionLabel: "Nouvel achat",
+        empty: "Aucun achat enregistré",
+        emptyDescription: "Un achat réceptionne la marchandise en stock et suit ce qui reste dû au fournisseur.",
       },
       suppliers: {
-        title: "Des partenaires de confiance.",
+        title: "Fournisseurs",
         description: "Coordonnées, achats et soldes de vos fournisseurs.",
         collection: "suppliers",
         action: "supplier.save",
         actionLabel: "Nouveau fournisseur",
+        empty: "Aucun fournisseur",
+        emptyDescription: "Ajoutez vos fournisseurs pour rattacher les achats et suivre les soldes à régler.",
       },
       clients: {
-        title: "Vos clients, au cœur de l’activité.",
-        description:
-          "Retrouvez les coordonnées, les achats et les montants dus.",
+        title: "Clients",
+        description: "Retrouvez les coordonnées, les achats et les montants dus.",
         collection: "clients",
         action: "client.save",
         actionLabel: "Nouveau client",
+        empty: "Aucun client",
+        emptyDescription: "Les clients enregistrés en caisse ou ici apparaîtront dans le répertoire.",
       },
     };
     const c = config[key];
     if (c) {
-      const rows = db[c.collection]
-        .filter((r) => ["clients", "suppliers"].includes(key) || scope(r))
+      const directory = ["suppliers", "clients"].includes(key);
+      const all = db[c.collection];
+      const rows = all
+        .filter((r) => directory || scope(r))
         .map((r) =>
           key === "suppliers"
             ? {
@@ -259,46 +239,61 @@ function BusinessPage({ path }: { path: string }) {
                 }
               : r,
         );
+      const canCreate = key !== "clients" || can("sales.create");
+      const visible = balanceOnly && directory ? rows.filter((r) => (r.amount ?? 0) > 0) : rows;
+      const amountLabel = directory ? "Solde dû" : "Montant";
       content = (
         <>
-          <PageHeading
-            title={c.title}
-            description={c.description}
-            action={
-              c.action &&
-              (key !== "clients" || can("sales.create")) &&
-              button(c.action, c.actionLabel!)
-            }
-          />
-          {["suppliers", "clients"].includes(key) && <section className="directory-summary"><div><strong>{rows.length}</strong><span>{key === "clients" ? "clients dans votre répertoire" : "partenaires fournisseurs"}</span></div><button type="button" aria-pressed={balanceOnly} onClick={()=>setBalanceOnly(!balanceOnly)}><span>{key === "clients" ? "Créances clients" : "Soldes fournisseurs"}</span><Money value={rows.reduce((sum,r)=>sum+(r.amount ?? 0),0)}/><small>{balanceOnly ? "Afficher tout le répertoire" : "Voir uniquement les soldes à régler"}</small></button></section>}
-          {!["suppliers", "clients"].includes(key) && <DateRangePicker />}
-          <DataTable
-            name={key}
-            rows={balanceOnly && ["suppliers", "clients"].includes(key) ? rows.filter(r=>(r.amount ?? 0)>0) : rows}
-            columns={[
-              {
-                key: "label",
-                label: "Nom / référence",
-              },
-              ...(["suppliers", "clients"].includes(key)
-                ? [
-                    { key: "phone", label: "Téléphone" },
-                    { key: "email", label: "Email" },
-                  ]
-                : [{ key: "date", label: "Date" }]),
-              {
-                key: "amount",
-                label: ["suppliers", "clients"].includes(key) ? "Solde dû" : "Montant",
-                render: (r: RecordRow) => <Money value={r.amount ?? 0} />,
-              },
-              {
-                key: "status",
-                label: "Statut",
-                render: (r: RecordRow) => <Badge value={r.status} />,
-              },
-            ]}
-            onRow={setSelected}
-          />
+          <PageHeader title={c.title} description={c.description} primaryAction={canCreate ? primary(c.action, c.actionLabel) : undefined} />
+          {directory ? (
+            <SummaryStrip aria-label={`Synthèse ${key === "clients" ? "des clients" : "des fournisseurs"}`}>
+              <SummaryItem label={key === "clients" ? "Clients" : "Fournisseurs"} value={rows.length} meta={key === "clients" ? "dans votre répertoire" : "partenaires enregistrés"} />
+              <SummaryItem
+                label={key === "clients" ? "Créances clients" : "Soldes fournisseurs"}
+                tone="warning"
+                money={rows.reduce((sum, r) => sum + (r.amount ?? 0), 0)}
+                meta={balanceOnly ? "Afficher tout le répertoire" : "Voir uniquement les soldes à régler →"}
+                pressed={balanceOnly}
+                onPress={() => setBalanceOnly(!balanceOnly)}
+              />
+            </SummaryStrip>
+          ) : null}
+          <ListCard aria-label={c.title}>
+            <DataTable
+              name={key}
+              data={visible}
+              getRowId={(row) => row.id}
+              toolbarStart={directory ? undefined : <DateRangeFilter />}
+              columns={[
+                { accessorKey: "label", header: directory ? "Nom" : "Référence", cell: ({ row }) => <span className="font-medium">{row.original.label}</span> },
+                ...(directory
+                  ? [
+                      { accessorKey: "phone", header: "Téléphone", cell: ({ row }) => String(row.original.phone ?? "—") } as ColumnDef<RecordRow>,
+                      { accessorKey: "email", header: "Email", cell: ({ row }) => String(row.original.email ?? "—") } as ColumnDef<RecordRow>,
+                    ]
+                  : [dateColumn]),
+                moneyColumn("amount", amountLabel),
+                statusColumn,
+              ]}
+              onRow={setSelected}
+              mobileRow={(row) => mobileRow(row, directory ? String(row.phone ?? row.email ?? "—") : formatListDate(row.date))}
+              canExport={canExport}
+              exportRow={(row) => ({ [directory ? "Nom" : "Référence"]: row.label, ...(directory ? { Téléphone: String(row.phone ?? ""), Email: String(row.email ?? "") } : { Date: row.date }), [amountLabel]: row.amount ?? 0, Statut: row.status })}
+              searchPlaceholder={directory ? "Nom, téléphone, email…" : "Référence, fournisseur, statut…"}
+              emptyContent={
+                all.length ? undefined : (
+                  <EmptyState
+                    kind="first-use"
+                    title={c.empty}
+                    description={c.emptyDescription}
+                    actions={canCreate ? primary(c.action, c.actionLabel) : undefined}
+                  />
+                )
+              }
+              emptyTitle={directory ? (balanceOnly ? "Aucun solde à régler" : `${c.empty} ne correspond`) : "Aucun achat sur cette période"}
+              emptyDescription={directory ? undefined : "Élargissez la période pour retrouver l’historique."}
+            />
+          </ListCard>
         </>
       );
     } else content = <Alert error>Cette page n’existe pas.</Alert>;
@@ -368,47 +363,45 @@ function BusinessPage({ path }: { path: string }) {
             {path.startsWith("/suppliers") && (
               <DataTable
                 name="achats-fournisseur"
-                rows={db.purchases.filter(
+                data={db.purchases.filter(
                   (p) =>
                     p.supplierId === selected.id &&
                     (storeId === "all" || p.storeId === storeId),
                 )}
+                getRowId={(row) => row.id}
+                density="dense"
+                enableColumnVisibility={false}
                 columns={[
-                  { key: "label", label: "Achat" },
-                  {
-                    key: "amount",
-                    label: "Total",
-                    render: (r) => <Money value={r.amount ?? 0} />,
-                  },
-                  {
-                    key: "paid",
-                    label: "Payé",
-                    render: (r) => <Money value={r.paid ?? 0} />,
-                  },
+                  { accessorKey: "label", header: "Achat" },
+                  moneyColumn("amount", "Total"),
+                  { id: "paid", header: "Payé", meta: { align: "right" }, accessorFn: (row) => row.paid ?? 0, cell: ({ row }) => <Money value={row.original.paid ?? 0} /> },
                 ]}
                 onRow={setSelected}
+                emptyKind="first-use"
+                emptyTitle="Aucun achat chez ce fournisseur"
               />
             )}{" "}
             {path.startsWith("/clients") && (
               <DataTable
                 name="achats-client"
-                rows={db.sales.filter(
+                data={db.sales.filter(
                   (s) =>
                     s.clientId === selected.id &&
                     (storeId === "all" || s.storeId === storeId),
                 )}
+                getRowId={(row) => row.id}
+                density="dense"
+                enableColumnVisibility={false}
                 columns={[
-                  { key: "reference", label: "Vente" },
-                  {
-                    key: "total",
-                    label: "Montant",
-                    render: (s) => <Money value={s.total} />,
-                  },
+                  { accessorKey: "reference", header: "Vente" },
+                  { id: "total", header: "Montant", meta: { align: "right" }, accessorFn: (row) => row.total, cell: ({ row }) => <Money value={row.original.total} /> },
                 ]}
                 onRow={(s) => {
                   setSelected(null);
                   router.push(href("/sales/" + s.id));
                 }}
+                emptyKind="first-use"
+                emptyTitle="Aucun achat pour ce client"
               />
             )}
           </DialogBody>
