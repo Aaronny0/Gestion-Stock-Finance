@@ -209,27 +209,6 @@
   align-items: center;
   flex-wrap: wrap;
 }
-.presets {
-  display: flex;
-  gap: 2px;
-  padding: 3px;
-  border-radius: 8px;
-  background: #e9f2f2;
-}
-.presets button {
-  background: transparent;
-  color: var(--muted-foreground);
-  border: 0;
-  border-radius: 6px;
-  min-height: 44px;
-  padding: 0 10px;
-  font-size: 12.5px;
-  font-weight: 600;
-}
-.presets button[aria-pressed="true"] {
-  background: #fff;
-  color: var(--foreground);
-}
 .dateToggle {
   display: flex;
   align-items: center;
@@ -1196,11 +1175,6 @@
   min-height: 40px;
   height: 40px;
 }
-.presets button {
-  min-height: 28px;
-  height: 28px;
-  font-weight: 500;
-}
 .dateToggle {
   min-height: 34px;
   height: 34px;
@@ -1372,9 +1346,8 @@
 }
 @media (pointer: coarse) {
   .headerActions a,
-  .headerActions button,
-  .presets button,
-  .dateToggle {
+.headerActions button,
+.dateToggle {
     min-height: 44px;
     height: auto;
   }

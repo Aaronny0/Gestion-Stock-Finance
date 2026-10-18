@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
-import { ArrowRight, ShoppingBag } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { History, ShoppingBag } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { EmptyState } from "@/components/data-display/empty-state";
 import { ProductCard } from "@/features/pos/product-card";
@@ -296,14 +294,9 @@ export default function POS() {
     <>
       <div className="pos-workbench space-y-6 pb-24 lg:pb-0">
         <PageHeader
-          eyebrow="Espace de vente"
           title="Nouvelle vente"
           description="Recherchez un article, préparez le panier et encaissez sans quitter l’écran."
-          actions={
-            <Button asChild variant="outline">
-              <Link href={href("/sales")}>Historique des ventes <ArrowRight /></Link>
-            </Button>
-          }
+          secondaryActions={[{ label: "Historique des ventes", icon: History, href: href("/sales") }]}
         />
 
         {storeId === "all" ? (

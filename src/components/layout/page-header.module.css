@@ -30,7 +30,7 @@
   .menu {
     display: inline-flex;
   }
-  .collapsible > :last-child {
+  .collapsible > :last-child:not(.menu) {
     flex: 1;
   }
 }

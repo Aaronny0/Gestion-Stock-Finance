@@ -97,7 +97,7 @@ function SettingsContent({ path }: { path: string }) {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="PARAMÈTRES" title="Configurez votre espace de travail." description="Entreprise, boutiques, règles de vente, comptabilité, fiscalité et sécurité dans une interface unique." />
+      <PageHeader title="Paramètres" description="Entreprise, boutiques, règles de vente, comptabilité, fiscalité et sécurité dans une interface unique." />
 
       <div className="settings-workbench"><nav className="settings-navigation" aria-label="Sections des paramètres">
         <div className="settings-links">

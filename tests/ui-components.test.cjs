@@ -195,3 +195,9 @@ test("Lot 7 : équipe et audit sur les composants partagés", () => {
   assert.doesNotMatch(audit, /eyebrow=|density="dense"/);
   for (const shared of ["ListCard", "toolbarStart", "formatListDate"]) assert.ok(audit.includes(shared), `audit-page.tsx sans ${shared}`);
 });
+
+test("Lot 7 : en-têtes fonctionnels de paramètres et caisse, préréglages du dashboard en SegmentedControl", () => {
+  for (const f of ["src/features/settings/settings-page.tsx", "src/frontend/pos.tsx"]) assert.doesNotMatch(read(f), /eyebrow=/, f);
+  assert.doesNotMatch(read("src/features/dashboard/dashboard.module.css"), /\.presets/);
+  assert.match(read("src/features/dashboard/dashboard-period-filter.tsx"), /SegmentedControl/);
+});

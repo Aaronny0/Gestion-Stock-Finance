@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { CalendarDays } from "lucide-react";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { useWorkspace } from "@/frontend/provider";
 import styles from "./dashboard.module.css";
 export function DashboardPeriodFilter() {
@@ -24,18 +25,12 @@ export function DashboardPeriodFilter() {
   };
   return (
     <div className={styles.period}>
-      <div className={styles.presets}>
-        {[7, 30].map((days) => (
-          <button
-            key={days}
-            type="button"
-            aria-pressed={active(days)}
-            onClick={() => preset(days)}
-          >
-            {days} derniers jours
-          </button>
-        ))}
-      </div>
+      <SegmentedControl
+        aria-label="Période du tableau de bord"
+        options={[7, 30].map((days) => ({ value: String(days), label: `${days} derniers jours` }))}
+        value={[7, 30].find(active)?.toString() ?? ""}
+        onValueChange={(value) => preset(Number(value))}
+      />
       <button
         className={styles.dateToggle}
         type="button"

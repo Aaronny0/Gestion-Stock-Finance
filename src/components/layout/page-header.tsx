@@ -29,6 +29,8 @@ interface PageHeaderProps extends React.ComponentProps<"header"> {
 
 function PageHeader({ eyebrow, title, description, primaryAction, secondaryActions = [], actions, className, ...props }: PageHeaderProps) {
   const hasActions = Boolean(primaryAction || secondaryActions.length || actions);
+  // Une secondaire seule, sans primaire, reste un bouton : un menu « ⋯ » pour une seule action n'aide pas.
+  const collapse = secondaryActions.length > 1 || (secondaryActions.length > 0 && Boolean(primaryAction));
   return (
     <header className={cn("vortex-page-header", styles.header, className)} {...props}>
       <div className={cn(styles.heading, "space-y-1")}>
@@ -37,22 +39,22 @@ function PageHeader({ eyebrow, title, description, primaryAction, secondaryActio
         {description ? <p className="max-w-3xl text-sm leading-6 text-muted-foreground">{description}</p> : null}
       </div>
       {hasActions ? (
-        <div className={cn(styles.actions, secondaryActions.length > 0 && styles.collapsible)}>
+        <div className={cn(styles.actions, collapse && styles.collapsible)}>
           {actions}
           {secondaryActions.length ? (
             <>
               {secondaryActions.map(({ label, icon: Icon, onSelect, href, disabled }) =>
                 href ? (
-                  <Button key={label} variant="outline" className={styles.secondary} asChild>
+                  <Button key={label} variant="outline" className={collapse ? styles.secondary : undefined} asChild>
                     <Link href={href}>{Icon ? <Icon /> : null} {label}</Link>
                   </Button>
                 ) : (
-                  <Button key={label} variant="outline" className={styles.secondary} onClick={onSelect} disabled={disabled}>
+                  <Button key={label} variant="outline" className={collapse ? styles.secondary : undefined} onClick={onSelect} disabled={disabled}>
                     {Icon ? <Icon /> : null} {label}
                   </Button>
                 ),
               )}
-              <DropdownMenu>
+              {collapse ? <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon" className={styles.menu} aria-label="Autres actions">
                     <MoreHorizontal />
@@ -71,7 +73,7 @@ function PageHeader({ eyebrow, title, description, primaryAction, secondaryActio
                     ),
                   )}
                 </DropdownMenuContent>
-              </DropdownMenu>
+              </DropdownMenu> : null}
             </>
           ) : null}
           {primaryAction}
