@@ -70,7 +70,7 @@ Limites : seuil du panier fixe de caisse (1280 px) choisi sur l'observation à 1
 **D27 — Modales unifiées sur Radix.** L'utilisateur a validé le 18 octobre 2026 le spec [composants partagés](../../superpowers/specs/2026-10-18-ui-composants-partages-design.md), approche A. Ce spec part d'une capture de « Créer un produit » collée en haut à gauche. Il approuve :
 
 - une seule famille de modales, le `Dialog` Radix (`src/components/ui/dialog.tsx`) :
-  - tailles nommées `sm`/`md`/`lg`/`xl` (448/640/768/1024 px) ;
+  - tailles nommées `sm`/`md`/`lg`/`xl` (448/640/768/1024 px) ; corps espacé par défaut (`space-y-4`) ;
   - en-tête et pied fixes, filet `#eaefef` ; seul `DialogBody` défile, avec `.scroll-hint` (D25) ;
   - hauteur maximale `min(100dvh − 32px − safe-area, 90dvh)`, rayon 12 px, ombre `--shadow-dialog`, fond `foreground/35` ;
 - croix de fermeture de 44 × 44. Le focus initial va au premier champ du corps, jamais à la croix. Le focus revient au déclencheur, ou au bouton « Autres actions » si l'action venait d'un menu (`useReturnFocus`) ;
@@ -98,7 +98,7 @@ Le rayon 18 de la ligne Dialog du chapitre 05 (DESIGN.md) reste la cible documen
   - onglets soulignés en liens (`aria-current`) ou en `tablist` au clavier (flèches, Début, Fin). Ils remplacent les onglets Radix en pastille (Crédits, Comptabilité) et `.page-tabs` (Statistiques) ;
 - **`FilterChip`** (`src/components/ui/filter-chip.tsx`) : style unique D26 de Stock, 40 px, actif `#dff2f2`/`#04585c`, variante warning. Les statuts de Ventes quittent la pilule noire de 34 px. `ClearFiltersButton` l'accompagne ;
 - **`SegmentedControl`** (`src/components/ui/segmented-control.tsx`) : conteneur `#eaefef` à 40 px. Il remplace `.period` (Ventes) et `.presets` (Dashboard) ;
-- **`DataTable`** : props additives `toolbarStart` et `emptyKind`, attributs `data-list-*`. `DateRangeFilter` devient fluide sous 640 px et plus compact au-delà (144 px par champ).
+- **`DataTable`** : props additives `toolbarStart`, `emptyKind`, `filtered` et `onClearFilters` (un filtre de page donne l'état `no-results`), attributs `data-list-*`. Sous 480 px de largeur utile, la pagination numérotée ne garde que la page courante. `DateRangeFilter` devient fluide sous 640 px et plus compact au-delà (144 px par champ).
 
 **D29 — États vides typés.** `EmptyState` (`src/components/data-display/empty-state.tsx`) :
 
@@ -110,10 +110,10 @@ Chaque écran a son propre texte. Le message générique « Essayez de modifier 
 **D30 — En-têtes fonctionnels et harmonisations.** Sur tous les écrans métier :
 
 - **En-têtes.** `PageHeader` perd `eyebrow` et le filet bas. Les titres-slogans deviennent le nom de l'écran (« Achats », « Comptabilité », « Trésorerie & caisse »…). L'en-tête porte une seule primaire et des secondaires outline, regroupées sous 768 px dans « Autres actions ». Une secondaire seule sans primaire n'est pas repliée.
-- **Navigation.** Le bouton « Retour » du shell est supprimé. Le fil d'Ariane n'affiche « Détail » que pour une fiche (produit, vente) et non pour les onglets d'un écran.
+- **Navigation.** Le bouton « Retour » du shell ne s'affiche plus que sur une fiche (produit) : il ramène à la liste en restaurant le défilement. Il disparaît des pages de premier niveau et de leurs onglets. Le fil d'Ariane n'affiche « Détail » que pour une fiche (produit, vente).
 - **Fiche produit.** « Nouvelle entrée » en primaire. Modifier, Ajuster, Transférer et Archiver passent en secondaires.
 - **Format des données.**
-  - Les dates des listes suivent le format de Ventes via `formatListDate` (`src/lib/format.ts`), sans heure inventée pour une date seule.
+  - Les dates des listes suivent le format de Ventes via `formatListDate` (`src/lib/format.ts`), sans heure inventée pour une date seule ; l'année s'affiche quand elle diffère de l'année courante.
   - Les montants et leurs en-têtes sont alignés à droite (`meta.align`).
   - Les modèles de rôles affichent des libellés de permissions et non des clés techniques.
 - **Clients et Fournisseurs.** La colonne « Voir › » et les cases à cocher sans action groupée sont retirées.
