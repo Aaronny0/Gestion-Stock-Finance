@@ -177,3 +177,10 @@ test("Lot 6 : comptabilité au gabarit Listes", () => {
   for (const shared of ["ListTabs", "ListCard", "SummaryStrip", "toolbarStart", "formatListDate"]) assert.ok(source.includes(shared), `accounting-page.tsx sans ${shared}`);
   assert.ok((source.match(/align: "right"/g) ?? []).length >= 8, "débits, crédits et soldes alignés à droite");
 });
+
+test("Lot 6 : statistiques sur les composants partagés", () => {
+  const source = read("src/frontend/analytics.tsx");
+  for (const legacy of ["page-tabs", "compact-metrics", "<select", 'className="button', "PageHeading", "eyebrow"]) assert.ok(!source.includes(legacy), `analytics.tsx contient ${legacy}`);
+  assert.doesNotMatch(source, /import \{[^}]*\bDataTable\b[^}]*\} from "\.\/ui"/);
+  for (const shared of ["ListTabs", "ListCard", "SummaryStrip", "SelectTrigger"]) assert.ok(source.includes(shared), `analytics.tsx sans ${shared}`);
+});
