@@ -63,17 +63,23 @@ export default function AccessPage({ verify = false }: { verify?: boolean }) {
       active = false;
     };
   }, [auth.loading, auth.user, verify]);
+  // Tant que la session ou la décision d'accès n'est pas connue, ne rien affirmer : un compte approuvé voit sinon passer « demande en cours ».
+  const checking = !verify && (auth.loading || (!!auth.user && !decision && !error));
   const restricted =
     decision?.status === "SUSPENDED" || decision?.status === "REJECTED";
-  const Icon = verify ? Mail : restricted ? ShieldCheck : Clock3;
-  const title = verify
+  const Icon = checking ? LoaderCircle : verify ? Mail : restricted ? ShieldCheck : Clock3;
+  const title = checking
+    ? "Vérification de votre accès…"
+    : verify
     ? "Vérifiez votre adresse e-mail."
     : restricted
       ? decision?.status === "SUSPENDED"
         ? "Votre accès est suspendu."
         : "Votre demande n’a pas été retenue."
       : "Votre demande suit son cours.";
-  const subtitle = verify
+  const subtitle = checking
+    ? "Un instant, nous consultons l’état de votre demande."
+    : verify
     ? "Ouvrez le lien reçu par e-mail pour confirmer votre identité. Votre demande sera ensuite examinée par notre équipe."
     : restricted
       ? "Rapprochez-vous de votre interlocuteur VORTEX pour connaître la suite à donner."
@@ -93,7 +99,7 @@ export default function AccessPage({ verify = false }: { verify?: boolean }) {
         <h1>{title}</h1>
         <p>{subtitle}</p>
       </div>
-      {!restricted && (
+      {!restricted && !checking && (
         <ol className={styles.steps} aria-label="Étapes de votre demande">
           {steps.map(({ icon: StepIcon, label, hint, state }) => (
             <li key={label} data-state={state} aria-current={state === "current" ? "step" : undefined}>
