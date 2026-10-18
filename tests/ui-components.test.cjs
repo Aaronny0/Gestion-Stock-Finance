@@ -164,3 +164,9 @@ test("Lot 5 : trésorerie, dépenses et paiements sur les composants partagés",
     for (const shared of ["SummaryStrip", "ListCard", "formatListDate", 'align: "right"']) assert.ok(source.includes(shared), `${f} sans ${shared}`);
   }
 });
+
+test("Lot 5 : crédits avec onglets soulignés et synthèse partagée", () => {
+  const source = read("src/features/sales/credits-page.tsx");
+  for (const legacy of ["TabsList", "<Card", "eyebrow="]) assert.ok(!source.includes(legacy), `credits-page.tsx contient ${legacy}`);
+  for (const shared of ["ListTabs", "ListCard", "SummaryStrip", "formatListDate"]) assert.ok(source.includes(shared), `credits-page.tsx sans ${shared}`);
+});
