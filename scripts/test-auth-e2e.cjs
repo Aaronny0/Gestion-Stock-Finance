@@ -115,6 +115,39 @@ const freePort = () => new Promise(resolve => { const s = net.createServer(); s.
     assert.equal(r.json.session.organization.name, 'Entreprise E2E'); assert.equal(r.json.data.products.length, 0);
     assert.equal(r.json.reporting.daily.length, 7); assert.equal(r.json.reporting.kpis.revenue, 0);
     assert.equal((await new Browser(app, app).call('/api/v1/workspace?start=2026-10-01&end=2026-10-07')).status, 401, 'dashboard data needs a session');
-    console.log('Auth E2E passed: signup, EMAIL_NOT_VERIFIED, verification link via relay, session cookie, /api/v1/access (401/PENDING_APPROVAL/APPROVED), update-user guard, reset password, blocked admin routes, onboarding, dashboard workspace.');
+    // 9. Stock commands through the relay: catalogue, entry, idempotent replay, validation and tenant isolation.
+    const today = new Date(), shift = days => new Date(today.getTime() + days * 86_400_000).toISOString().slice(0, 10);
+    const stockPeriod = `start=${shift(-2)}&end=${shift(2)}`;
+    r = await user.call(`/api/v1/workspace?${stockPeriod}`); assert.equal(r.status, 200, JSON.stringify(r.json));
+    const organizationId = r.json.session.organization.id, storeId = r.json.session.defaultStoreId;
+    assert.equal(r.json.data.accounts.length, 12, 'the onboarding creates the 12-account chart'); assert.equal(r.json.data.periods.length, 1);
+    const sendCommand = (type, payload, { key = randomUUID(), organization = organizationId } = {}) =>
+      fetch(app + '/api/v1/commands', { method: 'POST', headers: { 'content-type': 'application/json', origin: app, 'idempotency-key': key, cookie: [...user.cookies].map(([k, v]) => k + '=' + v).join('; ') }, body: JSON.stringify({ type, storeId, idempotencyKey: key, payload: { organizationId: organization, ...payload } }) })
+        .then(async res => ({ status: res.status, json: await res.json().catch(() => ({})) }));
+    const product = { brand: 'Apple', model: 'iPhone 15', variant: '128 Go', condition: 'Neuf', price: 425000, threshold: 3, supplierId: '' };
+    r = await sendCommand('product.save', product); assert.equal(r.status, 200, JSON.stringify(r.json)); assert.match(r.json.reference, /^PRD-\d{4}-\d{6}$/);
+    r = await sendCommand('product.save', product); assert.equal(r.status, 422, JSON.stringify(r.json)); assert.match(r.json.fields._form, /identique/, 'the business message reaches the form through the relay');
+    r = await user.call(`/api/v1/workspace?${stockPeriod}`); const created = r.json.data.products.find(p => p.model === 'iPhone 15');
+    assert.ok(created && created.quantity === 0 && created.cost === 0, 'a product starts empty');
+    const entryKey = randomUUID();
+    r = await sendCommand('stock.entry', { productId: created.id, quantity: 3, cost: 100, reason: 'Réception e2e' }, { key: entryKey });
+    assert.equal(r.status, 200, JSON.stringify(r.json)); assert.match(r.json.reference, /^ENT-\d{4}-\d{6}$/);
+    const entryReference = r.json.reference;
+    const replayed = await sendCommand('stock.entry', { productId: created.id, quantity: 3, cost: 100, reason: 'Réception e2e' }, { key: entryKey });
+    assert.equal(replayed.status, 200); assert.equal(replayed.json.reference, entryReference, 'same key, same reference');
+    r = await user.call(`/api/v1/workspace?${stockPeriod}`);
+    const stocked = r.json.data.products.find(p => p.id === created.id);
+    assert.equal(stocked.quantity, 3, 'the replay did not add stock twice'); assert.equal(stocked.cost, 100);
+    assert.equal(r.json.data.stockEntries.length, 1); assert.equal(r.json.data.stockEntries[0].reference, entryReference); assert.equal(r.json.data.stockEntries[0].amount, 300);
+    assert.equal(r.json.data.entries.length, 1); assert.deepEqual(r.json.data.entries[0].lines.map(l => [l.account, l.debit, l.credit]), [['31', 300, 0], ['101', 0, 300]]);
+    assert.equal(r.json.data.audit.length, 2, 'one audit line per command');
+    r = await sendCommand('stock.entry', { productId: created.id, quantity: 0, cost: 100 }); assert.equal(r.status, 422); assert.ok(r.json.fields.quantity);
+    r = await sendCommand('stock.entry', { productId: created.id, quantity: 1, cost: 100 }, { key: entryKey }); assert.equal(r.status, 409, 'same key, different content');
+    r = await sendCommand('stock.adjust', { productId: created.id, quantity: 2, reason: 'Casse' }); assert.equal(r.status, 200, JSON.stringify(r.json));
+    r = await user.call(`/api/v1/workspace?${stockPeriod}`); assert.equal(r.json.data.products.find(p => p.id === created.id).quantity, 2);
+    // Another company is refused (403), without any write.
+    r = await sendCommand('product.save', { ...product, model: 'Etranger' }, { organization: randomUUID() }); assert.equal(r.status, 403, JSON.stringify(r.json)); assert.equal(r.json.code, 'FORBIDDEN');
+    assert.equal((await new Browser(app, app).call('/api/v1/commands', { method: 'POST', body: {} })).status, 401, 'commands need a session');
+    console.log('Auth E2E passed: signup, EMAIL_NOT_VERIFIED, verification link via relay, session cookie, /api/v1/access (401/PENDING_APPROVAL/APPROVED), update-user guard, reset password, blocked admin routes, onboarding, dashboard workspace, stock commands (product, entry, adjust, replay, conflict, foreign company).');
   } finally { next?.kill(); stack.stop(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });
