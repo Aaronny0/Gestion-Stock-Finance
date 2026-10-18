@@ -5,7 +5,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { Money } from "@/components/data-display/money";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogBody, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -44,12 +44,12 @@ function EntryEditor({ onClose, initial }: { onClose: () => void; initial?: Acco
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) close(); }}>
-      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+      <DialogContent size="xl">
         <DialogHeader>
           <DialogTitle>{initial ? `Modifier ${initial.reference}` : "Saisir une écriture comptable"}</DialogTitle>
           <DialogDescription>Une écriture doit contenir au moins deux lignes et rester parfaitement équilibrée.</DialogDescription>
         </DialogHeader>
-        <form className="space-y-5" onSubmit={async (event) => {
+        <form className="flex min-h-0 flex-1 flex-col" onSubmit={async (event) => {
           event.preventDefault();
           if (busy) return;
           setError("");
@@ -64,6 +64,7 @@ function EntryEditor({ onClose, initial }: { onClose: () => void; initial?: Acco
             setBusy(false);
           }
         }}>
+          <DialogBody className="space-y-5">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2"><Label>Journal</Label><Select value={journal} onValueChange={setJournal}><SelectTrigger aria-label="Journal"><SelectValue /></SelectTrigger><SelectContent>{journals.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}</SelectContent></Select></div>
             <div className="space-y-2"><Label htmlFor="entry-date">Date</Label><Input id="entry-date" type="date" required value={date} onChange={(event) => setDate(event.target.value)} /></div>
@@ -92,6 +93,7 @@ function EntryEditor({ onClose, initial }: { onClose: () => void; initial?: Acco
           </div>
           <div className={result.balanced ? "rounded-lg border border-success/20 bg-success-background p-3 text-sm text-success" : "rounded-lg border border-destructive/20 bg-destructive-background p-3 text-sm text-destructive"}>{result.balanced ? "L’écriture est équilibrée." : "Le total débit doit être égal au total crédit."}</div>
           {error ? <div className="rounded-lg border border-destructive/20 bg-destructive-background p-3 text-sm text-destructive" role="alert">{error}</div> : null}
+          </DialogBody>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={close} disabled={busy}>Annuler</Button>
             <Button type="submit" disabled={busy || !result.balanced}>{busy ? "Enregistrement…" : "Enregistrer le brouillon"}</Button>

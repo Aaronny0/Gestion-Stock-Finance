@@ -8,7 +8,7 @@ import { DataTable } from "@/components/data-display/data-table";
 import { Money } from "@/components/data-display/money";
 import { StatusBadge } from "@/components/data-display/status-badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogBody, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { balance } from "@/frontend/accounting";
 import { ActionForm } from "@/frontend/forms";
 import { useWorkspace } from "@/frontend/provider";
@@ -36,15 +36,17 @@ function EntryDetail({ entry, onClose }: { entry: AccountingEntry; onClose: () =
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open && !busy) onClose(); }}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent size="lg">
         <DialogHeader>
           <div className="flex items-center gap-2 pr-8"><DialogTitle>{entry.reference}</DialogTitle><StatusBadge value={entry.status} /></div>
           <DialogDescription>{entry.journal} · {entry.date} · {entry.label}</DialogDescription>
         </DialogHeader>
+        <DialogBody>
         <div className="grid gap-3 sm:grid-cols-2"><div className="rounded-md bg-muted p-3"><p className="text-xs text-muted-foreground">Total débit</p><Money value={totals.debit} className="mt-1 block font-semibold" /></div><div className="rounded-md bg-muted p-3"><p className="text-xs text-muted-foreground">Total crédit</p><Money value={totals.credit} className="mt-1 block font-semibold" /></div></div>
         <DataTable name="écriture" data={entry.lines.map((line, index) => ({ ...line, id: String(index) }))} columns={columns} getRowId={(row) => row.id} density="dense" enableColumnVisibility={false} searchPlaceholder="Compte ou libellé…" />
         {sourcePath ? <Button variant="link" asChild className="w-fit p-0"><Link href={href(sourcePath)} onClick={onClose}>Voir la transaction source <ArrowRight /></Link></Button> : null}
         {postingError ? <div className="rounded-lg border border-destructive/20 bg-destructive-background p-3 text-sm text-destructive" role="alert">{postingError}</div> : null}
+        </DialogBody>
         <DialogFooter>
           {can("accounting.post") && entry.status === "posted" ? <Button variant="outline" onClick={() => setAction("reverse")}><RotateCcw /> Extourner</Button> : null}
           {can("accounting.post") && entry.status === "draft" ? <Button variant="outline" onClick={() => setAction("edit")}><FilePenLine /> Modifier le brouillon</Button> : null}

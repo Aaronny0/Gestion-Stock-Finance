@@ -5,7 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Download, FileSpreadsheet, Upload } from "lucide-react";
 import { DataTable } from "@/components/data-display/data-table";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogBody, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -70,11 +70,12 @@ function StockImportDialog({ onClose }: { onClose: () => void }) {
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) close(); }}>
-      <DialogContent className="max-h-[92vh] max-w-5xl overflow-y-auto">
+      <DialogContent size="xl">
         <DialogHeader>
           <DialogTitle>Importer un arrivage CSV / Excel</DialogTitle>
           <DialogDescription>Maximum 5 Mo et 2 000 lignes. L’import reste atomique : aucune ligne n’est enregistrée tant que la validation contient une erreur.</DialogDescription>
         </DialogHeader>
+        <DialogBody>
 
         <div className="grid grid-cols-3 gap-2" aria-label="Étapes de l'import">
           {["Fichier", "Colonnes", "Validation"].map((label, index) => <div key={label} className={`rounded-md border px-3 py-2 text-center text-xs font-semibold ${step === index ? "border-primary bg-accent text-accent-foreground" : "border-border text-muted-foreground"}`}>{index + 1}. {label}</div>)}
@@ -117,6 +118,7 @@ function StockImportDialog({ onClose }: { onClose: () => void }) {
 
         {error ? <p className="text-sm text-destructive" role="alert">{error}</p> : null}
 
+        </DialogBody>
         <DialogFooter>
           <Button variant="outline" disabled={busy} onClick={() => step ? setStep(step - 1) : close()}>Retour</Button>
           {step === 1 ? <Button onClick={() => setStep(2)}>Valider les lignes</Button> : null}

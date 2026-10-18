@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
 import { onboardingFieldsSchema } from "@/contracts";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { request } from "@/frontend/api";
@@ -75,6 +75,7 @@ export function OnboardingModal() {
   return (
     <Dialog open onOpenChange={() => undefined}>
       <DialogContent
+        size="lg"
         hideClose
         onEscapeKeyDown={(event) => event.preventDefault()}
         onPointerDownOutside={(event) => event.preventDefault()}
@@ -86,7 +87,8 @@ export function OnboardingModal() {
             Votre accès est validé. Renseignez votre entreprise et votre premier point de vente pour ouvrir votre tableau de bord. Vous pourrez les modifier ensuite.
           </DialogDescription>
         </DialogHeader>
-        <form className="grid gap-4 sm:grid-cols-2" onSubmit={submit} noValidate aria-busy={busy}>
+        <form className="flex min-h-0 flex-1 flex-col" onSubmit={submit} noValidate aria-busy={busy}>
+          <DialogBody className="grid gap-4 sm:grid-cols-2">
           {fields.map((field) => (
             <div key={field.name} className={field.wide ? "space-y-2 sm:col-span-2" : "space-y-2"}>
               <Label htmlFor={`onboarding-${field.name}`}>{field.label}</Label>
@@ -106,7 +108,8 @@ export function OnboardingModal() {
             </div>
           ))}
           {error ? <p role="alert" className="rounded-md bg-destructive-background px-3 py-2 text-sm text-destructive sm:col-span-2">{error}</p> : null}
-          <DialogFooter className="sm:col-span-2">
+          </DialogBody>
+          <DialogFooter>
             <Button
               type="button"
               variant="outline"

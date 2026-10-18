@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -159,14 +160,15 @@ export function TeamMemberDialog({ open, member, onOpenChange }: TeamMemberDialo
 
   return (
     <Dialog open={open} onOpenChange={(next) => (next ? onOpenChange(true) : requestClose())}>
-      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+      <DialogContent size="lg">
         <DialogHeader>
           <DialogTitle>{editing ? "Modifier les accès" : "Inviter un membre"}</DialogTitle>
           <DialogDescription>
             Le rôle fournit un modèle de permissions. Les boutiques et permissions effectives restent revalidées par le serveur.
           </DialogDescription>
         </DialogHeader>
-        <form className="space-y-6" onSubmit={submit}>
+        <form className="flex min-h-0 flex-1 flex-col" onSubmit={submit}>
+          <DialogBody className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2">
             {!editing ? (
               <>
@@ -254,6 +256,7 @@ export function TeamMemberDialog({ open, member, onOpenChange }: TeamMemberDialo
           </fieldset>
 
           {error ? <p className="rounded-md bg-destructive-background px-3 py-2 text-sm text-destructive" role="alert">{error}</p> : null}
+          </DialogBody>
           <DialogFooter>
             <Button type="button" variant="outline" disabled={busy} onClick={requestClose}>Annuler</Button>
             <Button type="submit" disabled={busy}>{busy ? "Enregistrement…" : editing ? "Enregistrer les accès" : "Envoyer l’invitation"}</Button>

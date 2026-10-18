@@ -5,8 +5,10 @@ import { AppLogo } from "@/components/layout/app-logo";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -200,13 +202,14 @@ export default function AdminAccess() {
             if (!open && !busy) setSelected(null);
           }}
         >
-          <DialogContent>
+          <DialogContent size="md">
             <DialogHeader>
               <DialogTitle>Examiner la demande</DialogTitle>
               <DialogDescription>
                 {selected?.name} · {selected?.email}
               </DialogDescription>
             </DialogHeader>
+            <DialogBody>
             <dl className="review-list">
               <div>
                 <dt>Entreprise</dt>
@@ -226,6 +229,7 @@ export default function AdminAccess() {
               </div>
             </dl>
             <form
+              id="access-decision"
               onSubmit={async (e) => {
                 e.preventDefault();
                 if (!selected || busy) return;
@@ -281,10 +285,13 @@ export default function AdminAccess() {
                   : "La décision sera enregistrée avec votre identifiant administrateur."}
               </p>
               {error && <Alert error>{error}</Alert>}
-              <Button disabled={busy}>
+            </form>
+            </DialogBody>
+            <DialogFooter>
+              <Button type="submit" form="access-decision" disabled={busy}>
                 {busy ? "Enregistrement…" : "Confirmer la décision"}
               </Button>
-            </form>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </main>

@@ -9,7 +9,7 @@ import { StatusBadge } from "@/components/data-display/status-badge";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogBody, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useWorkspace } from "@/frontend/provider";
 import type { RecordRow } from "@/frontend/types";
 
@@ -51,9 +51,11 @@ export function AuditPage() {
       />
 
       <Dialog open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
-        <DialogContent>
+        <DialogContent size="md">
           <DialogHeader><DialogTitle className="flex items-center gap-2"><History className="size-5 text-primary" />{selected?.label}</DialogTitle><DialogDescription>Détail de l’événement d’audit sélectionné.</DialogDescription></DialogHeader>
+          <DialogBody>
           {selected ? <dl className="divide-y divide-border rounded-lg border border-border">{Object.entries(selected).filter(([key]) => !["id", "storeId"].includes(key)).map(([key, value]) => <div key={key} className="grid gap-1 px-4 py-3 sm:grid-cols-[150px_1fr]"><dt className="text-xs font-semibold text-muted-foreground">{labelMap[key] ?? key}</dt><dd className="break-words text-sm">{Array.isArray(value) ? value.join(", ") : String(value ?? "—")}</dd></div>)}</dl> : null}
+          </DialogBody>
           <DialogFooter><Button variant="outline" onClick={() => setSelected(null)}>Fermer</Button></DialogFooter>
         </DialogContent>
       </Dialog>

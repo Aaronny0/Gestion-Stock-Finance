@@ -3,7 +3,7 @@
 import { Printer } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogBody, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FiscalInvoice } from "@/components/data-display/fiscal-invoice";
 import { Money } from "@/components/data-display/money";
 import { useWorkspace } from "@/frontend/provider";
@@ -19,11 +19,12 @@ export function Receipt({ sale, onClose }: { sale: Sale; onClose: () => void }) 
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent data-receipt-dialog className="max-h-[90dvh] max-w-xl overflow-y-auto">
+      <DialogContent data-receipt-dialog size="md">
         <DialogHeader className="print:hidden">
           <DialogTitle>Reçu {sale.reference}</DialogTitle>
           <DialogDescription>Reçu de vente VORTEX.</DialogDescription>
         </DialogHeader>
+        <DialogBody>
 
         <div data-receipt className="mx-auto w-full max-w-md text-sm text-foreground">
           <div className="mb-6 text-center">
@@ -77,6 +78,7 @@ export function Receipt({ sale, onClose }: { sale: Sale; onClose: () => void }) 
           {fiscalInvoice ? <div className="mt-4 rounded-md border border-border p-3 text-center"><FiscalInvoice invoice={fiscalInvoice} /></div> : null}
         </div>
 
+        </DialogBody>
         <DialogFooter className="print:hidden">
           <Button type="button" variant="outline" onClick={onClose}>Fermer</Button>
           <Button type="button" onClick={() => window.print()}><Printer /> Imprimer / PDF</Button>

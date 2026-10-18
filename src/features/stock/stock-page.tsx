@@ -11,7 +11,7 @@ import { Money } from "@/components/data-display/money";
 import { StatusBadge } from "@/components/data-display/status-badge";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogBody, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ActionForm } from "@/frontend/forms";
 import { useViewState, useWorkspace } from "@/frontend/provider";
@@ -27,11 +27,13 @@ import { StockTable } from "@/features/stock/stock-table";
 function RecordDetailsDialog({ row, canReadCost, onClose }: { row: RecordRow; canReadCost: boolean; onClose: () => void }) {
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent>
+      <DialogContent size="sm">
         <DialogHeader><DialogTitle>{row.label}</DialogTitle><DialogDescription>Détail de l’opération de stock sélectionnée.</DialogDescription></DialogHeader>
+        <DialogBody>
         <dl className="grid gap-3 sm:grid-cols-2">
           {Object.entries(row).filter(([key]) => !["id", "storeId"].includes(key) && (canReadCost || !["cost", "margin"].includes(key))).map(([key, value]) => <div className="rounded-md bg-muted p-3" key={key}><dt className="text-xs font-medium text-muted-foreground">{key}</dt><dd className="mt-1 break-words text-sm font-semibold">{typeof value === "object" ? JSON.stringify(value) : String(value ?? "—")}</dd></div>)}
         </dl>
+        </DialogBody>
       </DialogContent>
     </Dialog>
   );

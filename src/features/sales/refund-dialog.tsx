@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AlertTriangle, RotateCcw } from "lucide-react";
 import { Money } from "@/components/data-display/money";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogBody, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -46,11 +46,12 @@ function RefundDialog({ sale, onClose }: { sale: Sale; onClose: () => void }) {
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) close(); }}>
-      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+      <DialogContent size="lg">
         <DialogHeader>
           <DialogTitle>Retour · {sale.reference}</DialogTitle>
           <DialogDescription>Sélectionnez les articles retournés et leur état. La créance est réduite avant tout remboursement.</DialogDescription>
         </DialogHeader>
+        <DialogBody>
 
         <div className="rounded-md border border-info/20 bg-info-background p-3 text-sm text-info">
           Les articles revendables retournent en stock. Les articles défectueux restent exclus du stock disponible.
@@ -81,6 +82,7 @@ function RefundDialog({ sale, onClose }: { sale: Sale; onClose: () => void }) {
         {review ? <div className="flex gap-2 rounded-md border border-warning/20 bg-warning-background p-3 text-sm text-warning"><AlertTriangle className="mt-0.5 size-4 shrink-0" />Vérifiez les quantités, l’état et les montants avant confirmation. Le retour sera conservé dans l’historique.</div> : null}
         {error ? <p className="text-sm text-destructive" role="alert">{error}</p> : null}
 
+        </DialogBody>
         <DialogFooter>
           <Button type="button" variant="outline" disabled={busy} onClick={() => review ? setReview(false) : close()}>{review ? "Modifier" : "Annuler"}</Button>
           <Button type="button" disabled={busy || !quote} onClick={() => void submit()}><RotateCcw />{busy ? "Enregistrement…" : review ? "Confirmer le retour" : "Vérifier le retour"}</Button>

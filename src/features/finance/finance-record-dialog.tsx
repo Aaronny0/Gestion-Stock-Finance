@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { Money } from "@/components/data-display/money";
 import { StatusBadge } from "@/components/data-display/status-badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogBody, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { RecordRow } from "@/frontend/types";
 
 const labels: Record<string, string> = {
@@ -42,7 +42,7 @@ function FinanceRecordDialog({
 }) {
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent size="md">
         <DialogHeader>
           <div className="flex items-center gap-2 pr-8">
             <DialogTitle>{row.label}</DialogTitle>
@@ -50,6 +50,7 @@ function FinanceRecordDialog({
           </div>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
+        <DialogBody>
         <dl className="grid gap-3 sm:grid-cols-2">
           {Object.entries(row)
             .filter(([key]) => !["id", "storeId", "documentId"].includes(key))
@@ -63,6 +64,7 @@ function FinanceRecordDialog({
             ))}
         </dl>
         <DocumentLink documentId={row.documentId} storeId={row.storeId} />
+        </DialogBody>
         <DialogFooter>
           {actions}
           <Button variant="outline" onClick={onClose}>Fermer</Button>

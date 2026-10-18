@@ -41,7 +41,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogBody, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Money } from "@/components/data-display/money";
 import { navigation } from "@/frontend/navigation";
 import { useWorkspace } from "@/frontend/provider";
@@ -472,13 +472,15 @@ export function SidebarNavigation({
           className={styles.searchDialog}
           data-workspace-search=""
         >
-          <DialogTitle>Aller à…</DialogTitle>
+          <DialogHeader>
+            <DialogTitle>Aller à…</DialogTitle>
+          </DialogHeader>
+          <DialogBody className="space-y-4">
           <label className="sr-only" htmlFor="workspace-search">
             Écran, vente ou IMEI
           </label>
           <input
             id="workspace-search"
-            autoFocus
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Écran, vente ou IMEI…"
@@ -511,6 +513,7 @@ export function SidebarNavigation({
               <p>Aucun résultat dans les données chargées de cet espace.</p>
             )}
           </div>
+          </DialogBody>
         </DialogContent>
       </Dialog>
     </div>

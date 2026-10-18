@@ -43,3 +43,13 @@ test("D27 : ActionForm utilise le corps et le pied du Dialog et protège la ferm
 test("D27 : plus aucune règle .modal dans les styles", () => {
   for (const f of srcFiles("src/styles")) assert.doesNotMatch(read(f), /\.modal[-\s{:,]/, `${f} contient encore .modal`);
 });
+
+test("D27 : les dialogues métier utilisent les tailles nommées et un DialogBody", () => {
+  const files = srcFiles("src/features").concat(srcFiles("src/app")).filter((f) => f.endsWith(".tsx") && read(f).includes("<DialogContent"));
+  assert.ok(files.length >= 10, "dialogues métier trouvés");
+  for (const f of files) {
+    const source = read(f);
+    assert.doesNotMatch(source, /<DialogContent[^>]*className="[^"]*max-[wh]-/, `${f} : largeur ou hauteur ad hoc`);
+    assert.ok(source.includes("<DialogBody"), `${f} : contenu hors DialogBody`);
+  }
+});

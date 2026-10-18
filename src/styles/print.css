@@ -46,6 +46,13 @@ body {
     padding: 0 !important;
   }
 
+  /* D27 : le corps du dialogue défile à l'écran ; à l'impression le reçu s'affiche en entier. */
+  [data-receipt-dialog] [data-dialog-body] {
+    overflow: visible !important;
+    max-height: none !important;
+    padding: 0 !important;
+  }
+
   [data-receipt-dialog] > button,
   [data-receipt-dialog] [data-radix-dialog-close] {
     display: none !important;
