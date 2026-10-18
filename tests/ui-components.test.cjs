@@ -184,3 +184,14 @@ test("Lot 6 : statistiques sur les composants partagés", () => {
   assert.doesNotMatch(source, /import \{[^}]*\bDataTable\b[^}]*\} from "\.\/ui"/);
   for (const shared of ["ListTabs", "ListCard", "SummaryStrip", "SelectTrigger"]) assert.ok(source.includes(shared), `analytics.tsx sans ${shared}`);
 });
+
+test("Lot 7 : équipe et audit sur les composants partagés", () => {
+  const team = read("src/features/team/team-page.tsx");
+  assert.doesNotMatch(team, /team-summary|eyebrow=/);
+  assert.match(team, /permissionLabel\(/, "modèles de rôles en libellés lisibles");
+  for (const shared of ["SummaryStrip", "ListCard"]) assert.ok(team.includes(shared), `team-page.tsx sans ${shared}`);
+  assert.match(read("src/features/team/team-member-dialog.tsx"), /export function permissionLabel/);
+  const audit = read("src/features/audit/audit-page.tsx");
+  assert.doesNotMatch(audit, /eyebrow=|density="dense"/);
+  for (const shared of ["ListCard", "toolbarStart", "formatListDate"]) assert.ok(audit.includes(shared), `audit-page.tsx sans ${shared}`);
+});

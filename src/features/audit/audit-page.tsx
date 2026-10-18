@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { History, ShieldCheck } from "lucide-react";
 import { DataTable } from "@/components/data-display/data-table";
+import { ListCard } from "@/components/data-display/list-card";
+import { formatListDate } from "@/lib/format";
 import { DateRangeFilter } from "@/components/data-display/date-range-filter";
 import { StatusBadge } from "@/components/data-display/status-badge";
 import { PageHeader } from "@/components/layout/page-header";
@@ -25,7 +27,7 @@ export function AuditPage() {
   ), [snapshot, storeId, start, end]);
 
   const columns = useMemo<ColumnDef<RecordRow>[]>(() => [
-    { accessorKey: "date", header: "Date", cell: ({ row }) => <span className="whitespace-nowrap text-xs tabular-nums">{new Date(row.original.date).toLocaleString("fr-FR")}</span> },
+    { accessorKey: "date", header: "Date", cell: ({ row }) => <span className="whitespace-nowrap tabular-nums">{formatListDate(row.original.date, { time: true })}</span> },
     { accessorKey: "label", header: "Événement", cell: ({ row }) => <div><strong className="block text-sm font-semibold">{row.original.label}</strong>{row.original.sourceId ? <span className="text-xs text-muted-foreground">Source · {String(row.original.sourceId)}</span> : null}</div> },
     { accessorKey: "actor", header: "Auteur", cell: ({ row }) => String(row.original.actor ?? "—") },
     { accessorKey: "reason", header: "Motif", cell: ({ row }) => <span className="line-clamp-2 max-w-md text-sm text-muted-foreground">{String(row.original.reason ?? "—")}</span> },
@@ -34,21 +36,25 @@ export function AuditPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="HISTORIQUE & AUDIT" title="Une trace lisible de chaque action." description="Consultez les événements, acteurs, motifs et transactions sources. Le journal reste en lecture seule." actions={<DateRangeFilter />} />
+      <PageHeader title="Historique & audit" description="Consultez les événements, acteurs, motifs et transactions sources. Le journal reste en lecture seule." />
       <Card className="border-info/20 bg-info-background shadow-none"><CardContent className="flex items-start gap-3 p-4 text-sm text-info"><ShieldCheck className="mt-0.5 size-5 shrink-0" /><div><strong className="block font-semibold">Journal en lecture seule</strong><span>Cette interface n’altère aucune entrée d’audit. Les filtres ne modifient que l’affichage.</span></div></CardContent></Card>
+      <ListCard aria-label="Journal d’audit">
       <DataTable
         name="audit"
         data={rows}
         columns={columns}
-        density="dense"
+        toolbarStart={<DateRangeFilter />}
+        emptyTitle="Aucun événement sur cette période"
+        emptyDescription="Élargissez la période pour retrouver l’historique."
         pageSize={15}
         getRowId={(row) => row.id}
         searchPlaceholder="Rechercher un événement, auteur ou motif…"
         canExport={can("exports.create")}
         exportRow={(row) => ({ Date: row.date, Evenement: row.label, Auteur: String(row.actor ?? ""), Motif: String(row.reason ?? ""), Action: row.status, Source: String(row.sourceId ?? "") })}
         onRow={setSelected}
-        mobileRow={(row) => <Card className="shadow-none"><CardContent className="space-y-2 p-4"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-semibold">{row.label}</p><p className="text-xs text-muted-foreground">{new Date(row.date).toLocaleString("fr-FR")} · {String(row.actor ?? "Auteur inconnu")}</p></div><StatusBadge value={String(row.status)} showIcon={false} /></div>{row.reason ? <p className="line-clamp-2 text-xs text-muted-foreground">{String(row.reason)}</p> : null}</CardContent></Card>}
+        mobileRow={(row) => <div className="space-y-2 px-4 py-3"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-semibold">{row.label}</p><p className="text-xs text-muted-foreground">{formatListDate(row.date, { time: true })} · {String(row.actor ?? "Auteur inconnu")}</p></div><StatusBadge value={String(row.status)} showIcon={false} /></div>{row.reason ? <p className="line-clamp-2 text-xs text-muted-foreground">{String(row.reason)}</p> : null}</div>}
       />
+      </ListCard>
 
       <Dialog open={Boolean(selected)} onOpenChange={(open) => !open && setSelected(null)}>
         <DialogContent size="md">

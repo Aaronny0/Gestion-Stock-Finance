@@ -41,7 +41,7 @@ const permissionGroups: { label: string; prefix: string[] }[] = [
   { label: "Opérations", prefix: ["buyback.", "trade.", "purchases."] },
 ];
 
-function permissionLabel(permission: Permission) {
+export function permissionLabel(permission: Permission) {
   const labels: Partial<Record<Permission, string>> = {
     "dashboard.read": "Consulter le tableau de bord",
     "sales.read": "Consulter les ventes",
