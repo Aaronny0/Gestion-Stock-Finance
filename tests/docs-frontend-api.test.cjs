@@ -30,3 +30,11 @@ test("le contrat d'onboarding interdit l'email dans le corps et décrit le modal
 test("le cookie de session est propre à chaque site", () => {
   assert.match(current, /sans attribut `Domain`/);
 });
+
+test("l'état d'intégration annonce les six commandes de stock implémentées, et seulement elles", () => {
+  const state = current.split("## Session et périmètres")[0];
+  for (const type of ["product.save", "product.archive", "stock.entry", "stock.import", "stock.adjust", "stock.transfer"]) assert.ok(state.includes(type), type);
+  assert.match(state, /Pas encore implémenté[^]*sale\./);
+  assert.match(current, /fields\._form/, "le message d'une règle métier 422 voyage dans fields._form");
+  assert.match(current, /IMEI_NOT_SUPPORTED/);
+});
