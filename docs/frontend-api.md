@@ -2,9 +2,9 @@
 
 ## État de l’intégration
 
-Livraison du 6 octobre 2026 : le backend NestJS implémente les 30 commandes du frontend, les permissions multi-entreprises, la comptabilité, le Storage privé et la fiscalité facultative. Le schéma Supabase direct et l’authentification personnalisée du dépôt initial sont historiques. Voir [le rapport final](final-project-audit.md).
+Le backend est `vortex-backend` (Elysia sur Bun, PostgreSQL, Better Auth). Implémenté au 18 octobre 2026 : `GET /access`, `GET /session`, `POST /onboarding`, `GET /workspace` (collections vides et reporting à zéro), les routes d'administration des demandes d'accès et `/api/auth/*`. Les schémas Zod de `src/contracts/` sont copiés depuis le backend (`bun run contracts:sync` dans `vortex-backend`) et protégés par un test de dérive.
 
-Le nouveau frontend n’utilise pas ces anciennes écritures directes. **Aucune migration ni écriture n’a été exécutée dans Supabase.** Les anciennes archives de code locales ont été retirées du dépôt pendant le nettoyage de la Phase 0.
+**Pas encore implémenté côté backend :** `POST /commands` et toutes ses commandes (produits, stock, ventes, achats, caisse, dépenses, comptabilité, équipe, paramètres), les documents, la fiscalité, les invitations d'équipe. Les écrans correspondants existent et fonctionnent sur `/demo` ; sur un vrai compte ils affichent des états vides. Les sections « Commandes métier » et suivantes décrivent le contrat cible. Les livraisons annoncées dans l'ancien dépôt sont conservées sous « Historique », sans valeur d'état.
 
 - `/demo` : données fictives en mémoire, commandes atomiques simulées, réinitialisation au rechargement. Aucune transmission de transaction ni de justificatif.
 - Routes normales : requêtes à `/api/v1/*`, relayées vers `FRONTEND_API_URL` par Next.js. Sans service configuré : HTTP 503 et écran explicite avec lien vers la démonstration.
@@ -36,15 +36,15 @@ Le dashboard et la BI non filtrée utilisent `reporting`, calculé sur la totali
 
 ## Authentification
 
-Better Auth (hébergé par NestJS sous `/api/auth/*`) gère l’identité. Le navigateur transmet son cookie de session (`vortex.session_token`) ; le proxy Next.js `/api/v1/*` le relaie à NestJS, qui résout la session et le statut d’accès (`user.accessStatus`, jamais modifiable par le navigateur). `GET /access` renvoie `{status,destination}` (401 `UNAUTHENTICATED`, 503 `ACCESS_UNAVAILABLE`). Aucun jeton Bearer n’est utilisé.
+Better Auth (hébergé par le backend sous `/api/auth/*`) gère l’identité. Le navigateur transmet son cookie de session (`vortex.session_token`) ; le proxy Next.js `/api/v1/*` le relaie au backend, qui résout la session et le statut d’accès (`user.accessStatus`, jamais modifiable par le navigateur). Le cookie est propre à chaque site, sans attribut `Domain` : l’application et l’admin ont des sessions indépendantes. `GET /access` renvoie `{status,destination}` (401 `UNAUTHENTICATED`, 503 `ACCESS_UNAVAILABLE`) ; un accès approuvé a toujours pour destination `/app/dashboard`. Aucun jeton Bearer n’est utilisé.
 
-`GET /session` et `GET /workspace` restent les contrats métier existants. Erreurs structurées attendues : `ONBOARDING_REQUIRED` pour une identité sans User VORTEX, `NO_MEMBERSHIP` pour un compte sans périmètre accessible, `FORBIDDEN` pour une permission refusée. Ne pas retourner un 401 pour une identité valide nécessitant un onboarding.
+`GET /session` et `GET /workspace` restent les contrats métier existants. Erreurs structurées : `ONBOARDING_REQUIRED` pour une identité sans User VORTEX, `NO_MEMBERSHIP` pour un compte sans périmètre accessible, `FORBIDDEN` pour une entreprise, une boutique ou une permission refusée, le statut lui-même (`PENDING_APPROVAL`…) pour un accès non approuvé. Pas de 401 pour une identité valide nécessitant un onboarding.
 
-`POST /onboarding` reçoit `{name,email,organizationName,country,currency,timezone,storeName,city}` et `Idempotency-Key`. L’identité vient exclusivement de la session (cookie) ; le backend ne doit pas faire confiance à l’email envoyé. Créer atomiquement User VORTEX, organization, store et membership, avec unicité du `sub` et déduplication durable. Une reprise après réponse incertaine conserve la clé. Une identité déjà initialisée retrouve son contexte sans duplication. Aucune transaction commune avec Supabase.
+Sur `ONBOARDING_REQUIRED`, le dashboard (`/app/dashboard`) reste affiché et ouvre un modal bloquant de création d’espace ; `/onboarding` ne sert plus qu’au cas `NO_MEMBERSHIP`. `POST /onboarding` reçoit `{name,organizationName,country,currency,timezone,storeName,city}` (schéma `onboardingInputSchema`, strict : **aucun email**, l’identité vient exclusivement du cookie de session) et l’en-tête `Idempotency-Key` (UUID). Il crée atomiquement User VORTEX, organisation, boutique et membership propriétaire. Une reprise avec la même clé et le même contenu renvoie la même entreprise ; la même clé avec un autre contenu répond `409 IDEMPOTENCY_CONFLICT`. Une identité déjà initialisée retrouve son contexte sans duplication. La réponse est la `UserSession`.
 
-`POST /auth/invitation` conserve `{token}` et retourne `{organization,role}` après validation, sans exposer de données sensibles. `POST /auth/activate` reçoit désormais `{token}` et le cookie de session : vérifier expiration, email de l’identité, état et rattachement autorisé, puis accepter idempotemment. Le token d’invitation ne prouve pas l’identité. Aucun mot de passe envoyé à NestJS.
+`POST /auth/invitation` conserve `{token}` et retourne `{organization,role}` après validation, sans exposer de données sensibles. `POST /auth/activate` reçoit désormais `{token}` et le cookie de session : vérifier expiration, email de l’identité, état et rattachement autorisé, puis accepter idempotemment. Le token d’invitation ne prouve pas l’identité. Aucun mot de passe n’est envoyé au backend métier.
 
-Les endpoints d’identité historiques sont retirés de l’allowlist du proxy et du runtime NestJS ; login/signup/logout/reset/Google passent exclusivement par Better Auth (`/api/auth/*`). L’entreprise retournée par l’inspection d’invitation est un objet `Organization`, affiché via son `name`.
+Les endpoints d’identité historiques sont retirés de l’allowlist du proxy et du backend ; login/signup/logout/reset/Google passent exclusivement par Better Auth (`/api/auth/*`). L’entreprise retournée par l’inspection d’invitation est un objet `Organization`, affiché via son `name`.
 
 ## Commandes métier
 
@@ -127,12 +127,16 @@ Ces ajouts définissent le contrat attendu ; ils ne constituent pas une impléme
 - Les indicateurs commerciaux affectent ventes et retours à leur date réelle. Le revenu exclut la TVA ; le coût est restitué uniquement pour les unités revendables. Un retour d’une vente d’un mois précédent diminue le revenu du mois du retour. Le résultat comptable suit la date des écritures et inclut les autres charges/produits. Les filtres frontend suivent cette chronologie ; les classements TTC sont explicitement libellés.
 
 
-## Livraison Supabase du 5 octobre 2026
+## Historique : livraisons annoncées dans l’ancien dépôt (non reprises)
+
+Les deux sections suivantes viennent de l’ancienne pile (NestJS et Supabase) et ne décrivent pas l’état du backend actuel ; elles restent utiles comme description du comportement attendu des commandes.
+
+### Livraison du 5 octobre 2026
 
 `session`, `workspace`, `onboarding`, `auth/invitation`, `auth/activate`, `auth/accept-invitation` et les commandes équipe sont raccordés dans le backend voisin. Le proxy transmet aussi `Origin` afin de respecter les contrôles de mutation NestJS. Les retours de vente peuvent omettre `lines[].cost` lorsque le lecteur n’a ni `stock.cost.read` ni `analytics.cost_margin_read` ; les calculs frontend gèrent cette absence. Les dates du snapshot sont filtrées en UTC. Les ventes/créances et l’historique comptable nécessaire aux ouvertures sont conservés, sans troncature silencieuse.
 
 Les autres commandes/HTTP métier listés plus haut décrivent toujours le contrat frontend cible : le backend initial n’implémentait que les commandes équipe. Le raccord Auth ne simule pas leur réussite et ne transpose pas les mutations de démonstration en production. Voir les rapports finaux des deux dépôts.
 
-## Livraison métier du 6 octobre 2026
+### Livraison du 6 octobre 2026
 
 Les 30 commandes disposent maintenant de handlers NestJS/PostgreSQL. Workspace retourne une pagination SQL par collection (`page`, `pageSize`, `snapshotVersion`, `hasMore`) ; `api.snapshot` assemble toutes les pages et reprend après conflit. Les agrégats `reporting` couvrent le résultat complet autorisé. `SaleLine.costTotal` conserve le coût entier officiel pour les retours/marges ; il suit les mêmes permissions que `cost`. Les retours intégraux de troc utilisent `tradeReduction`. Les ventes exposent `taxTotal` et `fiscalInvoices[]` (id, statut, returnId, IFU, code DGI, payload QR), sans credentials. Le reçu encode le QR et affiche l’état réel. Les mouvements manuels de caisse acceptent `account`, les transferts `imeis[]`, les trocs `outgoingImei`. La fiscalité est facultative, configurée sur le backend par entreprise.
