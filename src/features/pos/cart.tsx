@@ -100,7 +100,7 @@ export function Cart(props: CartProps) {
         )) : (
           <EmptyState
             className="my-5"
-            icon={<ShoppingBag className="size-5" />}
+            icon={ShoppingBag}
             title="Panier vide"
             description="Ajoutez un produit depuis le catalogue pour commencer la vente."
           />

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ArrowRightLeft, MoreHorizontal, Package, PackagePlus, Plus, SearchX, TriangleAlert, Upload, X } from "lucide-react";
+import { ArrowRightLeft, MoreHorizontal, Package, PackagePlus, Plus, TriangleAlert, Upload } from "lucide-react";
 import { DataTable } from "@/components/data-display/data-table";
 import { DateRangeFilter } from "@/components/data-display/date-range-filter";
 import { EmptyState } from "@/components/data-display/empty-state";
@@ -108,7 +108,7 @@ function StockPage({ path }: { path: string }) {
       </ol>
     </div>
   ) : (
-    <EmptyState icon={<SearchX className="size-5" aria-hidden="true" />} title="Aucun produit ne correspond" description="Aucune référence ne correspond à la recherche ou aux filtres actifs." action={filtered ? <Button variant="outline" onClick={resetFilters}><X /> Effacer les filtres</Button> : undefined} />
+    <EmptyState kind="no-results" title="Aucun produit ne correspond" description="Aucune référence ne correspond à la recherche ou aux filtres actifs." onClearFilters={filtered ? resetFilters : undefined} />
   );
 
   return (

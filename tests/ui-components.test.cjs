@@ -80,3 +80,11 @@ test("D28 : FilterChip et SegmentedControl sont des boutons pressés de 40 px", 
   assert.match(segCss, /height:\s*40px/);
   for (const css of [chipCss, segCss]) assert.match(css, /@media \(pointer: coarse\)[\s\S]*min-height:\s*44px/, "cible tactile 44 px");
 });
+
+test("D29 : EmptyState est typé, sans titre par défaut ni message générique", () => {
+  const tsx = read("src/components/data-display/empty-state.tsx");
+  for (const token of ["data-empty-kind", "Effacer les filtres", "steps", '"first-use"', '"no-results"', '"error"']) assert.ok(tsx.includes(token), `empty-state.tsx sans ${token}`);
+  assert.doesNotMatch(tsx, /title\?:/, "titre obligatoire");
+  assert.match(read("src/components/data-display/data-table.tsx"), /emptyKind/);
+  for (const f of srcFiles()) assert.doesNotMatch(read(f), /créez votre premier élément/i, `${f} : message générique`);
+});

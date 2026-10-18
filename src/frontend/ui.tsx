@@ -83,7 +83,7 @@ export function Alert({
 }
 export function EmptyState({
   title = "Aucun résultat",
-  description = "Essayez de modifier vos filtres ou créez votre premier élément.",
+  description = "Aucune donnée ne correspond à cette vue.",
   action,
 }: {
   title?: string;

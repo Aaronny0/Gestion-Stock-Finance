@@ -351,7 +351,7 @@ export default function POS() {
                 </div>
               ) : (
                 <EmptyState
-                  icon={<ShoppingBag className="size-5" />}
+                  icon={ShoppingBag}
                   title={storeId === "all" ? "Choisissez une boutique" : "Aucun produit disponible"}
                   description={storeId === "all" ? "Le catalogue de caisse dépend du stock de la boutique sélectionnée." : "Aucun article en stock ne correspond à votre recherche et aux filtres actifs."}
                 />

@@ -59,6 +59,8 @@ interface DataTableProps<TData, TValue> {
   emptyTitle?: string;
   emptyDescription?: string;
   emptyContent?: React.ReactNode;
+  /** Force le type d'état vide ; par défaut no-results si une recherche est active, sinon first-use. */
+  emptyKind?: "first-use" | "no-results";
   density?: "default" | "comfortable" | "dense";
   pageSize?: number;
   numberedPagination?: boolean;
@@ -115,6 +117,7 @@ function DataTable<TData, TValue>({
   emptyTitle = "Aucun résultat",
   emptyDescription = "Essayez de modifier vos filtres ou votre recherche.",
   emptyContent,
+  emptyKind,
   density = "default",
   pageSize = 10,
   numberedPagination = false,
@@ -389,9 +392,18 @@ function DataTable<TData, TValue>({
       ) : null}
 
       {!table.getFilteredRowModel().rows.length ? (
-        (emptyContent ?? (
-          <EmptyState title={emptyTitle} description={emptyDescription} />
-        ))
+        (emptyContent ?? (() => {
+          const searching = Boolean(searchValue ?? globalFilter);
+          const kind = emptyKind ?? (searching ? "no-results" : "first-use");
+          return (
+            <EmptyState
+              kind={kind}
+              title={emptyTitle ?? (kind === "no-results" ? "Aucun résultat pour cette recherche" : "Rien à afficher pour le moment")}
+              description={emptyDescription}
+              onClearFilters={searching ? () => (onSearchChange ? onSearchChange("") : setGlobalFilter("")) : undefined}
+            />
+          );
+        })())
       ) : (
         <>
           {mobileRow ? (
