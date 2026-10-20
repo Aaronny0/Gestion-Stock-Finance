@@ -4,15 +4,16 @@ const ts = require('typescript');
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const cache = new Map();
+const contracts = 'node_modules/@vortex/contracts/src';
 /** Loads a TypeScript source in a sandbox. Shared contracts and zod are real; everything else must be mocked. */
 function load(file, mocks = {}, globals = {}) {
   const module = { exports: {} };
   const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX } }).outputText;
   const real = name => {
     if (name === 'zod') return require('zod');
-    if (name === '@/contracts' || name === '../contracts') return shared('src/contracts/index.ts');
+    if (name === '@vortex/contracts') return shared(`${contracts}/index.ts`);
     if (name === './onboarding-gate') return shared('src/frontend/onboarding-gate.ts');
-    if (name.startsWith('./') && file.startsWith('src/contracts/')) return shared(`src/contracts/${name.slice(2)}.ts`);
+    if (name.startsWith('./') && file.startsWith(`${contracts}/`)) return shared(`${contracts}/${name.slice(2)}.ts`);
     return undefined;
   };
   vm.runInNewContext(code, { module, exports: module.exports, require: name => { if (name in mocks) return mocks[name]; const found = real(name); if (found) return found; throw Error(name); }, URL, URLSearchParams, Headers, AbortSignal, TextEncoder, process: { env: {} }, ...globals });

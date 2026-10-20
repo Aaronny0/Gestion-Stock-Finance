@@ -2,14 +2,17 @@
 
 Frontend Next.js / React / TypeScript pour le cahier de réalisation frontend.
 
-**Application complète non prête pour la production : le backend n’implémente que les deux commandes équipe sur les trente attendues.** État vérifié et procédure : [audit final](docs/final-project-audit.md).
+**Application complète non prête pour la production : le backend `vortex-backend` (Elysia sur Bun) n’implémente que les commandes de stock ; ventes, achats, caisse, équipe, etc. restent à faire.** État d’intégration à jour : [docs/frontend-api.md](docs/frontend-api.md) et le README du backend. L’[audit final](docs/final-project-audit.md) du 6 octobre est historique (ancienne pile).
 
 ## Démarrer
 
 ```bash
 pnpm install --frozen-lockfile
+cp -n .env.example .env.local     # valeurs locales prêtes à l'emploi
 pnpm dev
 ```
+
+Prérequis : Node 22+ et pnpm 12 (`corepack enable`). Pour la connexion réelle, lancer d'abord `vortex-backend` en local, sans Docker (`bun run local:setup`, `bun run dev:mail`, `bun run dev` ; voir son README).
 
 - Démonstration interactive : [http://localhost:3000/demo](http://localhost:3000/demo)
 - Connexion réelle : [http://localhost:3000/login](http://localhost:3000/login)
@@ -24,7 +27,7 @@ Créer d’abord le fichier local d’environnement :
 cp -n .env.example .env.local
 ```
 
-Configurer côté serveur `FRONTEND_API_URL` (API métier, `…/api/v1/`) et `AUTH_API_URL` (backend NestJS qui héberge Better Auth, défaut `http://vortex-api:3001`) dans `.env.local`, ainsi que `APP_URL` (identique à `APP_URL` du backend). Aucun secret côté Next.js. Sans service configuré, les routes réelles affichent un état explicite. Les pages passent par l’API métier VORTEX.
+Configurer côté serveur `FRONTEND_API_URL` (API métier, `…/api/v1/`) et `AUTH_API_URL` (backend Elysia/Bun `vortex-backend` qui héberge Better Auth, défaut `http://vortex-api:3001`) dans `.env.local`, ainsi que `APP_URL` (identique à `APP_URL` du backend). Aucun secret côté Next.js. Sans service configuré, les routes réelles affichent un état explicite. Les pages passent par l’API métier VORTEX.
 
 L’authentification est assurée par Better Auth, hébergé dans `vortex-backend` sous `/api/auth/*`. Le navigateur ne parle qu’à son propre domaine : `src/app/api/auth/[...all]/route.ts` relaie vers le backend (cookies `vortex.*` transmis tels quels, `/api/auth/admin` et `/api/auth/email-otp/*` refusés). Le client est `src/lib/auth/client.ts` (`better-auth/react`).
 

@@ -13,7 +13,7 @@ La demande utilisateur du 9 octobre, avec la capture de Sidebar B, remplace le p
 
 Les labels clients utilisent le champ métier `label`. Les totaux viennent de `salePosition`, les paiements des données workspace, la caisse du contexte courant et la marge de la permission `analytics.cost_margin_read`. Les montants ISO des nouveaux composants conservent la conversion des unités mineures. Les reçus fiscaux, QR, TVA et retours partiels existants restent disponibles.
 
-Le site public et les handlers d’authentification/API/Supabase ne sont pas refondus par ce travail. Le thème du shell couvre les autres pages métier sans inventer une maquette spécifique qui n’existe pas dans les sources.
+Le site public et les handlers d’authentification/API ne sont pas refondus par ce travail. Le thème du shell couvre les autres pages métier sans inventer une maquette spécifique qui n’existe pas dans les sources.
 
 ## Vérification
 
@@ -32,6 +32,6 @@ Le site public et les handlers d’authentification/API/Supabase ne sont pas ref
 - Formulaires responsive : 53 contrôles et 45 vues complémentaires, dont 17 formulaires sur trois formats ; aucun débordement de dialogue ni exception navigateur.
 - Captures locales : `output/claude-integration`, `output/dashboard-design` et `output/frontend-qa` (preuves de validation, non versionnées).
 
-Les tests navigateur utilisent une instance Auth et des données API isolées. Aucune mutation de production, invitation ou transaction réelle n’est utilisée pour valider le rendu. Les parcours Supabase et métier conservent leurs intégrations existantes ; une session de production et ses effets externes ne sont pas certifiés par ces fixtures. Les budgets de performance et Lighthouse ne sont pas mesurés dans cette validation.
+Les tests navigateur utilisent une instance Auth et des données API isolées. Aucune mutation de production, invitation ou transaction réelle n’est utilisée pour valider le rendu. Les parcours d’authentification et métier conservent leurs intégrations existantes ; une session de production et ses effets externes ne sont pas certifiés par ces fixtures. Les budgets de performance et Lighthouse ne sont pas mesurés dans cette validation.
 
 Le détail de vente conserve les formulaires métier existants dans son panneau : leur focus, fermeture au clavier et protection des brouillons restent actifs. La matrice complète a également servi à corriger deux débordements causés par le rail élargi à 1024 px (actions de caisse et lien de sécurité), uniquement dans les styles communs. Les modifications étrangères déjà présentes dans le checkout ne font pas partie du commit de cette intégration.

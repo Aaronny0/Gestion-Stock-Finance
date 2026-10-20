@@ -1,3 +1,5 @@
+> **Historique** : ce document décrit l’ancienne pile (NestJS et Supabase) et des livraisons non reprises. Le backend actuel est `vortex-backend` (Elysia sur Bun, Better Auth, PostgreSQL) ; son état est dans le README du backend et dans [frontend-api.md](frontend-api.md). Ne pas s’y fier pour l’état réel.
+
 # Livraison métier — 6 octobre 2026
 
 Ce document remplace les constats « seules deux commandes équipe sont implémentées » des rapports précédents. L’architecture existante est conservée. Le moteur de démonstration ne constitue pas la preuve d’implémentation serveur.

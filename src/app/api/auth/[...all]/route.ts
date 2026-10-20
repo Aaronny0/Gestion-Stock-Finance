@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Transport only: Better Auth runs in the NestJS backend under /api/auth/*.
+// Transport only: Better Auth runs in the Elysia backend under /api/auth/*.
 // The browser talks to this origin; session cookies come back untouched (Domain included).
 const forwardedRequestHeaders = ["content-type", "cookie", "origin", "user-agent"];
 

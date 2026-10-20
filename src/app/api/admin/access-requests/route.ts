@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Transport only: NestJS owns authorization, decisions and all privileged keys.
+// Transport only: the backend owns authorization, decisions and all privileged keys.
 async function forward(req: NextRequest) {
   if (req.method === "POST" && req.headers.get("origin") !== (process.env.APP_URL || req.nextUrl.origin))
     return NextResponse.json({ error: "Origine refusée." }, { status: 403 });

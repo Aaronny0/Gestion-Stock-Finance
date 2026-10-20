@@ -28,7 +28,7 @@ function call(path: string, cookie: string) {
     throw new AccessFailure(503, "ACCESS_UNAVAILABLE");
   });
 }
-/** The NestJS backend owns the Better Auth session and the approval status; Next.js only relays the cookie. */
+/** The Elysia backend owns the Better Auth session and the approval status; Next.js only relays the cookie. */
 export async function resolveAccess(req: NextRequest): Promise<AccessDecision> {
   const cookie = req.headers.get("cookie");
   if (!cookie) throw new AccessFailure(401, "UNAUTHENTICATED");

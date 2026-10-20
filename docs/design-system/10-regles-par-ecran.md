@@ -29,7 +29,7 @@ Analyses/Trésorerie reprennent anatomie dashboard, pas un nouveau langage graph
 
 | Route | Contenu et interactions | Règle réelle à préserver |
 | --- | --- | --- |
-| /login | Email/mot de passe, œil, erreur, chargement, Google si activé, oublié, inscription, démo | Session Supabase + décision accès, aucune permission attribuée par UI |
+| /login | Email/mot de passe, œil, erreur, chargement, Google si activé, oublié, inscription, démo | Session Better Auth + décision accès, aucune permission attribuée par UI |
 | /signup | Compte → Entreprise → Boutique → Récapitulatif ; validations ; Retour conservant saisie | Envoyer ma demande, brouillon sans mot de passe ; création espace après approbation |
 | /forgot-password | Email, envoi, attente/succès/erreur, retour connexion | Message neutre sur existence compte ; resetPasswordForEmail |
 | /reset-password | Lien valide/expiré, mot de passe+confirmation, robustesse, succès | Handler serveur vérifie lien ; updateUser réel, déconnexion après changement |

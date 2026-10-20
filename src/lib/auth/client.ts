@@ -2,7 +2,7 @@
 import { createAuthClient } from "better-auth/react";
 import { inferAdditionalFields } from "better-auth/client/plugins";
 
-/** Fields added to the Better Auth user by the NestJS backend (accessStatus is read-only there). */
+/** Fields added to the Better Auth user by the Elysia backend (accessStatus is read-only there). */
 export type AuthUser = {
   id: string;
   email: string;

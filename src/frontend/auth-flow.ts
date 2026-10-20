@@ -1,6 +1,6 @@
 import { request } from "./api";
 import type { AccessDecision } from "@/lib/access-policy";
-import { accessResponseSchema } from "@/contracts";
+import { accessResponseSchema } from "@vortex/contracts";
 export const draftKey = "vortex:onboarding";
 export function saveOnboarding(values: Record<string, string>) {
   const fields = ["name", "email", "organizationName", "country", "currency", "timezone", "storeName", "city"];

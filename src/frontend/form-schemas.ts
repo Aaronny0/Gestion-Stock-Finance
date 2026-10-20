@@ -5,7 +5,7 @@ import {
   onboardingFieldsSchema,
   resetPasswordFormSchema,
   signupFormSchema,
-} from "../contracts";
+} from "@vortex/contracts";
 
 export type AuthMode = "login" | "signup" | "forgot" | "reset" | "verify" | "invite";
 

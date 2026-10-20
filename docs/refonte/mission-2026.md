@@ -1,3 +1,5 @@
+> **Historique** : ce document décrit l’ancienne pile (NestJS et Supabase) et des livraisons non reprises. Le backend actuel est `vortex-backend` (Elysia sur Bun, Better Auth, PostgreSQL) ; son état est dans le README du backend et dans [frontend-api.md](../frontend-api.md). Ne pas s’y fier pour l’état réel.
+
 # Refonte produit VORTEX
 
 ## Sources et inventaire

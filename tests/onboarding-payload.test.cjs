@@ -9,7 +9,7 @@ require.extensions[".ts"] = (module, filename) => {
   module._compile(out, filename);
 };
 const { buildOnboardingBody } = require("../src/frontend/form-schemas.ts");
-const { onboardingInputSchema } = require("../src/contracts/index.ts");
+const { onboardingInputSchema } = require("@vortex/contracts");
 
 const draft = { name: " Awa Koffi ", email: "awa@example.com", organizationName: "Awa Mobile", country: "Bénin", currency: "XOF", timezone: "Africa/Porto-Novo", storeName: "Boutique", city: "Cotonou", password: "ne-doit-pas-partir", newAccount: "yes" };
 
